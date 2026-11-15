@@ -219,10 +219,9 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 console.log("Logged in user:", data.user);
 
 // Redirect to Dashboard
-setTimeout(() => {
-    window.location.href = "dashboard.html";
-}, 1000);
-    } catch (error) {
+window.location.replace(
+    new URL("./dashboard.html", window.location.href).href
+);    } catch (error) {
 
         message.style.color = "#dc2626";
         message.innerText = error.message;
