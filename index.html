@@ -216,8 +216,12 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         button.innerText = "Login Successful";
 
-        console.log("Logged in user:", data.user);
+console.log("Logged in user:", data.user);
 
+// Redirect to Dashboard
+setTimeout(() => {
+    window.location.href = "dashboard.html";
+}, 1000);
     } catch (error) {
 
         message.style.color = "#dc2626";
