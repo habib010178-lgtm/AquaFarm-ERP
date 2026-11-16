@@ -696,17 +696,36 @@ async function initializeSales() {
             return;
         }
 
-        const { data: farms, error: farmError } =
-            await supabaseClient
-                .from("farms")
-                .select("id, farm_code, farm_name, status")
-                .order("created_at", { ascending: true });
+        // Load only farms where the logged-in user is an active member
 
-        if (farmError) throw farmError;
+const userId = data.session.user.id;
 
-        farmList = (farms || []).filter(
-            farm => farm.status === "active"
-        );
+const { data: memberships, error: memberError } =
+    await supabaseClient
+        .from("farm_members")
+        .select("farm_id")
+        .eq("user_id", userId)
+        .eq("status", "active");
+
+if (memberError) throw memberError;
+
+const farmIds = (memberships || []).map(m => m.farm_id);
+
+if (farmIds.length === 0) {
+    throw new Error("No active farm membership found.");
+}
+
+const { data: farms, error: farmError } =
+    await supabaseClient
+        .from("farms")
+        .select("id, farm_code, farm_name, status")
+        .in("id", farmIds)
+        .eq("status", "active")
+        .order("created_at", { ascending: true });
+
+if (farmError) throw farmError;
+
+farmList = farms || [];
 
         if (farmList.length === 0) {
             throw new Error("No active farm found.");
