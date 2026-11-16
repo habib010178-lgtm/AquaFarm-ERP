@@ -683,6 +683,75 @@ if (farmSelect) {
         message.className = "error";
     }
 }
+
+// ===================================
+// INVITE NEW FARM OWNER
+// ===================================
+document.getElementById("inviteOwnerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById("inviteOwnerBtn");
+    const msg = document.getElementById("inviteMessage");
+
+    const farm_id = document.getElementById("inviteFarmId").value;
+    const owner_name = document.getElementById("ownerName").value.trim();
+    const owner_email = document.getElementById("ownerEmail").value.trim().toLowerCase();
+    const owner_phone = document.getElementById("ownerPhone").value.trim();
+
+    if (!farm_id || !owner_name || !owner_email) {
+        msg.textContent = "Please fill all required fields.";
+        msg.className = "error";
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Sending Invitation...";
+    msg.textContent = "";
+
+    try {
+        const { data, error } = await supabaseClient.functions.invoke(
+            "invite-farm-owner",
+            {
+                body: {
+                    farm_id,
+                    owner_name,
+                    owner_email,
+                    owner_phone
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || !data.success) {
+            throw new Error(data?.error || "Invitation failed.");
+        }
+
+        msg.textContent =
+            "Invitation sent successfully to " + owner_email +
+            ". The owner must check their email and set a password.";
+
+        msg.className = "success";
+
+        document.getElementById("ownerName").value = "";
+        document.getElementById("ownerEmail").value = "";
+        document.getElementById("ownerPhone").value = "";
+        document.getElementById("inviteFarmId").value = "";
+
+    } catch (error) {
+        console.error("Invitation Error:", error);
+
+        msg.textContent =
+            "Invitation Error: " + (error.message || "Unknown error");
+
+        msg.className = "error";
+
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Send Invitation";
+    }
+});
+    
 // ===================================
 // LOAD FARM OWNERS
 // ===================================
