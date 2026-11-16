@@ -716,6 +716,9 @@ let salesList=[];
 let attachments=[];
 let savingSale=false;
 let previewUrls=[];
+// Current user information
+let currentUserId=null;
+let currentFarmRole=null;
 
 /* ================= INITIALIZATION ================= */
 
@@ -732,10 +735,11 @@ async function initializeSales(){
   }
 
   const userId=data.session.user.id;
+  currentUserId=userId;
 
   const {data:memberships,error:memberError}=await supabaseClient
    .from("farm_members")
-   .select("farm_id")
+   .select("farm_id,role")
    .eq("user_id",userId)
    .eq("status","active");
 
@@ -766,6 +770,10 @@ async function initializeSales(){
 
   currentFarm=farmList[0];
 
+  currentFarmRole=(
+ memberships.find(m=>m.farm_id===currentFarm.id)?.role||""
+).toLowerCase();
+
   document.getElementById("saleDate").value=localDateString();
 
   addItem();
@@ -790,11 +798,26 @@ async function changeFarm(){
 
  if(!next)return;
 
- currentFarm=next;
+currentFarm=next;
 
- resetForm();
+const {data:sessionData}=await supabaseClient.auth.getSession();
+currentUserId=sessionData?.session?.user?.id||null;
 
- await loadSalesData();
+const {data:membership,error:membershipError}=await supabaseClient
+ .from("farm_members")
+ .select("role")
+ .eq("farm_id",currentFarm.id)
+ .eq("user_id",currentUserId)
+ .eq("status","active")
+ .maybeSingle();
+
+if(membershipError)throw membershipError;
+
+currentFarmRole=(membership?.role||"").toLowerCase();
+
+resetForm();
+
+await loadSalesData();
 
 }
 
