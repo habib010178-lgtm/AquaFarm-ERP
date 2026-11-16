@@ -335,6 +335,42 @@ th {
     <!-- FARM MANAGEMENT -->
     <div class="section" id="farms">
         <div class="section-header">
+
+            <!-- INVITE FARM OWNER -->
+<div style="background:#f0fdf4;padding:20px;border-radius:10px;margin-bottom:22px;">
+
+    <h3 style="margin-bottom:15px;">✉️ Invite New Farm Owner</h3>
+
+    <form id="inviteOwnerForm">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+
+            <select id="inviteFarmId" required
+                style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:6px;">
+                <option value="">Select Farm</option>
+            </select>
+
+            <input id="ownerName" type="text"
+                placeholder="Owner Full Name" required>
+
+            <input id="ownerEmail" type="email"
+                placeholder="Owner Email Address" required>
+
+            <input id="ownerPhone" type="text"
+                placeholder="Owner Phone Number">
+
+        </div>
+
+        <button type="submit" class="refresh"
+            id="inviteOwnerBtn" style="margin-top:15px;">
+            Send Invitation
+        </button>
+
+    </form>
+
+    <p id="inviteMessage"></p>
+
+</div>
             <h3>Farm Management</h3>
             <button class="refresh" onclick="loadFarms()">
                 ↻ Refresh Farms
@@ -576,6 +612,25 @@ async function loadFarms() {
             .order("created_at", { ascending: false });
         if (error) throw error;
         const farmList = farms || [];
+// Populate Farm Selection for Owner Invitation
+const farmSelect = document.getElementById("inviteFarmId");
+
+if (farmSelect) {
+    const selectedFarmId = farmSelect.value;
+
+    farmSelect.innerHTML =
+        '<option value="">Select Farm</option>' +
+        farmList.map(farm =>
+            `<option value="${escapeHTML(farm.id)}">
+                ${escapeHTML(farm.farm_code)} - ${escapeHTML(farm.farm_name)}
+            </option>`
+        ).join("");
+
+    if (selectedFarmId && farmList.some(farm => farm.id === selectedFarmId)) {
+        farmSelect.value = selectedFarmId;
+    }
+}
+        
         const active = farmList.filter(
             farm => farm.status === "active"
         ).length;
