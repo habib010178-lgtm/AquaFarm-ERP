@@ -109,6 +109,132 @@ td input,td select{min-width:95px;padding:9px}
  .layout{display:block}
  .content{padding:0}
 }
+
+ /* ===== AQUAFARM SALES PAGE DESIGN UPDATE ===== */
+
+body {
+background: #eef3f8;
+}
+
+/* Sticky Top Header */
+.topbar {
+position: sticky !important;
+top: 0;
+z-index: 1000;
+display: grid !important;
+grid-template-columns: 1fr auto 1fr !important;
+align-items: center;
+background: #142d4e !important;
+padding: 13px 25px !important;
+border-bottom: 3px solid #14b8a6;
+box-shadow: 0 4px 14px rgba(0,0,0,0.20);
+}
+
+/* Centered Page Title */
+.topbar h2 {
+grid-column: 2;
+justify-self: center;
+color: #ffffff !important;
+font-size: 21px !important;
+font-weight: 800;
+letter-spacing: 1px;
+border: 2px solid #5eead4;
+border-radius: 9px;
+padding: 9px 28px;
+margin: 0;
+background: #1e416b;
+}
+
+/* Logout Button */
+.topbar .logout {
+grid-column: 3;
+justify-self: end;
+background: #dc3545;
+color: #ffffff;
+border: none;
+border-radius: 7px;
+padding: 10px 19px;
+font-weight: 700;
+}
+
+/* Sales Overview Section */
+.section-title {
+background: #142d4e !important;
+color: #ffffff !important;
+padding: 13px 18px !important;
+border-radius: 8px;
+border: none !important;
+border-left: 5px solid #14b8a6 !important;
+margin-bottom: 18px;
+font-weight: 800;
+}
+
+/* Dashboard Summary Cards */
+.card {
+color: #ffffff !important;
+border: none !important;
+border-radius: 12px !important;
+padding: 22px !important;
+box-shadow: 0 5px 15px rgba(0,0,0,0.13);
+transition: transform 0.2s ease;
+}
+
+.card:hover {
+transform: translateY(-4px);
+}
+
+.cards .card:nth-child(1) {
+background: linear-gradient(135deg, #142d4e, #2563a6) !important;
+}
+
+.cards .card:nth-child(2) {
+background: linear-gradient(135deg, #087f5b, #20a779) !important;
+}
+
+.cards .card:nth-child(3) {
+background: linear-gradient(135deg, #b45309, #f59e0b) !important;
+}
+
+.cards .card:nth-child(4) {
+background: linear-gradient(135deg, #6b21a8, #9333ea) !important;
+}
+
+.card h3,
+.card h2,
+.card p,
+.card span,
+.card strong {
+color: #ffffff !important;
+}
+
+/* Form and Table Section */
+.section,
+.panel,
+.form-section {
+border-radius: 10px;
+}
+
+/* Mobile Header Adjustment */
+@media (max-width: 600px) {
+.topbar {
+padding: 10px !important;
+grid-template-columns: 1fr auto !important;
+}
+
+.topbar h2 {
+    grid-column: 1;
+    justify-self: start;
+    font-size: 15px !important;
+    padding: 8px 10px;
+}
+.topbar .logout {
+    grid-column: 2;
+    font-size: 12px;
+    padding: 8px 12px;
+}
+
+}
+ 
 </style>
 </head>
 
