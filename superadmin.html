@@ -421,6 +421,7 @@ th {
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Status</th>
+                        <th>Actions</th>
                         <th>Created At</th>
                     </tr>
                 </thead>
@@ -608,7 +609,7 @@ async function loadFarms() {
     try {
         const { data: farms, error } = await supabaseClient
             .from("farms")
-            .select("id, farm_code, farm_name, email, phone, status, created_at")
+           .select("id, farm_code, farm_name, email, phone, address, status, created_at")
             .order("created_at", { ascending: false });
         if (error) throw error;
         const farmList = farms || [];
@@ -645,7 +646,7 @@ if (farmSelect) {
             inactive;
         if (farmList.length === 0) {
             farmTable.innerHTML =
-                '<tr><td colspan="6" class="empty">No farms found.</td></tr>';
+                '<tr><td colspan="7" class="empty">No farms found.</td></tr>';
             return;
         }
         farmTable.innerHTML = farmList.map(farm => {
@@ -659,6 +660,20 @@ if (farmSelect) {
             return `
                 <tr>
                     <td>${escapeHTML(farm.farm_code)}</td>
+                    <td>
+    <button class="refresh"
+        onclick="editFarm('${escapeHTML(farm.id)}')">
+        Edit
+    </button>
+
+    <button class="refresh"
+        onclick="toggleFarmStatus(
+            '${escapeHTML(farm.id)}',
+            '${escapeHTML(farm.status)}'
+        )">
+        ${farm.status === "active" ? "Deactivate" : "Activate"}
+    </button>
+</td>
                     <td>${escapeHTML(farm.farm_name)}</td>
                     <td>${escapeHTML(farm.email || "-")}</td>
                     <td>${escapeHTML(farm.phone || "-")}</td>
@@ -846,10 +861,108 @@ async function logout() {
     }
     window.location.replace("index.html");
 }
+
+    
 // ===================================
 // START DASHBOARD
 // ===================================
-async function initializeDashboard() {
+
+    // Edit Farm Information
+async function editFarm(farmId) {
+    try {
+        const { data: farm, error } = await supabaseClient
+            .from("farms")
+            .select("id, farm_code, farm_name, email, phone, address, status")
+            .eq("id", farmId)
+            .single();
+
+        if (error) throw error;
+
+        const farmCode = prompt("Farm Code:", farm.farm_code);
+        if (farmCode === null) return;
+
+        const farmName = prompt("Farm Name:", farm.farm_name);
+        if (farmName === null) return;
+
+        const email = prompt("Email:", farm.email || "");
+        if (email === null) return;
+
+        const phone = prompt("Phone:", farm.phone || "");
+        if (phone === null) return;
+
+        const address = prompt("Address:", farm.address || "");
+        if (address === null) return;
+
+        const { error: updateError } = await supabaseClient.rpc(
+            "platform_update_farm",
+            {
+                p_farm_id: farmId,
+                p_farm_code: farmCode,
+                p_farm_name: farmName,
+                p_email: email,
+                p_phone: phone,
+                p_address: address,
+                p_status: farm.status
+            }
+        );
+
+        if (updateError) throw updateError;
+
+        alert("Farm information updated successfully!");
+        await loadFarms();
+
+    } catch (error) {
+        alert("Unable to update farm: " + error.message);
+    }
+}
+
+
+// Activate / Deactivate Farm
+async function toggleFarmStatus(farmId, currentStatus) {
+    const newStatus = currentStatus === "active"
+        ? "inactive"
+        : "active";
+
+    const action = newStatus === "active"
+        ? "Activate"
+        : "Deactivate";
+
+    if (!confirm("Are you sure you want to " + action + " this farm?")) {
+        return;
+    }
+
+    try {
+        const { data: farm, error } = await supabaseClient
+            .from("farms")
+            .select("farm_code, farm_name, email, phone, address")
+            .eq("id", farmId)
+            .single();
+
+        if (error) throw error;
+
+        const { error: updateError } = await supabaseClient.rpc(
+            "platform_update_farm",
+            {
+                p_farm_id: farmId,
+                p_farm_code: farm.farm_code,
+                p_farm_name: farm.farm_name,
+                p_email: farm.email,
+                p_phone: farm.phone,
+                p_address: farm.address,
+                p_status: newStatus
+            }
+        );
+
+        if (updateError) throw updateError;
+
+        alert("Farm status changed to " + newStatus + ".");
+        await loadFarms();
+
+    } catch (error) {
+        alert("Unable to change farm status: " + error.message);
+    }
+}
+    async function initializeDashboard() {
     try {
         const isAdmin = await checkPlatformAdmin();
         if (!isAdmin) return;
