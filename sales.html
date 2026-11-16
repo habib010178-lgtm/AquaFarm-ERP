@@ -3,1669 +3,1233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>AquaFarm ERP - Sales Management</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+:root{
+ --navy:#142d4e;--navy2:#1e416b;--teal:#0d9488;
+ --blue:#2563eb;--bg:#f1f5f9;--white:#fff;
+ --text:#1e293b;--muted:#64748b;--border:#dbe3ed;
+ --green:#16a34a;--orange:#ea580c;--red:#dc2626;
 }
-
-body {
-    background: #f0fdf4;
-    color: #1e293b;
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:var(--bg);color:var(--text)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:255px;flex-shrink:0;background:var(--navy);color:#fff;padding:25px 15px}
+.brand{text-align:center;padding-bottom:24px;border-bottom:1px solid #36516f}
+.brand .icon{font-size:42px}
+.brand h2{color:#5eead4;margin-top:8px;font-size:23px}
+.brand p{font-size:11px;margin-top:6px;color:#cbd5e1}
+.menu{margin-top:24px}
+.menu a{display:block;color:#dbeafe;padding:12px;margin-bottom:5px;text-decoration:none;border-radius:8px;font-size:14px}
+.menu a:hover,.menu a.active{background:var(--teal);color:#fff}
+.main{flex:1;min-width:0}
+.topbar{background:#fff;padding:19px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px #0f172a0f}
+.topbar h2{color:var(--navy);font-size:22px}
+.logout{background:var(--red);color:#fff;border:0;padding:11px 19px;border-radius:8px;font-weight:bold;cursor:pointer}
+.content{padding:26px;max-width:1600px;margin:auto}
+.page-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.page-title{color:var(--navy);font-size:26px}
+.page-subtitle{color:var(--muted);font-size:14px;margin-top:6px}
+.farm-select{max-width:390px;margin-bottom:20px;background:#fff;padding:16px;border-radius:12px;border:1px solid var(--border)}
+.farm-select label,.field label{display:block;font-weight:bold;margin-bottom:8px;color:#334155;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:#fff;padding:20px;border-radius:13px;box-shadow:0 3px 12px #0f172a0d;border-top:4px solid var(--blue)}
+.card:nth-child(2){border-top-color:var(--teal)}
+.card:nth-child(3){border-top-color:var(--green)}
+.card:nth-child(4){border-top-color:var(--orange)}
+.label{color:var(--muted);font-size:14px;font-weight:bold}
+.number{color:var(--navy);font-size:25px;font-weight:bold;margin-top:12px}
+.section{background:#fff;padding:24px;border-radius:13px;margin-top:22px;box-shadow:0 3px 12px #0f172a0a;border:1px solid #e8edf4}
+.section-title{color:var(--navy);font-size:19px;margin-bottom:18px;padding-bottom:13px;border-bottom:1px solid var(--border)}
+.subheading{color:var(--navy2);font-size:16px;margin:24px 0 14px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.field{min-width:0}
+input,select,textarea{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px #0d94881a}
+textarea{resize:vertical;min-height:85px}
+button{cursor:pointer}
+.btn{border:0;padding:11px 16px;border-radius:8px;font-size:14px;font-weight:bold;transition:.15s}
+.btn:hover{opacity:.92;transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--navy2);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-secondary{background:#e2e8f0;color:#334155}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+.btn-small{padding:7px 10px;font-size:12px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:middle}
+th{background:#eaf2fa;color:var(--navy);font-size:13px;white-space:nowrap}
+td input,td select{min-width:95px;padding:9px}
+.summary{max-width:410px;margin:20px 0 0 auto;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid var(--border)}
+.summary-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.summary-row.total{color:var(--navy);font-weight:bold;font-size:19px}
+.summary input{max-width:155px;text-align:right}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}
+.upload-box{border:2px dashed #94a3b8;border-radius:11px;padding:22px;background:#f8fafc;text-align:center}
+.upload-box p{color:var(--muted);font-size:13px;margin:8px 0 13px;line-height:1.5}
+.upload-box input{max-width:460px;margin:auto}
+.file-list{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;text-align:left}
+.file-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px;font-size:12px;overflow-wrap:anywhere}
+.file-item img{width:100%;height:100px;object-fit:contain;background:#f1f5f9;border-radius:5px;margin-bottom:6px}
+.message{margin-top:15px;padding:12px;border-radius:8px;display:none;font-size:14px;line-height:1.5}
+.message.success{display:block;background:#dcfce7;color:#166534}
+.message.error{display:block;background:#fee2e2;color:#991b1b}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold;text-transform:capitalize}
+.status.posted{background:#dcfce7;color:#166534}
+.status.draft{background:#fef3c7;color:#92400e}
+.status.cancelled{background:#fee2e2;color:#991b1b}
+.empty{padding:18px;text-align:center;color:var(--muted)}
+@media(max-width:1100px){
+ .cards{grid-template-columns:repeat(2,1fr)}
+ .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
-.layout {
-    display: flex;
-    min-height: 100vh;
+@media(max-width:650px){
+ .layout{display:block}
+ .sidebar{width:100%;padding:15px}
+ .brand{padding-bottom:14px}
+ .menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:14px}
+ .menu a{padding:10px;font-size:12px;margin:0}
+ .topbar{padding:14px}
+ .topbar h2{font-size:18px}
+ .content{padding:13px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .card{padding:14px}
+ .number{font-size:19px}
+ .label{font-size:12px}
+ .form-grid{grid-template-columns:1fr}
+ .section{padding:15px}
+ .page-title{font-size:22px}
+ .summary{max-width:100%}
 }
-
-.sidebar {
-    width: 250px;
-    background: #064e3b;
-    color: white;
-    padding: 25px 15px;
-    flex-shrink: 0;
-}
-
-.brand {
-    text-align: center;
-    padding-bottom: 25px;
-    border-bottom: 1px solid #166534;
-}
-
-.brand .icon {
-    font-size: 38px;
-}
-
-.brand h2 {
-    color: #6ee7b7;
-    margin-top: 8px;
-}
-
-.brand p {
-    font-size: 11px;
-    margin-top: 5px;
-    color: #d1fae5;
-}
-
-.menu {
-    margin-top: 25px;
-}
-
-.menu a {
-    display: block;
-    color: #d1fae5;
-    padding: 13px;
-    margin-bottom: 5px;
-    text-decoration: none;
-    border-radius: 7px;
-    font-size: 14px;
-}
-
-.menu a:hover,
-.menu a.active {
-    background: #059669;
-    color: white;
-}
-
-.main {
-    flex: 1;
-    min-width: 0;
-}
-
-.topbar {
-    background: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,.05);
-}
-
-.topbar h2 {
-    color: #065f46;
-    font-size: 21px;
-}
-
-.logout {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 7px;
-    cursor: pointer;
-}
-
-.content {
-    padding: 25px;
-}
-
-.page-title {
-    color: #065f46;
-    margin-bottom: 20px;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 15px;
-}
-
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.05);
-    border-left: 4px solid #059669;
-}
-
-.card .label {
-    color: #64748b;
-    font-size: 13px;
-}
-
-.card .number {
-    color: #047857;
-    font-size: 25px;
-    font-weight: bold;
-    margin-top: 12px;
-}
-
-.section {
-    background: white;
-    padding: 22px;
-    border-radius: 12px;
-    margin-top: 22px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.04);
-}
-
-.section h3 {
-    color: #065f46;
-    margin-bottom: 18px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 15px;
-}
-
-.field label {
-    display: block;
-    font-size: 13px;
-    font-weight: bold;
-    margin-bottom: 7px;
-    color: #475569;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 11px;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    font-size: 14px;
-    background: white;
-}
-
-textarea {
-    resize: vertical;
-    min-height: 65px;
-}
-
-button {
-    cursor: pointer;
-}
-
-.btn {
-    border: none;
-    padding: 11px 17px;
-    border-radius: 7px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.btn-primary {
-    background: #059669;
-    color: white;
-}
-
-.btn-secondary {
-    background: #e2e8f0;
-    color: #334155;
-}
-
-.btn-danger {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.btn:hover {
-    opacity: .9;
-}
-
-.table-wrap {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 650px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 13px;
-}
-
-th {
-    background: #ecfdf5;
-    color: #065f46;
-}
-
-.item-input {
-    min-width: 100px;
-}
-
-.summary {
-    max-width: 350px;
-    margin-left: auto;
-    margin-top: 20px;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 9px 0;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.summary-row.total {
-    color: #047857;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.summary input {
-    max-width: 150px;
-    text-align: right;
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.message {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 7px;
-    display: none;
-    font-size: 14px;
-}
-
-.success {
-    display: block;
-    background: #dcfce7;
-    color: #166534;
-}
-
-.error {
-    display: block;
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.hidden {
-    display: none;
-}
-
-.farm-select {
-    max-width: 350px;
-    margin-bottom: 20px;
-}
-
-@media(max-width:1000px) {
-    .cards {
-        grid-template-columns: repeat(2,1fr);
-    }
-
-    .form-grid {
-        grid-template-columns: repeat(2,1fr);
-    }
-}
-
-@media(max-width:600px) {
-    .layout {
-        display: block;
-    }
-
-    .sidebar {
-        width: 100%;
-    }
-
-    .menu {
-        display: grid;
-        grid-template-columns: repeat(2,1fr);
-        gap: 5px;
-    }
-
-    .topbar {
-        padding: 15px;
-    }
-
-    .content {
-        padding: 15px;
-    }
-
-    .cards {
-        grid-template-columns: repeat(2,1fr);
-        gap: 10px;
-    }
-
-    .card {
-        padding: 14px;
-    }
-
-    .card .number {
-        font-size: 21px;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .section {
-        padding: 15px;
-    }
-}
-
-@media print {
-    .sidebar,
-    .topbar,
-    .no-print {
-        display: none !important;
-    }
-
-    .layout {
-        display: block;
-    }
-
-    .content {
-        padding: 0;
-    }
+@media print{
+ .sidebar,.topbar,.no-print{display:none!important}
+ .layout{display:block}
+ .content{padding:0}
 }
 </style>
 </head>
 
 <body>
-
 <div class="layout">
 
-    <aside class="sidebar">
-
-        <div class="brand">
-            <div class="icon">🐟</div>
-            <h2>AquaFarm ERP</h2>
-            <p>Fish Farming Management System</p>
-        </div>
-
-        <nav class="menu">
-            <a href="dashboard.html">🏠 Dashboard</a>
-            <a href="farmmanagement.html">🏞 Farm Management</a>
-            <a>💧 Pond Management</a>
-            <a>🐟 Fish Batch Management</a>
-            <a>📈 Production & Growth</a>
-            <a>🌾 Feed Management</a>
-            <a>📦 Inventory</a>
-            <a>🛒 Purchase Management</a>
-            <a class="active" href="sales.html">💰 Sales Management</a>
-            <a>💳 Income & Expense</a>
-            <a>📚 Accounting</a>
-            <a>📊 Reports</a>
-            <a>⚙️ Settings</a>
-        </nav>
-
-    </aside>
-
-    <main class="main">
-
-        <header class="topbar">
-            <h2>Sales Management</h2>
-            <button class="logout" onclick="logout()">Logout</button>
-        </header>
-
-        <div class="content">
-
-            <h2 class="page-title">Sales Overview</h2>
-
-            <div class="farm-select">
-                <label><b>Select Farm</b></label>
-                <select id="farmSelect" onchange="changeFarm()"></select>
-            </div>
-
-            <div class="cards">
-
-                <div class="card">
-                    <div class="label">Total Invoices</div>
-                    <div class="number" id="totalInvoices">0</div>
-                </div>
-
-                <div class="card">
-                    <div class="label">Total Sales</div>
-                    <div class="number" id="totalSales">৳0</div>
-                </div>
-
-                <div class="card">
-                    <div class="label">Total Received</div>
-                    <div class="number" id="totalReceived">৳0</div>
-                </div>
-
-                <div class="card">
-                    <div class="label">Total Due</div>
-                    <div class="number" id="totalDue">৳0</div>
-                </div>
-
-            </div>
-
-            <!-- NEW SALE -->
-
-            <div class="section">
-
-                <h3>➕ Create New Sale</h3>
-
-                <div class="form-grid">
-
-                    <div class="field">
-                        <label>Invoice Date</label>
-                        <input type="date" id="saleDate">
-                    </div>
-
-                    <div class="field">
-                        <label>Select Customer</label>
-                        <select id="customerSelect"
-                            onchange="selectCustomer()">
-                            <option value="">Walk-in / New Customer</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label>Customer Name</label>
-                        <input type="text" id="customerName"
-                            placeholder="Customer name">
-                    </div>
-
-                    <div class="field">
-                        <label>Phone Number</label>
-                        <input type="text" id="customerPhone"
-                            placeholder="Phone number">
-                    </div>
-
-                    <div class="field">
-                        <label>Address</label>
-                        <input type="text" id="customerAddress"
-                            placeholder="Customer address">
-                    </div>
-
-                </div>
-
-                <br>
-
-                <h3>Fish Items</h3>
-
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-                            <tr>
-                                <th>Fish Species</th>
-                                <th>Unit</th>
-                                <th>Quantity</th>
-                                <th>Unit Price</th>
-                                <th>Discount</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="itemsBody"></tbody>
-
-                    </table>
-
-                </div>
-
-                <div class="actions">
-                    <button class="btn btn-secondary"
-                        onclick="addItem()">
-                        + Add Fish
-                    </button>
-                </div>
-
-                <div class="summary">
-
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <b id="subtotal">৳0.00</b>
-                    </div>
-
-                    <div class="summary-row">
-                        <span>Invoice Discount</span>
-                        <input type="number" id="invoiceDiscount"
-                            min="0" step="0.01" value="0"
-                            oninput="calculateTotal()">
-                    </div>
-
-                    <div class="summary-row total">
-                        <span>Grand Total</span>
-                        <span id="grandTotal">৳0.00</span>
-                    </div>
-
-                </div>
-
-                <br>
-
-                <h3>Payment Information</h3>
-
-                <div class="form-grid">
-
-                    <div class="field">
-                        <label>Paid Amount</label>
-                        <input type="number" id="paidAmount"
-                            min="0" step="0.01" value="0"
-                            oninput="calculateTotal()">
-                    </div>
-
-                    <div class="field">
-                        <label>Payment Method</label>
-                        <select id="paymentMethod">
-                            <option value="cash">Cash</option>
-                            <option value="bank">Bank</option>
-                            <option value="bkash">bKash</option>
-                            <option value="nagad">Nagad</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label>Transaction Reference</label>
-                        <input type="text" id="transactionReference"
-                            placeholder="Optional reference">
-                    </div>
-
-                </div>
-
-                <div class="summary">
-
-                    <div class="summary-row">
-                        <span>Paid</span>
-                        <b id="paidDisplay">৳0.00</b>
-                    </div>
-
-                    <div class="summary-row total">
-                        <span>Due</span>
-                        <span id="dueDisplay">৳0.00</span>
-                    </div>
-
-                </div>
-
-                <br>
-
-                <div class="field">
-                    <label>Notes</label>
-                    <textarea id="saleNotes"
-                        placeholder="Additional information"></textarea>
-                </div>
-
-                <div class="actions">
-
-                    <button class="btn btn-primary"
-                        id="saveButton"
-                        onclick="saveSale()">
-                        Save Sale
-                    </button>
-
-                    <button class="btn btn-secondary"
-                        onclick="resetForm()">
-                        Clear Form
-                    </button>
-
-                </div>
-
-                <div id="formMessage" class="message"></div>
-
-            </div>
-
-            <!-- SALES HISTORY -->
-
-            <div class="section">
-
-                <h3>📋 Sales History</h3>
-
-                <div class="field" style="max-width:300px;margin-bottom:15px">
-                    <label>Search Invoice / Customer</label>
-                    <input type="text" id="searchSales"
-                        placeholder="Search..."
-                        oninput="renderSalesHistory()">
-                </div>
-
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-                            <tr>
-                                <th>Invoice No</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Total</th>
-                                <th>Paid</th>
-                                <th>Due</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="salesTable">
-                            <tr>
-                                <td colspan="8">Loading...</td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </main>
-
+<aside class="sidebar">
+ <div class="brand">
+  <div class="icon">🐟</div>
+  <h2>AquaFarm ERP</h2>
+  <p>Fish Farming Management System</p>
+ </div>
+
+ <nav class="menu">
+  <a href="dashboard.html">🏠 Dashboard</a>
+  <a href="farmmanagement.html">🏞 Farm Management</a>
+  <a>💧 Pond Management</a>
+  <a>🐟 Fish Batch Management</a>
+  <a>📈 Production & Growth</a>
+  <a>🌾 Feed Management</a>
+  <a>📦 Inventory</a>
+  <a>🛒 Purchase Management</a>
+  <a class="active" href="sales.html">💰 Sales Management</a>
+  <a>💳 Income & Expense</a>
+  <a>📚 Accounting</a>
+  <a>📊 Reports</a>
+  <a>⚙️ Settings</a>
+ </nav>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+ <h2>Sales Management</h2>
+ <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="content">
+
+ <div class="page-heading">
+  <div>
+   <h2 class="page-title">Sales Overview</h2>
+   <p class="page-subtitle">Manage fish sales, payments, customer invoices and receipts.</p>
+  </div>
+ </div>
+
+ <div class="farm-select">
+  <label for="farmSelect">Select Farm</label>
+  <select id="farmSelect" onchange="changeFarm()"></select>
+ </div>
+
+ <div class="cards">
+  <div class="card">
+   <div class="label">📄 Total Invoices</div>
+   <div class="number" id="totalInvoices">0</div>
+  </div>
+  <div class="card">
+   <div class="label">💰 Total Sales</div>
+   <div class="number" id="totalSales">৳0.00</div>
+  </div>
+  <div class="card">
+   <div class="label">✅ Total Received</div>
+   <div class="number" id="totalReceived">৳0.00</div>
+  </div>
+  <div class="card">
+   <div class="label">⏳ Total Due</div>
+   <div class="number" id="totalDue">৳0.00</div>
+  </div>
+ </div>
+
+ <section class="section">
+  <h3 class="section-title">➕ Create New Sale</h3>
+
+  <h4 class="subheading">1. Invoice & Customer Information</h4>
+
+  <div class="form-grid">
+   <div class="field">
+    <label for="saleDate">Invoice Date</label>
+    <input type="date" id="saleDate">
+   </div>
+
+   <div class="field">
+    <label for="customerSelect">Select Customer</label>
+    <select id="customerSelect" onchange="selectCustomer()">
+     <option value="">Walk-in / New Customer</option>
+    </select>
+   </div>
+
+   <div class="field">
+    <label for="customerName">Customer Name</label>
+    <input id="customerName" type="text" placeholder="Customer name">
+   </div>
+
+   <div class="field">
+    <label for="customerPhone">Phone Number</label>
+    <input id="customerPhone" type="tel" placeholder="Phone number">
+   </div>
+
+   <div class="field">
+    <label for="customerAddress">Address</label>
+    <input id="customerAddress" type="text" placeholder="Customer address">
+   </div>
+  </div>
+
+  <h4 class="subheading">2. Fish Items</h4>
+
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>Fish Species</th>
+      <th>Unit</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Discount</th>
+      <th>Total</th>
+      <th>Action</th>
+     </tr>
+    </thead>
+    <tbody id="itemsBody"></tbody>
+   </table>
+  </div>
+
+  <div class="actions">
+   <button class="btn btn-teal" onclick="addItem()">＋ Add Fish</button>
+  </div>
+
+  <h4 class="subheading">3. Sales Summary</h4>
+
+  <div class="summary">
+   <div class="summary-row">
+    <span>Subtotal</span>
+    <b id="subtotal">৳0.00</b>
+   </div>
+
+   <div class="summary-row">
+    <label for="invoiceDiscount">Invoice Discount</label>
+    <input type="number" id="invoiceDiscount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+   </div>
+
+   <div class="summary-row total">
+    <span>Grand Total</span>
+    <span id="grandTotal">৳0.00</span>
+   </div>
+  </div>
+
+  <h4 class="subheading">4. Payment Information</h4>
+
+  <div class="form-grid">
+   <div class="field">
+    <label for="paidAmount">Paid Amount</label>
+    <input type="number" id="paidAmount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+   </div>
+
+   <div class="field">
+    <label for="paymentMethod">Payment Method</label>
+    <select id="paymentMethod">
+     <option value="cash">Cash</option>
+     <option value="bank">Bank</option>
+     <option value="bkash">bKash</option>
+     <option value="nagad">Nagad</option>
+     <option value="other">Other</option>
+    </select>
+   </div>
+
+   <div class="field">
+    <label for="transactionReference">Transaction Reference</label>
+    <input id="transactionReference" type="text" placeholder="Optional reference">
+   </div>
+  </div>
+
+  <div class="summary">
+   <div class="summary-row">
+    <span>Paid</span>
+    <b id="paidDisplay">৳0.00</b>
+   </div>
+   <div class="summary-row total">
+    <span>Due</span>
+    <span id="dueDisplay">৳0.00</span>
+   </div>
+  </div>
+
+  <h4 class="subheading">5. Voucher / Receipt Upload</h4>
+
+  <div class="upload-box">
+   <div style="font-size:36px">📎</div>
+   <b>Attach Payment Voucher, Receipt or Fish Sale Photo</b>
+   <p>
+    Choose JPG, PNG or PDF files. Multiple files are allowed.
+    Maximum 10 MB per file.<br>
+    Images will show a preview before saving.
+   </p>
+   <input type="file" id="voucherFiles"
+    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+    multiple onchange="showSelectedFiles()">
+   <div id="selectedFiles" class="file-list"></div>
+  </div>
+
+  <h4 class="subheading">6. Additional Information</h4>
+
+  <div class="field">
+   <label for="saleNotes">Notes</label>
+   <textarea id="saleNotes" placeholder="Additional information"></textarea>
+  </div>
+
+  <div class="actions">
+   <button class="btn btn-primary" id="saveButton" onclick="saveSale()">Save Sale</button>
+   <button class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+  </div>
+
+  <div id="formMessage" class="message"></div>
+ </section>
+
+ <section class="section">
+  <h3 class="section-title">📋 Sales History</h3>
+
+  <div class="field" style="max-width:360px;margin-bottom:16px">
+   <label for="searchSales">Search Invoice / Customer</label>
+   <input id="searchSales" type="text"
+    placeholder="Search invoice or customer..."
+    oninput="renderSalesHistory()">
+  </div>
+
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>Invoice No</th>
+      <th>Date</th>
+      <th>Customer</th>
+      <th>Total</th>
+      <th>Paid</th>
+      <th>Due</th>
+      <th>Status</th>
+      <th>Voucher</th>
+      <th>Action</th>
+     </tr>
+    </thead>
+    <tbody id="salesTable">
+     <tr><td colspan="9" class="empty">Loading...</td></tr>
+    </tbody>
+   </table>
+  </div>
+ </section>
+
+</div>
+</main>
 </div>
 
 <script>
+const SUPABASE_URL="https://qjutiprfupdgyvblzvlc.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const BUCKET_NAME="aquafarm-vouchers";
 
-// ===================================
-// SUPABASE CONFIGURATION
-// ===================================
-
-const SUPABASE_URL =
-    "https://qjutiprfupdgyvblzvlc.supabase.co";
-
-const SUPABASE_ANON_KEY =
-    "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
-
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+const supabaseClient=window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_ANON_KEY
 );
 
-let currentFarm = null;
-let farmList = [];
-let customers = [];
-let salesList = [];
+let currentFarm=null;
+let farmList=[];
+let customers=[];
+let salesList=[];
+let attachments=[];
+let savingSale=false;
+let previewUrls=[];
 
+async function initializeSales(){
+ try{
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error)throw error;
 
-// ===================================
-// INITIALIZATION
-// ===================================
+  if(!data.session){
+   window.location.replace("index.html");
+   return;
+  }
 
-async function initializeSales() {
+  const userId=data.session.user.id;
 
-    try {
+  const {data:memberships,error:memberError}=await supabaseClient
+   .from("farm_members")
+   .select("farm_id")
+   .eq("user_id",userId)
+   .eq("status","active");
 
-        const { data, error } =
-            await supabaseClient.auth.getSession();
+  if(memberError)throw memberError;
 
-        if (error) throw error;
+  const farmIds=(memberships||[]).map(x=>x.farm_id);
 
-        if (!data.session) {
-            window.location.replace("index.html");
-            return;
-        }
+  if(!farmIds.length){
+   throw new Error("No active farm membership found.");
+  }
 
-        // Load only farms where the logged-in user is an active member
+  const {data:farms,error:farmError}=await supabaseClient
+   .from("farms")
+   .select("id,farm_code,farm_name,status")
+   .in("id",farmIds)
+   .eq("status","active")
+   .order("created_at",{ascending:true});
 
-const userId = data.session.user.id;
+  if(farmError)throw farmError;
 
-const { data: memberships, error: memberError } =
-    await supabaseClient
-        .from("farm_members")
-        .select("farm_id")
-        .eq("user_id", userId)
-        .eq("status", "active");
+  farmList=farms||[];
 
-if (memberError) throw memberError;
+  if(!farmList.length){
+   throw new Error("No active farm found.");
+  }
 
-const farmIds = (memberships || []).map(m => m.farm_id);
+  const sel=document.getElementById("farmSelect");
 
-if (farmIds.length === 0) {
-    throw new Error("No active farm membership found.");
+  sel.innerHTML=farmList.map(f=>
+   `<option value="${escapeHTML(f.id)}">${escapeHTML(f.farm_name)}</option>`
+  ).join("");
+
+  currentFarm=farmList[0];
+
+  document.getElementById("saleDate").value=localDateString();
+
+  addItem();
+  await loadSalesData();
+
+ }catch(e){
+  console.error(e);
+  showMessage("formMessage",e.message,"error");
+ }
 }
 
-const { data: farms, error: farmError } =
-    await supabaseClient
-        .from("farms")
-        .select("id, farm_code, farm_name, status")
-        .in("id", farmIds)
-        .eq("status", "active")
-        .order("created_at", { ascending: true });
+async function changeFarm(){
+ const id=document.getElementById("farmSelect").value;
+ const next=farmList.find(f=>f.id===id);
 
-if (farmError) throw farmError;
+ if(!next)return;
 
-farmList = farms || [];
-
-        if (farmList.length === 0) {
-            throw new Error("No active farm found.");
-        }
-
-        const select = document.getElementById("farmSelect");
-
-        select.innerHTML = farmList.map(farm => `
-            <option value="${escapeHTML(farm.id)}">
-                ${escapeHTML(farm.farm_name)}
-            </option>
-        `).join("");
-
-        currentFarm = farmList[0];
-
-        await loadSalesData();
-
-        document.getElementById("saleDate").value =
-            new Date().toLocaleDateString("en-CA");
-
-        addItem();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "formMessage",
-            error.message,
-            "error"
-        );
-
-    }
-
+ currentFarm=next;
+ resetForm();
+ await loadSalesData();
 }
 
+async function loadSalesData(){
+ if(!currentFarm)return;
 
-// ===================================
-// FARM CHANGE
-// ===================================
+ try{
+  const [customerResult,salesResult,attachmentResult]=await Promise.all([
+   supabaseClient.from("customers")
+    .select("*")
+    .eq("farm_id",currentFarm.id)
+    .eq("status","active")
+    .order("customer_name"),
 
-async function changeFarm() {
+   supabaseClient.from("sales")
+    .select("*")
+    .eq("farm_id",currentFarm.id)
+    .order("sale_date",{ascending:false}),
 
-    const farmId =
-        document.getElementById("farmSelect").value;
+   supabaseClient.from("transaction_attachments")
+    .select("*")
+    .eq("farm_id",currentFarm.id)
+    .eq("module_name","sales")
+  ]);
 
-    currentFarm = farmList.find(
-        farm => farm.id === farmId
-    );
+  if(customerResult.error)throw customerResult.error;
+  if(salesResult.error)throw salesResult.error;
+  if(attachmentResult.error)throw attachmentResult.error;
 
-    await loadSalesData();
+  customers=customerResult.data||[];
+  salesList=salesResult.data||[];
+  attachments=attachmentResult.data||[];
 
+  const select=document.getElementById("customerSelect");
+  const selected=select.value;
+
+  select.innerHTML='<option value="">Walk-in / New Customer</option>';
+
+  customers.forEach(c=>{
+   const o=document.createElement("option");
+   o.value=c.id;
+   o.textContent=c.customer_name+(c.phone?" - "+c.phone:"");
+   select.appendChild(o);
+  });
+
+  if(customers.some(c=>c.id===selected)){
+   select.value=selected;
+  }
+
+  updateDashboard();
+  renderSalesHistory();
+
+ }catch(e){
+  console.error(e);
+  showMessage("formMessage","Could not load sales data: "+e.message,"error");
+ }
 }
 
+function selectCustomer(){
+ const c=customers.find(
+  x=>x.id===document.getElementById("customerSelect").value
+ );
 
-// ===================================
-// LOAD CUSTOMERS AND SALES
-// ===================================
-
-async function loadSalesData() {
-
-    if (!currentFarm) return;
-
-    try {
-
-        const { data: customerData, error: customerError } =
-            await supabaseClient
-                .from("customers")
-                .select("*")
-                .eq("farm_id", currentFarm.id)
-                .eq("status", "active")
-                .order("customer_name");
-
-        if (customerError) throw customerError;
-
-        customers = customerData || [];
-
-        const customerSelect =
-            document.getElementById("customerSelect");
-
-        customerSelect.innerHTML =
-            '<option value="">Walk-in / New Customer</option>';
-
-        customers.forEach(customer => {
-
-            const option = document.createElement("option");
-
-            option.value = customer.id;
-            option.textContent =
-                customer.customer_name +
-                (customer.phone ? " - " + customer.phone : "");
-
-            customerSelect.appendChild(option);
-
-        });
-
-        const { data: sales, error: salesError } =
-            await supabaseClient
-                .from("sales")
-                .select("*")
-                .eq("farm_id", currentFarm.id)
-                .order("sale_date", { ascending: false });
-
-        if (salesError) throw salesError;
-
-        salesList = sales || [];
-
-        updateDashboard();
-        renderSalesHistory();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "formMessage",
-            error.message,
-            "error"
-        );
-
-    }
-
+ document.getElementById("customerName").value=c?c.customer_name:"";
+ document.getElementById("customerPhone").value=c?(c.phone||""):"";
+ document.getElementById("customerAddress").value=c?(c.address||""):"";
 }
 
+function addItem(){
+ const row=document.createElement("tr");
 
-// ===================================
-// CUSTOMER SELECTION
-// ===================================
+ row.innerHTML=`
+  <td><input class="species" placeholder="Rui, Katla..." required></td>
+  <td>
+   <select class="unit">
+    <option value="kg">KG</option>
+    <option value="piece">Piece</option>
+   </select>
+  </td>
+  <td><input class="quantity" type="number" min="0.001" step="0.001" value="1"></td>
+  <td><input class="price" type="number" min="0" step="0.01" value="0"></td>
+  <td><input class="discount" type="number" min="0" step="0.01" value="0"></td>
+  <td class="lineTotal">৳0.00</td>
+  <td>
+   <button class="btn btn-danger btn-small" type="button"
+    onclick="removeItem(this)">Remove</button>
+  </td>
+ `;
 
-function selectCustomer() {
+ document.getElementById("itemsBody").appendChild(row);
 
-    const customerId =
-        document.getElementById("customerSelect").value;
+ row.querySelectorAll("input").forEach(x=>{
+  x.addEventListener("input",calculateTotal);
+ });
 
-    const customer = customers.find(
-        c => c.id === customerId
-    );
-
-    document.getElementById("customerName").value =
-        customer ? customer.customer_name : "";
-
-    document.getElementById("customerPhone").value =
-        customer ? customer.phone || "" : "";
-
-    document.getElementById("customerAddress").value =
-        customer ? customer.address || "" : "";
-
+ calculateTotal();
 }
 
+function removeItem(btn){
+ btn.closest("tr").remove();
+ calculateTotal();
+}
 
-// ===================================
-// ADD FISH ITEM
-// ===================================
+function calculateTotal(){
+ let subtotal=0;
 
-function addItem() {
+ document.querySelectorAll("#itemsBody tr").forEach(row=>{
+  const q=Number(row.querySelector(".quantity").value);
+  const p=Number(row.querySelector(".price").value);
+  const d=Number(row.querySelector(".discount").value);
 
-    const body = document.getElementById("itemsBody");
+  const line=Math.max(0,q*p-d);
 
-    const row = document.createElement("tr");
+  row.querySelector(".lineTotal").textContent=money(line);
+  subtotal+=line;
+ });
 
-    row.innerHTML = `
+ const discount=Math.max(
+  0,
+  Number(document.getElementById("invoiceDiscount").value)||0
+ );
 
-        <td>
-            <input class="item-input species"
-                placeholder="Rui, Katla..."
-                required>
-        </td>
+ const grand=Math.max(0,subtotal-discount);
 
-        <td>
-            <select class="item-input unit">
-                <option value="kg">KG</option>
-                <option value="piece">Piece</option>
-            </select>
-        </td>
+ const paid=Math.max(
+  0,
+  Number(document.getElementById("paidAmount").value)||0
+ );
 
-        <td>
-            <input class="item-input quantity"
-                type="number" min="0.001"
-                step="0.001" value="1">
-        </td>
+ const due=Math.max(0,grand-paid);
 
-        <td>
-            <input class="item-input price"
-                type="number" min="0"
-                step="0.01" value="0">
-        </td>
+ document.getElementById("subtotal").textContent=money(subtotal);
+ document.getElementById("grandTotal").textContent=money(grand);
+ document.getElementById("paidDisplay").textContent=money(paid);
+ document.getElementById("dueDisplay").textContent=money(due);
 
-        <td>
-            <input class="item-input discount"
-                type="number" min="0"
-                step="0.01" value="0">
-        </td>
+ return{
+  subtotal,
+  invoiceDiscount:discount,
+  grandTotal:grand,
+  paid,
+  due
+ };
+}
 
-        <td class="lineTotal">৳0.00</td>
+function clearPreviewUrls(){
+ previewUrls.forEach(URL.revokeObjectURL);
+ previewUrls=[];
+}
 
-        <td>
-            <button class="btn btn-danger"
-                onclick="removeItem(this)">
-                Remove
-            </button>
-        </td>
+function showSelectedFiles(){
+ const box=document.getElementById("selectedFiles");
+ box.innerHTML="";
+ clearPreviewUrls();
 
-    `;
+ const files=Array.from(
+  document.getElementById("voucherFiles").files||[]
+ );
 
-    body.appendChild(row);
+ for(const f of files){
+  const div=document.createElement("div");
+  div.className="file-item";
 
-    row.querySelectorAll("input").forEach(input => {
-        input.addEventListener("input", calculateTotal);
+  if(f.type==="image/jpeg"||f.type==="image/png"){
+   const url=URL.createObjectURL(f);
+   previewUrls.push(url);
+
+   const img=document.createElement("img");
+   img.src=url;
+   img.alt=f.name;
+   div.appendChild(img);
+  }
+
+  const name=document.createElement("div");
+  name.textContent=
+   (f.type==="application/pdf"?"📄 ":"📎 ")+
+   f.name+" ("+(f.size/1048576).toFixed(2)+" MB)";
+
+  div.appendChild(name);
+  box.appendChild(div);
+ }
+}
+
+function validateVoucherFiles(files){
+ const allowed=[
+  "image/jpeg",
+  "image/png",
+  "application/pdf"
+ ];
+
+ for(const f of files){
+  if(!allowed.includes(f.type)){
+   throw new Error(
+    "Unsupported file: "+f.name+
+    ". Only JPG, PNG and PDF are allowed."
+   );
+  }
+
+  if(f.size<=0||f.size>10*1024*1024){
+   throw new Error(
+    f.name+" exceeds the 10 MB file limit."
+   );
+  }
+ }
+}
+
+async function uploadSaleVouchers(saleId,files){
+ const userResult=await supabaseClient.auth.getUser();
+
+ if(userResult.error)throw userResult.error;
+
+ const userId=userResult.data.user.id;
+ const uploaded=[];
+
+ try{
+  for(const file of files){
+
+   const safe=file.name
+    .replace(/[^a-zA-Z0-9._-]/g,"_")
+    .substring(0,100);
+
+   const path=
+    currentFarm.id+"/sales/"+saleId+"/"+
+    Date.now()+"_"+crypto.randomUUID()+"_"+safe;
+
+   const {error:upErr}=await supabaseClient
+    .storage
+    .from(BUCKET_NAME)
+    .upload(path,file,{
+     contentType:file.type,
+     upsert:false
     });
 
-    calculateTotal();
-
-}
-
-
-// ===================================
-// REMOVE ITEM
-// ===================================
-
-function removeItem(button) {
-
-    button.closest("tr").remove();
-
-    calculateTotal();
-
-}
-
-
-// ===================================
-// CALCULATE TOTAL
-// ===================================
-
-function calculateTotal() {
-
-    let subtotal = 0;
-
-    document.querySelectorAll("#itemsBody tr")
-        .forEach(row => {
-
-            const quantity =
-                Number(row.querySelector(".quantity").value);
-
-            const price =
-                Number(row.querySelector(".price").value);
-
-            const discount =
-                Number(row.querySelector(".discount").value);
-
-            const gross = quantity * price;
-
-            const total = gross - discount;
-
-            row.querySelector(".lineTotal").innerText =
-                money(Math.max(0, total));
-
-            subtotal += Math.max(0, total);
-
-        });
-
-    const invoiceDiscount = Math.max(
-        0,
-        Number(document.getElementById("invoiceDiscount").value)
-    );
-
-    const grandTotal = Math.max(
-        0,
-        subtotal - invoiceDiscount
-    );
-
-    const paid = Math.max(
-        0,
-        Number(document.getElementById("paidAmount").value)
-    );
-
-    const due = Math.max(0, grandTotal - paid);
-
-    document.getElementById("subtotal").innerText =
-        money(subtotal);
-
-    document.getElementById("grandTotal").innerText =
-        money(grandTotal);
-
-    document.getElementById("paidDisplay").innerText =
-        money(paid);
-
-    document.getElementById("dueDisplay").innerText =
-        money(due);
-
-    return {
-        subtotal,
-        invoiceDiscount,
-        grandTotal,
-        paid,
-        due
-    };
-
-}
-
-
-// ===================================
-// SAVE SALE
-// ===================================
-
-async function saveSale() {
-
-    const button = document.getElementById("saveButton");
-
-    if (!currentFarm) {
-        alert("Please select a farm.");
-        return;
-    }
-
-    const rows = [
-        ...document.querySelectorAll("#itemsBody tr")
-    ];
-
-    if (rows.length === 0) {
-        alert("Please add at least one fish item.");
-        return;
-    }
-
-    const items = [];
-
-    for (const row of rows) {
-
-        const species =
-            row.querySelector(".species").value.trim();
-
-        const unit =
-            row.querySelector(".unit").value;
-
-        const quantity =
-            Number(row.querySelector(".quantity").value);
-
-        const price =
-            Number(row.querySelector(".price").value);
-
-        const discount =
-            Number(row.querySelector(".discount").value);
-
-        if (!species || quantity <= 0 || price < 0) {
-            alert("Please enter valid fish item information.");
-            return;
-        }
-
-        if (
-            !Number.isFinite(quantity) ||
-            !Number.isFinite(price) ||
-            !Number.isFinite(discount) ||
-            discount < 0 ||
-            discount > quantity * price
-        ) {
-            alert("Please check quantity, price and discount.");
-            return;
-        }
-
-        items.push({
-            farm_id: currentFarm.id,
-            fish_species: species,
-            unit: unit,
-            quantity: quantity,
-            unit_price: price,
-            discount_amount: discount
-        });
-
-    }
-
-    const totals = calculateTotal();
-
-    if (
-        totals.invoiceDiscount > totals.subtotal ||
-        totals.paid > totals.grandTotal
-    ) {
-        alert("Please check discount and paid amount.");
-        return;
-    }
-
-    if (totals.grandTotal <= 0) {
-        alert("Sale total must be greater than zero.");
-        return;
-    }
-
-    const customerId =
-        document.getElementById("customerSelect").value || null;
-
-    const customerName =
-        document.getElementById("customerName").value.trim();
-
-    const customerPhone =
-        document.getElementById("customerPhone").value.trim();
-
-    const customerAddress =
-        document.getElementById("customerAddress").value.trim();
-
-    const saleDate =
-        document.getElementById("saleDate").value;
-
-    if (!saleDate) {
-        alert("Please select sale date.");
-        return;
-    }
-
-    button.disabled = true;
-    button.innerText = "Saving...";
-
-    let saleId = null;
-
-    try {
-
-        // Create a new customer if necessary.
-
-        let finalCustomerId = customerId;
-
-        if (!customerId && customerName) {
-
-            const { data: newCustomer, error: customerError } =
-                await supabaseClient
-                    .from("customers")
-                    .insert({
-                        farm_id: currentFarm.id,
-                        customer_name: customerName,
-                        phone: customerPhone || null,
-                        address: customerAddress || null
-                    })
-                    .select()
-                    .single();
-
-            if (customerError) throw customerError;
-
-            finalCustomerId = newCustomer.id;
-
-        }
-
-        // Generate invoice number.
-
-        const invoiceNo =
-            currentFarm.farm_code +
-            "-S-" +
-            Date.now();
-
-        // Create draft sale.
-
-        const { data: sale, error: saleError } =
-            await supabaseClient
-                .from("sales")
-                .insert({
-                    farm_id: currentFarm.id,
-                    invoice_no: invoiceNo,
-                    customer_id: finalCustomerId,
-                    customer_name: customerName || "Walk-in Customer",
-                    customer_phone: customerPhone || null,
-                    customer_address: customerAddress || null,
-                    sale_date: saleDate,
-                    subtotal: totals.subtotal,
-                    discount_amount: totals.invoiceDiscount,
-                    grand_total: totals.grandTotal,
-                    paid_amount: 0,
-                    due_amount: 0,
-                    status: "draft",
-                    notes: document.getElementById("saleNotes").value
-                })
-                .select()
-                .single();
-
-        if (saleError) throw saleError;
-
-        saleId = sale.id;
-
-        // Add fish items.
-
-        const saleItems = items.map(item => ({
-            ...item,
-            sale_id: saleId
-        }));
-
-        const { error: itemError } =
-            await supabaseClient
-                .from("sale_items")
-                .insert(saleItems);
-
-        if (itemError) throw itemError;
-
-        // Save payment if paid amount is greater than zero.
-
-        if (totals.paid > 0) {
-
-            const { error: paymentError } =
-                await supabaseClient
-                    .from("sale_payments")
-                    .insert({
-                        farm_id: currentFarm.id,
-                        sale_id: saleId,
-                        payment_date: saleDate,
-                        amount: totals.paid,
-                        payment_method:
-                            document.getElementById("paymentMethod").value,
-                        transaction_reference:
-                            document.getElementById("transactionReference").value || null
-                    });
-
-            if (paymentError) throw paymentError;
-
-        }
-
-        // Mark invoice as posted.
-
-        const { error: updateError } =
-            await supabaseClient
-                .from("sales")
-                .update({
-                    paid_amount: totals.paid,
-                    due_amount: totals.due,
-                    status: "posted"
-                })
-                .eq("id", saleId)
-                .eq("farm_id", currentFarm.id);
-
-        if (updateError) throw updateError;
-
-        showMessage(
-            "formMessage",
-            "Sale saved successfully! Invoice: " + invoiceNo,
-            "success"
-        );
-
-        resetForm();
-
-        await loadSalesData();
-
-    } catch (error) {
-
-        console.error(error);
-
-        let message = error.message;
-
-        if (saleId) {
-            message +=
-                " A draft invoice may have been created. " +
-                "Please check Sales History before trying again.";
-        }
-
-        showMessage("formMessage", message, "error");
-
-    } finally {
-
-        button.disabled = false;
-        button.innerText = "Save Sale";
-
-    }
-
-}
-
-
-// ===================================
-// RESET FORM
-// ===================================
-
-function resetForm() {
-
-    document.getElementById("customerSelect").value = "";
-
-    document.getElementById("customerName").value = "";
-    document.getElementById("customerPhone").value = "";
-    document.getElementById("customerAddress").value = "";
-
-    document.getElementById("invoiceDiscount").value = 0;
-    document.getElementById("paidAmount").value = 0;
-
-    document.getElementById("transactionReference").value = "";
-    document.getElementById("saleNotes").value = "";
-
-    document.getElementById("itemsBody").innerHTML = "";
-
-    addItem();
-
-    calculateTotal();
-
-}
-
-
-// ===================================
-// UPDATE DASHBOARD
-// ===================================
-
-function updateDashboard() {
-
-    const postedSales = salesList.filter(
-        sale => sale.status === "posted"
-    );
-
-    const totalSales = postedSales.reduce(
-        (sum, sale) => sum + Number(sale.grand_total || 0), 0
-    );
-
-    const totalPaid = postedSales.reduce(
-        (sum, sale) => sum + Number(sale.paid_amount || 0), 0
-    );
-
-    const totalDue = postedSales.reduce(
-        (sum, sale) => sum + Number(sale.due_amount || 0), 0
-    );
-
-    document.getElementById("totalInvoices").innerText =
-        postedSales.length;
-
-    document.getElementById("totalSales").innerText =
-        money(totalSales);
-
-    document.getElementById("totalReceived").innerText =
-        money(totalPaid);
-
-    document.getElementById("totalDue").innerText =
-        money(totalDue);
-
-}
-
-
-// ===================================
-// SALES HISTORY
-// ===================================
-
-function renderSalesHistory() {
-
-    const tbody = document.getElementById("salesTable");
-
-    const search =
-        document.getElementById("searchSales").value.toLowerCase();
-
-    const filtered = salesList.filter(sale => {
-
-        return (
-            String(sale.invoice_no || "").toLowerCase().includes(search) ||
-            String(sale.customer_name || "").toLowerCase().includes(search)
-        );
-
+   if(upErr)throw upErr;
+
+   uploaded.push(path);
+
+   const {error:metaErr}=await supabaseClient
+    .from("transaction_attachments")
+    .insert({
+     farm_id:currentFarm.id,
+     module_name:"sales",
+     transaction_id:saleId,
+     file_name:file.name,
+     file_path:path,
+     mime_type:file.type,
+     file_size:file.size,
+     uploaded_by:userId
     });
 
-    if (filtered.length === 0) {
+   if(metaErr)throw metaErr;
+  }
 
-        tbody.innerHTML =
-            '<tr><td colspan="8">No sales records found.</td></tr>';
+ }catch(e){
+  if(uploaded.length){
+   await supabaseClient.storage
+    .from(BUCKET_NAME)
+    .remove(uploaded);
+  }
 
-        return;
-
-    }
-
-    tbody.innerHTML = filtered.map(sale => `
-
-        <tr>
-            <td>${escapeHTML(sale.invoice_no)}</td>
-            <td>${escapeHTML(sale.sale_date)}</td>
-            <td>${escapeHTML(sale.customer_name || "Walk-in Customer")}</td>
-            <td>${money(sale.grand_total)}</td>
-            <td>${money(sale.paid_amount)}</td>
-            <td>${money(sale.due_amount)}</td>
-            <td>${escapeHTML(sale.status)}</td>
-            <td>
-                <button class="btn btn-secondary"
-                    onclick="printInvoice('${sale.id}')">
-                    Print
-                </button>
-            </td>
-        </tr>
-
-    `).join("");
-
+  throw e;
+ }
 }
 
+async function viewSaleVouchers(saleId){
+ try{
+  const files=attachments.filter(a=>
+   a.transaction_id===saleId&&a.module_name==="sales"
+  );
 
-// ===================================
-// PRINT INVOICE
-// ===================================
+  if(!files.length){
+   alert("No voucher or receipt attached to this sale.");
+   return;
+  }
 
-async function printInvoice(saleId) {
+  let choice;
 
-    try {
+  if(files.length===1){
+   choice="1";
+  }else{
+   choice=prompt(
+    "Enter file number to open:\n\n"+
+    files.map((f,i)=>(i+1)+". "+f.file_name).join("\n")
+   );
+  }
 
-        const { data: sale, error: saleError } =
-            await supabaseClient
-                .from("sales")
-                .select("*")
-                .eq("id", saleId)
-                .eq("farm_id", currentFarm.id)
-                .single();
+  if(choice===null)return;
 
-        if (saleError) throw saleError;
+  const index=Number(choice)-1;
 
-        const { data: items, error: itemError } =
-            await supabaseClient
-                .from("sale_items")
-                .select("*")
-                .eq("sale_id", saleId)
-                .eq("farm_id", currentFarm.id);
+  if(!Number.isInteger(index)||index<0||index>=files.length){
+   alert("Invalid selection.");
+   return;
+  }
 
-        if (itemError) throw itemError;
+  const {data,error}=await supabaseClient
+   .storage
+   .from(BUCKET_NAME)
+   .createSignedUrl(files[index].file_path,120);
 
-        const { data: payments, error: paymentError } =
-            await supabaseClient
-                .from("sale_payments")
-                .select("*")
-                .eq("sale_id", saleId)
-                .eq("farm_id", currentFarm.id)
-                .order("payment_date");
+  if(error)throw error;
 
-        if (paymentError) throw paymentError;
+  const opened=window.open(data.signedUrl,"_blank");
 
-        const farm = currentFarm;
+  if(!opened){
+   window.location.href=data.signedUrl;
+  }
 
-        const rows = (items || []).map(item => `
-
-            <tr>
-                <td>${escapeHTML(item.fish_species)}</td>
-                <td>${escapeHTML(item.unit)}</td>
-                <td>${Number(item.quantity).toLocaleString()}</td>
-                <td>${money(item.unit_price)}</td>
-                <td>${money(item.discount_amount)}</td>
-                <td>${money(item.line_total)}</td>
-            </tr>
-
-        `).join("");
-
-        const paymentRows = (payments || []).map(payment => `
-
-            <tr>
-                <td>${escapeHTML(payment.payment_date)}</td>
-                <td>${escapeHTML(payment.payment_method)}</td>
-                <td>${money(payment.amount)}</td>
-            </tr>
-
-        `).join("");
-
-        const win = window.open("", "_blank");
-
-        if (!win) {
-            alert("Please allow pop-ups to print invoices.");
-            return;
-        }
-
-        win.document.write(`
-
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
-
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        padding: 30px;
-                        color: #1e293b;
-                    }
-
-                    h1,h2 {
-                        color: #047857;
-                    }
-
-                    .header {
-                        text-align: center;
-                        margin-bottom: 25px;
-                    }
-
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 15px;
-                    }
-
-                    th,td {
-                        border: 1px solid #ddd;
-                        padding: 10px;
-                        text-align: left;
-                    }
-
-                    th {
-                        background: #ecfdf5;
-                    }
-
-                    .right {
-                        text-align: right;
-                        margin-top: 20px;
-                    }
-
-                    @media print {
-                        button {
-                            display: none;
-                        }
-                    }
-                </style>
-
-            </head>
-
-            <body>
-
-                <div class="header">
-                    <h1>AquaFarm ERP</h1>
-                    <h2>${escapeHTML(farm.farm_name)}</h2>
-                    <p>Sales Invoice</p>
-                </div>
-
-                <p><b>Invoice:</b> ${escapeHTML(sale.invoice_no)}</p>
-                <p><b>Date:</b> ${escapeHTML(sale.sale_date)}</p>
-                <p><b>Customer:</b> ${escapeHTML(sale.customer_name)}</p>
-                <p><b>Phone:</b> ${escapeHTML(sale.customer_phone)}</p>
-                <p><b>Address:</b> ${escapeHTML(sale.customer_address)}</p>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fish</th>
-                            <th>Unit</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Discount</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>${rows}</tbody>
-                </table>
-
-                <div class="right">
-
-                    <p>Subtotal: ${money(sale.subtotal)}</p>
-                    <p>Discount: ${money(sale.discount_amount)}</p>
-                    <h2>Total: ${money(sale.grand_total)}</h2>
-                    <p>Paid: ${money(sale.paid_amount)}</p>
-                    <p>Due: ${money(sale.due_amount)}</p>
-
-                </div>
-
-                <h3>Payment History</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Method</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        ${paymentRows || '<tr><td colspan="3">No payment recorded.</td></tr>'}
-                    </tbody>
-                </table>
-
-                <br>
-                <p>Thank you for your business.</p>
-
-                <button onclick="window.print()">Print Invoice</button>
-
-            </body>
-            </html>
-
-        `);
-
-        win.document.close();
-
-    } catch (error) {
-
-        alert("Invoice Error: " + error.message);
-
-        console.error(error);
-
-    }
-
+ }catch(e){
+  console.error(e);
+  alert("Could not open voucher: "+e.message);
+ }
 }
 
+async function saveSale(){
+ if(savingSale)return;
 
-// ===================================
-// HELPER FUNCTIONS
-// ===================================
+ if(!currentFarm){
+  alert("Please select a farm.");
+  return;
+ }
 
-function money(value) {
+ const rows=[...document.querySelectorAll("#itemsBody tr")];
 
-    return "৳" + Number(value || 0).toLocaleString(
-        "en-BD",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
+ if(!rows.length){
+  alert("Please add at least one fish item.");
+  return;
+ }
 
-}
+ const items=[];
 
+ for(const row of rows){
+  const species=row.querySelector(".species").value.trim();
+  const unit=row.querySelector(".unit").value;
+  const quantity=Number(row.querySelector(".quantity").value);
+  const price=Number(row.querySelector(".price").value);
+  const discount=Number(row.querySelector(".discount").value);
 
-function escapeHTML(value) {
+  if(
+   !species||
+   !Number.isFinite(quantity)||quantity<=0||
+   !Number.isFinite(price)||price<0||
+   !Number.isFinite(discount)||discount<0||
+   discount>quantity*price
+  ){
+   alert("Please enter valid fish item information.");
+   return;
+  }
 
-    return String(value ?? "").replace(/[&<>"']/g, char => {
+  items.push({
+   farm_id:currentFarm.id,
+   fish_species:species,
+   unit,
+   quantity,
+   unit_price:price,
+   discount_amount:discount
+  });
+ }
 
-        return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        }[char];
+ const totals=calculateTotal();
 
+ if(
+  !Number.isFinite(totals.invoiceDiscount)||
+  totals.invoiceDiscount>totals.subtotal||
+  !Number.isFinite(totals.paid)||
+  totals.paid>totals.grandTotal
+ ){
+  alert("Please check invoice discount and paid amount.");
+  return;
+ }
+
+ if(totals.grandTotal<=0){
+  alert("Sale total must be greater than zero.");
+  return;
+ }
+
+ const saleDate=document.getElementById("saleDate").value;
+
+ if(!saleDate){
+  alert("Please select invoice date.");
+  return;
+ }
+
+ const files=Array.from(
+  document.getElementById("voucherFiles").files||[]
+ );
+
+ try{
+  validateVoucherFiles(files);
+ }catch(e){
+  alert(e.message);
+  return;
+ }
+
+ const customerId=
+  document.getElementById("customerSelect").value||null;
+
+ const customerName=
+  document.getElementById("customerName").value.trim();
+
+ const customerPhone=
+  document.getElementById("customerPhone").value.trim();
+
+ const customerAddress=
+  document.getElementById("customerAddress").value.trim();
+
+ const button=document.getElementById("saveButton");
+
+ savingSale=true;
+ button.disabled=true;
+ button.textContent="Saving Sale...";
+
+ let saleId=null;
+ let invoiceNo="";
+
+ try{
+  let finalCustomerId=customerId;
+
+  if(!customerId&&customerName){
+   const {data:newCustomer,error}=await supabaseClient
+    .from("customers")
+    .insert({
+     farm_id:currentFarm.id,
+     customer_name:customerName,
+     phone:customerPhone||null,
+     address:customerAddress||null
+    })
+    .select()
+    .single();
+
+   if(error)throw error;
+
+   finalCustomerId=newCustomer.id;
+  }
+
+  invoiceNo=
+   currentFarm.farm_code+"-S-"+
+   Date.now()+"-"+Math.floor(Math.random()*1000);
+
+  const {data:sale,error:saleError}=await supabaseClient
+   .from("sales")
+   .insert({
+    farm_id:currentFarm.id,
+    invoice_no:invoiceNo,
+    customer_id:finalCustomerId,
+    customer_name:customerName||"Walk-in Customer",
+    customer_phone:customerPhone||null,
+    customer_address:customerAddress||null,
+    sale_date:saleDate,
+    subtotal:totals.subtotal,
+    discount_amount:totals.invoiceDiscount,
+    grand_total:totals.grandTotal,
+    paid_amount:0,
+    due_amount:0,
+    status:"draft",
+    notes:document.getElementById("saleNotes").value.trim()||null
+   })
+   .select()
+   .single();
+
+  if(saleError)throw saleError;
+
+  saleId=sale.id;
+
+  const {error:itemError}=await supabaseClient
+   .from("sale_items")
+   .insert(items.map(x=>({...x,sale_id:saleId})));
+
+  if(itemError)throw itemError;
+
+  if(totals.paid>0){
+   const {error:paymentError}=await supabaseClient
+    .from("sale_payments")
+    .insert({
+     farm_id:currentFarm.id,
+     sale_id:saleId,
+     payment_date:saleDate,
+     amount:totals.paid,
+     payment_method:document.getElementById("paymentMethod").value,
+     transaction_reference:
+      document.getElementById("transactionReference").value.trim()||null
     });
 
+   if(paymentError)throw paymentError;
+  }
+
+  const {error:updateError}=await supabaseClient
+   .from("sales")
+   .update({
+    paid_amount:totals.paid,
+    due_amount:totals.due,
+    status:"posted"
+   })
+   .eq("id",saleId)
+   .eq("farm_id",currentFarm.id);
+
+  if(updateError)throw updateError;
+
+  let msg="Sale saved successfully! Invoice: "+invoiceNo;
+  let msgType="success";
+
+  if(files.length){
+   try{
+    await uploadSaleVouchers(saleId,files);
+    msg+=" "+files.length+" voucher file(s) uploaded.";
+   }catch(uploadError){
+    console.error(uploadError);
+    msg+=" Sale saved, but voucher upload failed: "+
+     uploadError.message+
+     ". You may retry after checking the invoice.";
+    msgType="error";
+   }
+  }
+
+  showMessage("formMessage",msg,msgType);
+
+  resetForm();
+  await loadSalesData();
+
+ }catch(e){
+  console.error(e);
+
+  let msg=e.message||"Unable to save sale.";
+
+  if(saleId){
+   msg+=" A draft invoice may remain. Check Sales History before retrying to avoid a duplicate.";
+  }
+
+  showMessage("formMessage",msg,"error");
+
+ }finally{
+  savingSale=false;
+  button.disabled=false;
+  button.textContent="Save Sale";
+ }
 }
 
+function resetForm(){
+ document.getElementById("customerSelect").value="";
+ document.getElementById("customerName").value="";
+ document.getElementById("customerPhone").value="";
+ document.getElementById("customerAddress").value="";
+ document.getElementById("invoiceDiscount").value=0;
+ document.getElementById("paidAmount").value=0;
+ document.getElementById("transactionReference").value="";
+ document.getElementById("saleNotes").value="";
+ document.getElementById("voucherFiles").value="";
+ document.getElementById("selectedFiles").innerHTML="";
 
-function showMessage(id, message, type) {
+ clearPreviewUrls();
 
-    const element = document.getElementById(id);
+ document.getElementById("itemsBody").innerHTML="";
 
-    element.innerText = message;
-
-    element.className = "message " + type;
-
+ addItem();
+ calculateTotal();
 }
 
+function updateDashboard(){
+ const posted=salesList.filter(s=>s.status==="posted");
 
-// ===================================
-// LOGOUT
-// ===================================
+ const sum=key=>
+  posted.reduce((n,s)=>n+Number(s[key]||0),0);
 
-async function logout() {
-
-    const { error } =
-        await supabaseClient.auth.signOut();
-
-    if (error) {
-        alert(error.message);
-        return;
-    }
-
-    window.location.replace("index.html");
-
+ document.getElementById("totalInvoices").textContent=posted.length;
+ document.getElementById("totalSales").textContent=money(sum("grand_total"));
+ document.getElementById("totalReceived").textContent=money(sum("paid_amount"));
+ document.getElementById("totalDue").textContent=money(sum("due_amount"));
 }
 
+function renderSalesHistory(){
+ const body=document.getElementById("salesTable");
 
-// ===================================
-// START
-// ===================================
+ const term=document.getElementById("searchSales")
+  .value.trim().toLowerCase();
+
+ const filtered=salesList.filter(s=>
+  String(s.invoice_no||"").toLowerCase().includes(term)||
+  String(s.customer_name||"").toLowerCase().includes(term)
+ );
+
+ if(!filtered.length){
+  body.innerHTML=
+   '<tr><td colspan="9" class="empty">No sales records found.</td></tr>';
+  return;
+ }
+
+ body.innerHTML=filtered.map(s=>{
+  const count=attachments.filter(a=>
+   a.transaction_id===s.id&&a.module_name==="sales"
+  ).length;
+
+  return `
+   <tr>
+    <td>${escapeHTML(s.invoice_no)}</td>
+    <td>${escapeHTML(s.sale_date)}</td>
+    <td>${escapeHTML(s.customer_name||"Walk-in Customer")}</td>
+    <td>${money(s.grand_total)}</td>
+    <td>${money(s.paid_amount)}</td>
+    <td>${money(s.due_amount)}</td>
+    <td>
+     <span class="status ${escapeHTML(s.status)}">
+      ${escapeHTML(s.status)}
+     </span>
+    </td>
+    <td>
+     <button class="btn btn-secondary btn-small"
+      onclick="viewSaleVouchers('${s.id}')">📎 ${count}</button>
+    </td>
+    <td>
+     <button class="btn btn-primary btn-small"
+      onclick="printInvoice('${s.id}')">Print</button>
+    </td>
+   </tr>
+  `;
+ }).join("");
+}
+
+async function printInvoice(saleId){
+ try{
+  const {data:sale,error:saleErr}=await supabaseClient
+   .from("sales")
+   .select("*")
+   .eq("id",saleId)
+   .eq("farm_id",currentFarm.id)
+   .single();
+
+  if(saleErr)throw saleErr;
+
+  const [ir,pr]=await Promise.all([
+   supabaseClient.from("sale_items")
+    .select("*")
+    .eq("sale_id",saleId)
+    .eq("farm_id",currentFarm.id),
+
+   supabaseClient.from("sale_payments")
+    .select("*")
+    .eq("sale_id",saleId)
+    .eq("farm_id",currentFarm.id)
+    .order("payment_date")
+  ]);
+
+  if(ir.error)throw ir.error;
+  if(pr.error)throw pr.error;
+
+  const rows=(ir.data||[]).map(i=>`
+   <tr>
+    <td>${escapeHTML(i.fish_species)}</td>
+    <td>${escapeHTML(i.unit)}</td>
+    <td>${Number(i.quantity).toLocaleString()}</td>
+    <td>${money(i.unit_price)}</td>
+    <td>${money(i.discount_amount)}</td>
+    <td>${money(i.line_total)}</td>
+   </tr>
+  `).join("");
+
+  const payments=(pr.data||[]).map(p=>`
+   <tr>
+    <td>${escapeHTML(p.payment_date)}</td>
+    <td>${escapeHTML(p.payment_method)}</td>
+    <td>${money(p.amount)}</td>
+   </tr>
+  `).join("");
+
+  const win=window.open("","_blank");
+
+  if(!win){
+   alert("Please allow pop-ups to print invoices.");
+   return;
+  }
+
+  win.document.write(`
+   <!DOCTYPE html>
+   <html>
+   <head>
+    <meta charset="UTF-8">
+    <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
+    <style>
+     body{font-family:Arial,sans-serif;padding:28px;color:#1e293b}
+     h1,h2{color:#142d4e}
+     .header{text-align:center;margin-bottom:24px}
+     table{width:100%;border-collapse:collapse;margin-top:14px}
+     th,td{border:1px solid #ddd;padding:9px;text-align:left}
+     th{background:#eaf2fa}
+     .right{text-align:right;margin-top:20px}
+     @media print{button{display:none}}
+    </style>
+   </head>
+   <body>
+    <div class="header">
+     <h1>AquaFarm ERP</h1>
+     <h2>${escapeHTML(currentFarm.farm_name)}</h2>
+     <p>Sales Invoice</p>
+    </div>
+
+    <p><b>Invoice:</b> ${escapeHTML(sale.invoice_no)}</p>
+    <p><b>Date:</b> ${escapeHTML(sale.sale_date)}</p>
+    <p><b>Customer:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}</p>
+    <p><b>Phone:</b> ${escapeHTML(sale.customer_phone||"")}</p>
+    <p><b>Address:</b> ${escapeHTML(sale.customer_address||"")}</p>
+
+    <table>
+     <thead>
+      <tr>
+       <th>Fish</th><th>Unit</th><th>Quantity</th>
+       <th>Price</th><th>Discount</th><th>Total</th>
+      </tr>
+     </thead>
+     <tbody>${rows}</tbody>
+    </table>
+
+    <div class="right">
+     <p>Subtotal: ${money(sale.subtotal)}</p>
+     <p>Discount: ${money(sale.discount_amount)}</p>
+     <h2>Total: ${money(sale.grand_total)}</h2>
+     <p>Paid: ${money(sale.paid_amount)}</p>
+     <p>Due: ${money(sale.due_amount)}</p>
+    </div>
+
+    <h3>Payment History</h3>
+    <table>
+     <thead>
+      <tr><th>Date</th><th>Method</th><th>Amount</th></tr>
+     </thead>
+     <tbody>
+      ${payments||'<tr><td colspan="3">No payment recorded.</td></tr>'}
+     </tbody>
+    </table>
+
+    <br>
+    <p>Thank you for your business.</p>
+    <button onclick="window.print()">Print Invoice</button>
+   </body>
+   </html>
+  `);
+
+  win.document.close();
+
+ }catch(e){
+  console.error(e);
+  alert("Invoice Error: "+e.message);
+ }
+}
+
+function money(v){
+ return "৳"+Number(v||0).toLocaleString("en-BD",{
+  minimumFractionDigits:2,
+  maximumFractionDigits:2
+ });
+}
+
+function escapeHTML(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[c]));
+}
+
+function showMessage(id,msg,type){
+ const el=document.getElementById(id);
+ el.textContent=msg;
+ el.className="message "+type;
+}
+
+function localDateString(){
+ const d=new Date();
+ const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+ return local.toISOString().slice(0,10);
+}
+
+async function logout(){
+ const {error}=await supabaseClient.auth.signOut();
+
+ if(error){
+  alert(error.message);
+  return;
+ }
+
+ window.location.replace("index.html");
+}
+
+window.addEventListener("beforeunload",clearPreviewUrls);
 
 initializeSales();
-
 </script>
-
 </body>
 </html>
