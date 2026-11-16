@@ -915,8 +915,6 @@ function addItem(){
   return;
  } 
  
-function addItem(){
-
  const row=document.createElement("tr");
 
  row.innerHTML=`
@@ -1425,7 +1423,17 @@ async function saveSale(){
 /* ================= RESET FORM ================= */
 
 function resetForm(){
+editingSaleId=null;
 
+ document.getElementById("paidAmount").disabled=false;
+ document.getElementById("paymentMethod").disabled=false;
+ document.getElementById("transactionReference").disabled=false;
+
+ document.getElementById("saveButton").textContent="Save Sale";
+
+ document.querySelector(".create-sale-panel .section-title").textContent=
+  "➕ Create New Sale";
+ 
  document.getElementById("customerSelect").value="";
  document.getElementById("customerName").value="";
  document.getElementById("customerPhone").value="";
@@ -1467,8 +1475,7 @@ async function editSale(saleId){
    .select("*")
    .eq("sale_id",saleId)
    .eq("farm_id",currentFarm.id)
-   .order("created_at",{ascending:true});
-
+   
   if(error)throw error;
 
   if(!items||!items.length){
@@ -2585,8 +2592,9 @@ function numberToWords(amount){
  return result;
 
 }
-
-}/* ================= HELPERS ================= */
+}
+ 
+/* ================= HELPERS ================= */
 
 function money(v){
  return "Tk."+Number(v||0).toLocaleString("en-BD",{
