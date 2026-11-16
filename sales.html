@@ -1535,123 +1535,17 @@ function printSalesHistory(){
 
 async function printInvoice(saleId){
 
- try{
-
-  const {data:sale,error:saleErr}=await supabaseClient
-   .from("sales")
-   .select("*")
-   .eq("id",saleId)
-   .eq("farm_id",currentFarm.id)
-   .single();
-
-  if(saleErr)throw saleErr;
-
-  const [ir,pr]=await Promise.all([
-
-   supabaseClient.from("sale_items")
-    .select("*")
-    .eq("sale_id",saleId)
-    .eq("farm_id",currentFarm.id),
-
-   supabaseClient.from("sale_payments")
-    .select("*")
-    .eq("sale_id",saleId)
-    .eq("farm_id",currentFarm.id)
-    .order("payment_date")
-
-  ]);
-
-  if(ir.error)throw ir.error;
-  if(pr.error)throw pr.error;
-
-  const rows=(ir.data||[]).map(i=>`
-   <tr>
-    <td>${escapeHTML(i.fish_species)}</td>
-    <td>${escapeHTML(i.unit)}</td>
-    <td>${Number(i.quantity).toLocaleString()}</td>
-    <td>${money(i.unit_price)}</td>
-    <td>${money(i.discount_amount)}</td>
-    <td>${money(i.line_total)}</td>
-   </tr>
-  `).join("");
-
-  const payments=(pr.data||[]).map(p=>`
-   <tr>
-    <td>${escapeHTML(p.payment_date)}</td>
-    <td>${escapeHTML(p.payment_method)}</td>
-    <td>${money(p.amount)}</td>
-   </tr>
-  `).join("");
-
-  const win=window.open("","_blank");
-
-  if(!win){
-   alert("Please allow pop-ups to print invoices.");
-   return;
-  }
-
-  win.document.write(`
-   <!DOCTYPE html>
-   <html>
-   <head>
-    <meta charset="UTF-8">
-    <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
-    <style>
-     @page{size:A4 portrait;margin:0.5in 1in}
-     body{font-family:Arial,sans-serif;padding:10px;color:#1e293b}
-     h1,h2{color:#142d4e}
-     .header{text-align:center;margin-bottom:24px;border-bottom:2px solid #142d4e;padding-bottom:15px}
-     table{width:100%;border-collapse:collapse;margin-top:14px}
-     th,td{border:1px solid #ddd;padding:9px;text-align:left}
-     th{background:#eaf2fa}
-     .right{text-align:right;margin-top:20px}
-     @media print{button{display:none}}
-    </style>
-   </head>
-   <body>
-    <div class="header">
-     <h1>AquaFarm ERP</h1>
-     <h2>${escapeHTML(currentFarm.farm_name)}</h2>
-     <p>Sales Invoice</p>
-    </div>
-    <p><b>Invoice:</b> ${escapeHTML(sale.invoice_no)}</p>
-    <p><b>Date:</b> ${escapeHTML(sale.sale_date)}</p>
-    <p><b>Customer:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}</p>
-    <p><b>Phone:</b> ${escapeHTML(sale.customer_phone||"")}</p>
-    <p><b>Address:</b> ${escapeHTML(sale.customer_address||"")}</p>
-    <table>
-     <thead><tr><th>Fish</th><th>Unit</th><th>Quantity</th><th>Price</th><th>Discount</th><th>Total</th></tr></thead>
-     <tbody>${rows}</tbody>
-    </table>
-    <div class="right">
-     <p>Subtotal: ${money(sale.subtotal)}</p>
-     <p>Discount: ${money(sale.discount_amount)}</p>
-     <h2>Total: ${money(sale.grand_total)}</h2>
-     <p>Paid: ${money(sale.paid_amount)}</p>
-     <p>Due: ${money(sale.due_amount)}</p>
-    </div>
-    <h3>Payment History</h3>
-    <table>
-     <thead><tr><th>Date</th><th>Method</th><th>Amount</th></tr></thead>
-     <tbody>${payments||'<tr><td colspan="3">No payment recorded.</td></tr>'}</tbody>
-    </table>
-    <br><p>Thank you for your business.</p>
-    <button onclick="window.print()">Print Invoice</button>
-   </body>
-   </html>
-  `);
-
-  win.document.close();
-
- }catch(e){
-
-  console.error(e);
-  alert("Invoice Error: "+e.message);
-
- }
+ // নতুন Invoice Code
 
 }
 
+/* ================= NUMBER TO WORDS ================= */
+
+function numberToWords(amount){
+
+ // নতুন Number to Words Code
+
+}
 /* ================= HELPERS ================= */
 
 function money(v){
@@ -1682,7 +1576,6 @@ function localDateString(){
  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
  return local.toISOString().slice(0,10);
 }
-
 /* ================= LOGOUT ================= */
 
 async function logout(){
