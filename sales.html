@@ -1064,54 +1064,85 @@ async function uploadSaleVouchers(saleId,files){
 
 async function viewSaleVouchers(saleId){
 
+ let voucherWindow=null;
+
  try{
 
   const files=attachments.filter(a=>
- String(a.transaction_id)===String(saleId)&&
- a.module_name==="sales"
-);
+   String(a.transaction_id)===String(saleId)&&
+   a.module_name==="sales"
+  );
 
   if(!files.length){
    alert("No voucher or receipt attached to this sale.");
    return;
   }
 
-  let choice;
+  let selectedFile;
 
   if(files.length===1){
-   choice="1";
+
+   selectedFile=files[0];
+
   }else{
-   choice=prompt("Enter file number to open:\n\n"+
-    files.map((f,i)=>(i+1)+". "+f.file_name).join("\n"));
+
+   const choice=prompt(
+    "Enter file number to open:\n\n"+
+    files.map((f,i)=>(i+1)+". "+f.file_name).join("\n")
+   );
+
+   if(choice===null)return;
+
+   const index=Number(choice)-1;
+
+   if(!Number.isInteger(index)||index<0||index>=files.length){
+    alert("Invalid selection.");
+    return;
+   }
+
+   selectedFile=files[index];
+
   }
 
-  if(choice===null)return;
+  // Open blank window immediately to avoid popup blocking
+  voucherWindow=window.open("about:blank","_blank");
 
-  const index=Number(choice)-1;
-
-  if(!Number.isInteger(index)||index<0||index>=files.length){
-   alert("Invalid selection.");
+  if(!voucherWindow){
+   alert("Please allow pop-ups for AquaFarm ERP and try again.");
    return;
   }
 
+  voucherWindow.document.write(
+   "<html><body style='font-family:Arial;text-align:center;padding:30px'>"+
+   "<h3>Opening Voucher...</h3>"+
+   "<p>Please wait.</p></body></html>"
+  );
+
   const {data,error}=await supabaseClient.storage
    .from(BUCKET_NAME)
-   .createSignedUrl(files[index].file_path,120);
+   .createSignedUrl(selectedFile.file_path,300);
 
   if(error)throw error;
 
-  const opened=window.open(data.signedUrl,"_blank");
-  if(!opened)window.location.href=data.signedUrl;
+  if(!data||!data.signedUrl){
+   throw new Error("Could not generate voucher URL.");
+  }
+
+  voucherWindow.location.href=data.signedUrl;
 
  }catch(e){
 
-  console.error(e);
+  console.error("Voucher Error:",e);
+
+  if(voucherWindow&&!voucherWindow.closed){
+   voucherWindow.close();
+  }
+
   alert("Could not open voucher: "+e.message);
 
  }
 
 }
-
 /* ================= SAVE SALE ================= */
 
 async function saveSale(){
@@ -1532,23 +1563,542 @@ function printSalesHistory(){
  win.document.close();
 
 }
-
 /* ================= PRINT INVOICE ================= */
 
 async function printInvoice(saleId){
 
- // নতুন Invoice Code
+ // Open print window before awaiting database response
+ const win=window.open("about:blank","_blank");
 
-}
+ if(!win){
+  alert("Please allow pop-ups for AquaFarm ERP to print invoices.");
+  return;
+ }
 
-/* ================= NUMBER TO WORDS ================= */
+ win.document.write(`
+  <html>
+  <head>
+   <title>Preparing Invoice</title>
+  </head>
+  <body style="font-family:Arial;text-align:center;padding:40px">
+   <h3>Preparing Invoice...</h3>
+   <p>Please wait.</p>
+  </body>
+  </html>
+ `);
+
+ try{
+
+  if(!currentFarm){
+   throw new Error("No farm selected.");
+  }
+
+  const sale=salesList.find(s=>
+   String(s.id)===String(saleId)
+  );
+
+  if(!sale){
+   throw new Error("Sale record not found.");
+  }
+
+  // Load sale items
+  const {data:items,error:itemError}=await supabaseClient
+   .from("sale_items")
+   .select("*")
+   .eq("sale_id",saleId)
+   .eq("farm_id",currentFarm.id);
+
+  if(itemError)throw itemError;
+
+  if(!items||!items.length){
+   throw new Error("No fish items found for this invoice.");
+  }
+
+  // Load payment records
+  const {data:payments,error:paymentError}=await supabaseClient
+   .from("sale_payments")
+   .select("*")
+   .eq("sale_id",saleId)
+   .eq("farm_id",currentFarm.id);
+
+  if(paymentError)throw paymentError;
+
+  const itemRows=items.map((item,index)=>{
+
+   const quantity=Number(item.quantity||0);
+   const price=Number(item.unit_price||0);
+   const discount=Number(item.discount_amount||0);
+   const total=Math.max(0,quantity*price-discount);
+
+   return `
+    <tr>
+     <td>${index+1}</td>
+     <td>${escapeHTML(item.fish_species||"")}</td>
+     <td>${escapeHTML(item.unit||"")}</td>
+     <td class="right">${quantity.toLocaleString("en-BD")}</td>
+     <td class="right">${money(price)}</td>
+     <td class="right">${money(discount)}</td>
+     <td class="right">${money(total)}</td>
+    </tr>
+   `;
+
+  }).join("");
+
+  const paymentRows=(payments||[]).map(p=>`
+   <tr>
+    <td>${escapeHTML(p.payment_date||"")}</td>
+    <td>${escapeHTML(p.payment_method||"")}</td>
+    <td>${escapeHTML(p.transaction_reference||"-")}</td>
+    <td class="right">${money(p.amount)}</td>
+   </tr>
+  `).join("");
+
+  const subtotal=Number(sale.subtotal||0);
+  const discount=Number(sale.discount_amount||0);
+  const grand=Number(sale.grand_total||0);
+  const paid=Number(sale.paid_amount||0);
+  const due=Number(sale.due_amount||0);
+
+  const invoiceHTML=`
+  <!DOCTYPE html>
+  <html>
+  <head>
+   <meta charset="UTF-8">
+   <title>Invoice - ${escapeHTML(sale.invoice_no)}</title>
+
+   <style>
+
+    @page{
+     size:A4 portrait;
+     margin:15mm;
+    }
+
+    *{
+     box-sizing:border-box;
+    }
+
+    body{
+     font-family:Arial,sans-serif;
+     color:#1e293b;
+     font-size:12px;
+     margin:0;
+     background:#fff;
+    }
+
+    .invoice{
+     max-width:850px;
+     margin:auto;
+    }
+
+    .header{
+     text-align:center;
+     padding:20px 10px;
+     border-bottom:3px solid #142d4e;
+    }
+
+    .header h1{
+     font-size:27px;
+     color:#142d4e;
+     margin:0 0 8px;
+    }
+
+    .header h2{
+     font-size:18px;
+     color:#0d9488;
+     margin:0;
+    }
+
+    .header p{
+     color:#64748b;
+     margin-top:7px;
+    }
+
+    .invoice-title{
+     text-align:center;
+     margin:22px 0;
+    }
+
+    .invoice-title h2{
+     display:inline-block;
+     background:#142d4e;
+     color:white;
+     padding:10px 35px;
+     border-radius:5px;
+     margin:0;
+     font-size:17px;
+    }
+
+    .info{
+     display:grid;
+     grid-template-columns:1fr 1fr;
+     gap:12px;
+     margin-bottom:20px;
+    }
+
+    .info-box{
+     border:1px solid #cbd5e1;
+     padding:12px;
+     border-radius:5px;
+     line-height:1.8;
+    }
+
+    .info-box h3{
+     color:#142d4e;
+     margin:0 0 7px;
+     font-size:13px;
+     border-bottom:1px solid #dbe3ed;
+     padding-bottom:5px;
+    }
+
+    table{
+     width:100%;
+     border-collapse:collapse;
+     margin-top:12px;
+    }
+
+    th,td{
+     border:1px solid #cbd5e1;
+     padding:9px 7px;
+     font-size:11px;
+    }
+
+    th{
+     background:#142d4e;
+     color:#fff;
+     text-align:left;
+    }
+
+    .right{
+     text-align:right;
+     white-space:nowrap;
+    }
+
+    tbody tr:nth-child(even){
+     background:#f1f5f9;
+    }
+
+    .summary{
+     width:300px;
+     margin:20px 0 0 auto;
+     border:1px solid #cbd5e1;
+     border-radius:6px;
+     padding:12px;
+    }
+
+    .summary-row{
+     display:flex;
+     justify-content:space-between;
+     padding:7px 0;
+     border-bottom:1px solid #e2e8f0;
+    }
+
+    .summary-row:last-child{
+     border-bottom:0;
+    }
+
+    .grand{
+     font-size:15px;
+     font-weight:bold;
+     color:#142d4e;
+    }
+
+    .words{
+     margin-top:15px;
+     padding:12px;
+     background:#f1f5f9;
+     border-left:4px solid #0d9488;
+     line-height:1.6;
+    }
+
+    .status{
+     margin-top:15px;
+     font-weight:bold;
+    }
+
+    .footer{
+     margin-top:55px;
+     display:flex;
+     justify-content:space-between;
+     text-align:center;
+    }
+
+    .signature{
+     width:190px;
+     border-top:1px solid #64748b;
+     padding-top:8px;
+    }
+
+    .note{
+     margin-top:30px;
+     text-align:center;
+     color:#64748b;
+     border-top:1px solid #cbd5e1;
+     padding-top:12px;
+    }
+
+    .print-button{
+     display:block;
+     margin:25px auto;
+     padding:12px 30px;
+     background:#142d4e;
+     color:#fff;
+     border:0;
+     border-radius:5px;
+     cursor:pointer;
+     font-weight:bold;
+    }
+
+    @media print{
+     .print-button{
+      display:none;
+     }
+
+     .invoice{
+      max-width:none;
+     }
+
+     thead{
+      display:table-header-group;
+     }
+
+     tr{
+      page-break-inside:avoid;
+     }
+    }
+
+   </style>
+  </head>
+
+  <body>
+
+   <div class="invoice">
+
+    <div class="header">
+     <h1>AquaFarm ERP</h1>
+     <h2>${escapeHTML(currentFarm.farm_name)}</h2>
+     <p>Fish Farming Management & Accounting System</p>
+    </div>
+
+    <div class="invoice-title">
+     <h2>SALES INVOICE</h2>
+    </div>
+
+    <div class="info">
+
+     <div class="info-box">
+      <h3>Invoice Information</h3>
+      <b>Invoice No:</b> ${escapeHTML(sale.invoice_no)}<br>
+      <b>Invoice Date:</b> ${escapeHTML(sale.sale_date)}<br>
+      <b>Farm Code:</b> ${escapeHTML(currentFarm.farm_code)}<br>
+      <b>Status:</b> ${escapeHTML(sale.status)}
+     </div>
+
+     <div class="info-box">
+      <h3>Customer Information</h3>
+      <b>Name:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}<br>
+      <b>Phone:</b> ${escapeHTML(sale.customer_phone||"-")}<br>
+      <b>Address:</b> ${escapeHTML(sale.customer_address||"-")}
+     </div>
+
+    </div>
+
+    <h3 style="color:#142d4e">Fish Sale Details</h3>
+
+    <table>
+     <thead>
+      <tr>
+       <th>SL</th>
+       <th>Fish Species</th>
+       <th>Unit</th>
+       <th>Quantity</th>
+       <th>Unit Price</th>
+       <th>Discount</th>
+       <th>Total</th>
+      </tr>
+     </thead>
+
+     <tbody>
+      ${itemRows}
+     </tbody>
+    </table>
+
+    <div class="summary">
+
+     <div class="summary-row">
+      <span>Subtotal</span>
+      <b>${money(subtotal)}</b>
+     </div>
+
+     <div class="summary-row">
+      <span>Discount</span>
+      <b>${money(discount)}</b>
+     </div>
+
+     <div class="summary-row grand">
+      <span>Grand Total</span>
+      <b>${money(grand)}</b>
+     </div>
+
+     <div class="summary-row">
+      <span>Paid Amount</span>
+      <b>${money(paid)}</b>
+     </div>
+
+     <div class="summary-row">
+      <span>Due Amount</span>
+      <b>${money(due)}</b>
+     </div>
+
+    </div>
+
+    <div class="words">
+     <b>Amount in Words:</b>
+     ${escapeHTML(numberToWords(grand))} Only.
+    </div>
+
+    ${payments&&payments.length?`
+     <h3 style="margin-top:25px;color:#142d4e">Payment Details</h3>
+
+     <table>
+      <thead>
+       <tr>
+        <th>Payment Date</th>
+        <th>Method</th>
+        <th>Reference</th>
+        <th>Amount</th>
+       </tr>
+      </thead>
+      <tbody>
+       ${paymentRows}
+      </tbody>
+     </table>
+    `:""}
+
+    ${sale.notes?`
+     <div class="words">
+      <b>Notes:</b> ${escapeHTML(sale.notes)}
+     </div>
+    `:""}
+
+    <div class="status">
+     Payment Status:
+     ${due<=0?"PAID":paid>0?"PARTIALLY PAID":"UNPAID"}
+    </div>
+
+    <div class="footer">
+     <div class="signature">
+      Customer Signature
+     </div>
+
+     <div class="signature">
+      Authorized Signature
+     </div>
+    </div>
+
+    <div class="note">
+     Thank you for your business.<br>
+     Generated by AquaFarm ERP
+    </div>
+
+   </div>
+
+   <button class="print-button" onclick="window.print()">
+    Print Invoice
+   </button>
+
+  </body>
+  </html>
+  `;
+
+  win.document.open();
+  win.document.write(invoiceHTML);
+  win.document.close();
+
+ }catch(e){
+
+  console.error("Invoice Print Error:",e);
+
+  if(!win.closed){
+   win.document.open();
+   win.document.write(`
+    <html>
+    <body style="font-family:Arial;padding:30px">
+     <h3>Unable to prepare invoice</h3>
+     <p>${escapeHTML(e.message)}</p>
+    </body>
+    </html>
+   `);
+   win.document.close();
+  }
+
+  alert("Could not prepare invoice: "+e.message);
+
+ }
+
+ /* ================= NUMBER TO WORDS ================= */
 
 function numberToWords(amount){
 
- // নতুন Number to Words Code
+ const ones=[
+  "Zero","One","Two","Three","Four","Five",
+  "Six","Seven","Eight","Nine","Ten",
+  "Eleven","Twelve","Thirteen","Fourteen",
+  "Fifteen","Sixteen","Seventeen","Eighteen",
+  "Nineteen"
+ ];
+
+ const tens=[
+  "","","Twenty","Thirty","Forty",
+  "Fifty","Sixty","Seventy","Eighty","Ninety"
+ ];
+
+ function convert(n){
+
+  n=Math.floor(n);
+
+  if(n<20)return ones[n];
+
+  if(n<100){
+   return tens[Math.floor(n/10)]+
+    (n%10?" "+ones[n%10]:"");
+  }
+
+  if(n<1000){
+   return ones[Math.floor(n/100)]+" Hundred"+
+    (n%100?" "+convert(n%100):"");
+  }
+
+  if(n<100000){
+   return convert(Math.floor(n/1000))+" Thousand"+
+    (n%1000?" "+convert(n%1000):"");
+  }
+
+  if(n<10000000){
+   return convert(Math.floor(n/100000))+" Lakh"+
+    (n%100000?" "+convert(n%100000):"");
+  }
+
+  return convert(Math.floor(n/10000000))+" Crore"+
+   (n%10000000?" "+convert(n%10000000):"");
+
+ }
+
+ const value=Math.max(0,Number(amount)||0);
+
+ const taka=Math.floor(value);
+ const paisa=Math.round((value-taka)*100);
+
+ let result=convert(taka)+" Taka";
+
+ if(paisa>0){
+  result+=" and "+convert(paisa)+" Paisa";
+ }
+
+ return result;
 
 }
-/* ================= HELPERS ================= */
+
+}/* ================= HELPERS ================= */
 
 function money(v){
  return "Tk."+Number(v||0).toLocaleString("en-BD",{
