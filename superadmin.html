@@ -322,6 +322,42 @@ th {
                 ↻ Refresh Farms
             </button>
         </div>
+<div style="background:#f8fafc;padding:20px;border-radius:10px;margin-bottom:22px;">
+
+    <h3 style="margin-bottom:15px;">➕ Create New Farm</h3>
+
+    <form id="createFarmForm">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+
+            <input id="newFarmCode" type="text"
+                placeholder="Farm Code (e.g. AF002)" required>
+
+            <input id="newFarmName" type="text"
+                placeholder="Farm Name" required>
+
+            <input id="newFarmEmail" type="email"
+                placeholder="Farm Email">
+
+            <input id="newFarmPhone" type="text"
+                placeholder="Farm Phone">
+
+            <input id="newFarmAddress" type="text"
+                placeholder="Farm Address">
+
+        </div>
+
+        <button type="submit" class="refresh" id="createFarmBtn"
+            style="margin-top:15px;">
+            Create Farm
+        </button>
+
+    </form>
+
+    <p id="createFarmMessage"></p>
+
+</div>
+        
         <div class="table-wrap">
             <table>
                 <thead>
