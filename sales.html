@@ -4,244 +4,902 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AquaFarm ERP - Sales Management</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
- --navy:#142d4e;--navy2:#1e416b;--teal:#0d9488;
- --blue:#2563eb;--bg:#f1f5f9;--white:#fff;
- --text:#1e293b;--muted:#64748b;--border:#dbe3ed;
- --green:#16a34a;--orange:#ea580c;--red:#dc2626;
+ --navy:#102846;
+ --navy2:#173e68;
+ --navy3:#245786;
+ --teal:#0d9488;
+ --teal2:#14b8a6;
+ --gold:#f5b942;
+ --blue:#2563eb;
+ --green:#16a34a;
+ --orange:#ea580c;
+ --purple:#7c3aed;
+ --red:#dc2626;
+ --bg:#edf3f9;
+ --white:#ffffff;
+ --text:#1e293b;
+ --muted:#64748b;
+ --border:#dbe3ed;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:var(--bg);color:var(--text)}
-.layout{display:flex;min-height:100vh}
-.sidebar{width:255px;flex-shrink:0;background:var(--navy);color:#fff;padding:25px 15px}
-.brand{text-align:center;padding-bottom:24px;border-bottom:1px solid #36516f}
-.brand .icon{font-size:42px}
-.brand h2{color:#5eead4;margin-top:8px;font-size:23px}
-.brand p{font-size:11px;margin-top:6px;color:#cbd5e1}
-.menu{margin-top:24px}
-.menu a{display:block;color:#dbeafe;padding:12px;margin-bottom:5px;text-decoration:none;border-radius:8px;font-size:14px}
-.menu a:hover,.menu a.active{background:var(--teal);color:#fff}
-.main{flex:1;min-width:0}
-.topbar{background:#fff;padding:19px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px #0f172a0f}
-.topbar h2{color:var(--navy);font-size:22px}
-.logout{background:var(--red);color:#fff;border:0;padding:11px 19px;border-radius:8px;font-weight:bold;cursor:pointer}
-.content{padding:26px;max-width:1600px;margin:auto}
-.page-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px}
-.page-title{color:var(--navy);font-size:26px}
-.page-subtitle{color:var(--muted);font-size:14px;margin-top:6px}
-.farm-select{max-width:390px;margin-bottom:20px;background:#fff;padding:16px;border-radius:12px;border:1px solid var(--border)}
-.farm-select label,.field label{display:block;font-weight:bold;margin-bottom:8px;color:#334155;font-size:14px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.card{background:#fff;padding:20px;border-radius:13px;box-shadow:0 3px 12px #0f172a0d;border-top:4px solid var(--blue)}
-.card:nth-child(2){border-top-color:var(--teal)}
-.card:nth-child(3){border-top-color:var(--green)}
-.card:nth-child(4){border-top-color:var(--orange)}
-.label{color:var(--muted);font-size:14px;font-weight:bold}
-.number{color:var(--navy);font-size:25px;font-weight:bold;margin-top:12px}
-.section{background:#fff;padding:24px;border-radius:13px;margin-top:22px;box-shadow:0 3px 12px #0f172a0a;border:1px solid #e8edf4}
-.section-title{color:var(--navy);font-size:19px;margin-bottom:18px;padding-bottom:13px;border-bottom:1px solid var(--border)}
-.subheading{color:var(--navy2);font-size:16px;margin:24px 0 14px}
-.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.field{min-width:0}
-input,select,textarea{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:var(--text);outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px #0d94881a}
-textarea{resize:vertical;min-height:85px}
-button{cursor:pointer}
-.btn{border:0;padding:11px 16px;border-radius:8px;font-size:14px;font-weight:bold;transition:.15s}
-.btn:hover{opacity:.92;transform:translateY(-1px)}
-.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-.btn-primary{background:var(--navy2);color:#fff}
-.btn-teal{background:var(--teal);color:#fff}
-.btn-secondary{background:#e2e8f0;color:#334155}
-.btn-danger{background:#fee2e2;color:#b91c1c}
-.btn-small{padding:7px 10px;font-size:12px}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}
-table{width:100%;border-collapse:collapse;min-width:760px}
-th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:middle}
-th{background:#eaf2fa;color:var(--navy);font-size:13px;white-space:nowrap}
-td input,td select{min-width:95px;padding:9px}
-.summary{max-width:410px;margin:20px 0 0 auto;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid var(--border)}
-.summary-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
-.summary-row.total{color:var(--navy);font-weight:bold;font-size:19px}
-.summary input{max-width:155px;text-align:right}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}
-.upload-box{border:2px dashed #94a3b8;border-radius:11px;padding:22px;background:#f8fafc;text-align:center}
-.upload-box p{color:var(--muted);font-size:13px;margin:8px 0 13px;line-height:1.5}
-.upload-box input{max-width:460px;margin:auto}
-.file-list{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;text-align:left}
-.file-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px;font-size:12px;overflow-wrap:anywhere}
-.file-item img{width:100%;height:100px;object-fit:contain;background:#f1f5f9;border-radius:5px;margin-bottom:6px}
-.message{margin-top:15px;padding:12px;border-radius:8px;display:none;font-size:14px;line-height:1.5}
-.message.success{display:block;background:#dcfce7;color:#166534}
-.message.error{display:block;background:#fee2e2;color:#991b1b}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold;text-transform:capitalize}
-.status.posted{background:#dcfce7;color:#166534}
-.status.draft{background:#fef3c7;color:#92400e}
-.status.cancelled{background:#fee2e2;color:#991b1b}
-.empty{padding:18px;text-align:center;color:var(--muted)}
+
+*{
+ margin:0;
+ padding:0;
+ box-sizing:border-box;
+ font-family:Arial,sans-serif;
+}
+
+body{
+ background:linear-gradient(135deg,#edf3f9,#e6eef7,#f4f7fb);
+ color:var(--text);
+ min-height:100vh;
+}
+
+button{
+ cursor:pointer;
+}
+
+.layout{
+ display:flex;
+ min-height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+ width:255px;
+ flex-shrink:0;
+ background:linear-gradient(180deg,#102846,#173e68,#102846);
+ color:#fff;
+ padding:25px 15px;
+ box-shadow:5px 0 20px rgba(15,35,60,.13);
+}
+
+.brand{
+ text-align:center;
+ padding-bottom:24px;
+ border-bottom:1px solid #36516f;
+}
+
+.brand .icon{
+ font-size:45px;
+}
+
+.brand h2{
+ color:#5eead4;
+ margin-top:8px;
+ font-size:23px;
+}
+
+.brand p{
+ font-size:11px;
+ margin-top:6px;
+ color:#cbd5e1;
+}
+
+.menu{
+ margin-top:24px;
+}
+
+.menu a{
+ display:block;
+ color:#dbeafe;
+ padding:12px;
+ margin-bottom:5px;
+ text-decoration:none;
+ border-radius:8px;
+ font-size:14px;
+ transition:.25s;
+}
+
+.menu a:hover,
+.menu a.active{
+ background:linear-gradient(90deg,#0d9488,#14b8a6);
+ color:#fff;
+ transform:translateX(3px);
+}
+
+/* ================= MAIN ================= */
+
+.main{
+ flex:1;
+ min-width:0;
+}
+
+/* ================= TOPBAR ================= */
+
+.topbar{
+ position:sticky;
+ top:0;
+ z-index:1000;
+ display:grid;
+ grid-template-columns:1fr auto 1fr;
+ align-items:center;
+ background:linear-gradient(110deg,#102846,#173e68,#102846);
+ padding:13px 25px;
+ border-bottom:3px solid var(--teal2);
+ box-shadow:0 5px 18px rgba(15,35,60,.20);
+}
+
+.topbar h2{
+ grid-column:2;
+ justify-self:center;
+ color:#fff;
+ font-size:21px;
+ font-weight:800;
+ letter-spacing:1px;
+ border:2px solid #5eead4;
+ border-radius:9px;
+ padding:10px 30px;
+ background:linear-gradient(135deg,#245786,#173e68);
+ box-shadow:0 3px 12px rgba(0,0,0,.15);
+}
+
+.logout{
+ grid-column:3;
+ justify-self:end;
+ background:linear-gradient(135deg,#dc2626,#ef4444);
+ color:#fff;
+ border:1px solid rgba(255,255,255,.25);
+ padding:11px 20px;
+ border-radius:8px;
+ font-weight:bold;
+ transition:.25s;
+}
+
+.logout:hover{
+ transform:translateY(-2px);
+ box-shadow:0 5px 12px rgba(220,38,38,.3);
+}
+
+/* ================= CONTENT ================= */
+
+.content{
+ padding:26px;
+ max-width:1650px;
+ margin:auto;
+}
+
+.page-heading{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:12px;
+ margin-bottom:20px;
+}
+
+.page-title{
+ color:var(--navy);
+ font-size:27px;
+ font-weight:800;
+}
+
+.page-subtitle{
+ color:var(--muted);
+ font-size:14px;
+ margin-top:7px;
+}
+
+/* ================= OVERVIEW PANEL ================= */
+
+.overview-panel{
+ background:linear-gradient(135deg,#dceeff,#e8f4ff,#dceeea);
+ border:1px solid #a8c9e8;
+ border-radius:17px;
+ padding:24px;
+ margin-bottom:24px;
+ box-shadow:0 6px 20px rgba(30,64,120,.09);
+ position:relative;
+ overflow:hidden;
+}
+
+.overview-panel:before{
+ content:"";
+ position:absolute;
+ top:-90px;
+ right:-60px;
+ width:230px;
+ height:230px;
+ border-radius:50%;
+ background:rgba(255,255,255,.35);
+ pointer-events:none;
+}
+
+.overview-panel>*{
+ position:relative;
+ z-index:1;
+}
+
+.farm-select{
+ max-width:390px;
+ margin-bottom:20px;
+ background:#fff;
+ padding:15px;
+ border-radius:11px;
+ border:1px solid #b9d3eb;
+ box-shadow:0 3px 10px rgba(30,64,120,.06);
+}
+
+.farm-select label,
+.field label{
+ display:block;
+ font-weight:bold;
+ margin-bottom:8px;
+ color:#334155;
+ font-size:14px;
+}
+
+/* ================= SUMMARY CARDS ================= */
+
+.cards{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:16px;
+}
+
+.card{
+ padding:22px;
+ border-radius:14px;
+ color:#fff;
+ border:1px solid rgba(255,255,255,.18);
+ box-shadow:0 6px 17px rgba(15,35,60,.15);
+ transition:transform .25s,box-shadow .25s;
+ position:relative;
+ overflow:hidden;
+}
+
+.card:after{
+ content:"";
+ position:absolute;
+ width:100px;
+ height:100px;
+ right:-25px;
+ top:-30px;
+ background:rgba(255,255,255,.10);
+ border-radius:50%;
+}
+
+.card:hover{
+ transform:translateY(-5px);
+ box-shadow:0 12px 23px rgba(15,35,60,.20);
+}
+
+.cards .card:nth-child(1){
+ background:linear-gradient(135deg,#142d4e,#2563a6);
+}
+
+.cards .card:nth-child(2){
+ background:linear-gradient(135deg,#087f5b,#20a779);
+}
+
+.cards .card:nth-child(3){
+ background:linear-gradient(135deg,#b45309,#f59e0b);
+}
+
+.cards .card:nth-child(4){
+ background:linear-gradient(135deg,#6b21a8,#9333ea);
+}
+
+.card .label{
+ color:#fff;
+ font-size:14px;
+ font-weight:bold;
+ position:relative;
+ z-index:1;
+}
+
+.card .number{
+ color:#fff;
+ font-size:27px;
+ font-weight:800;
+ margin-top:13px;
+ position:relative;
+ z-index:1;
+}
+
+/* ================= GENERAL SECTIONS ================= */
+
+.section{
+ background:#fff;
+ padding:24px;
+ border-radius:15px;
+ margin-top:23px;
+ box-shadow:0 5px 18px rgba(15,35,60,.07);
+ border:1px solid #e0e8f1;
+}
+
+.section-title{
+ color:#fff;
+ font-size:19px;
+ margin-bottom:20px;
+ padding:14px 18px;
+ border-radius:9px;
+ background:linear-gradient(100deg,#142d4e,#245786);
+ border-left:5px solid #14b8a6;
+ box-shadow:0 3px 10px rgba(15,35,60,.12);
+}
+
+/* ================= FORM GROUPS ================= */
+
+.form-group{
+ padding:21px;
+ border-radius:13px;
+ margin-top:20px;
+ border:1px solid #d5e0ec;
+ transition:box-shadow .2s;
+}
+
+.form-group:hover{
+ box-shadow:0 4px 13px rgba(15,35,60,.06);
+}
+
+.form-group .subheading{
+ font-size:16px;
+ margin:0 0 19px;
+ padding:11px 14px;
+ border-radius:8px;
+ font-weight:800;
+}
+
+/* 1 BLUE */
+
+.group-blue{
+ background:linear-gradient(135deg,#eff6ff,#e5f0ff);
+ border-color:#bfdbfe;
+}
+
+.group-blue .subheading{
+ background:#dbeafe;
+ color:#1e40af;
+ border-left:4px solid #2563eb;
+}
+
+/* 2 GREEN */
+
+.group-green{
+ background:linear-gradient(135deg,#effcf4,#e4f7eb);
+ border-color:#bbf7d0;
+}
+
+.group-green .subheading{
+ background:#d1fae5;
+ color:#166534;
+ border-left:4px solid #16a34a;
+}
+
+/* 3 ORANGE */
+
+.group-orange{
+ background:linear-gradient(135deg,#fff8ed,#fff0dc);
+ border-color:#fed7aa;
+}
+
+.group-orange .subheading{
+ background:#ffedd5;
+ color:#9a3412;
+ border-left:4px solid #ea580c;
+}
+
+/* 4 PURPLE */
+
+.group-purple{
+ background:linear-gradient(135deg,#f7f2ff,#eee8ff);
+ border-color:#ddd6fe;
+}
+
+.group-purple .subheading{
+ background:#ede9fe;
+ color:#6b21a8;
+ border-left:4px solid #7c3aed;
+}
+
+/* 5 VOUCHER */
+
+.group-voucher{
+ background:linear-gradient(135deg,#e8edf3,#dce5ef);
+ border-color:#aab9ca;
+}
+
+.group-voucher .subheading{
+ background:#cbd5e1;
+ color:#1e293b;
+ border-left:4px solid #475569;
+}
+
+/* 6 ADDITIONAL */
+
+.group-gray{
+ background:linear-gradient(135deg,#f8fafc,#eaf0f6);
+ border-color:#cbd5e1;
+}
+
+.group-gray .subheading{
+ background:#e2e8f0;
+ color:#334155;
+ border-left:4px solid #64748b;
+}
+
+/* ================= FORM GRID ================= */
+
+.form-grid{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:16px;
+}
+
+.field{
+ min-width:0;
+}
+
+input,
+select,
+textarea{
+ width:100%;
+ padding:12px 13px;
+ border:1px solid #cbd5e1;
+ border-radius:8px;
+ font-size:14px;
+ background:#fff;
+ color:var(--text);
+ outline:none;
+ transition:.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+ border-color:var(--teal);
+ box-shadow:0 0 0 3px #0d94881a;
+}
+
+textarea{
+ resize:vertical;
+ min-height:90px;
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+ border:0;
+ padding:11px 17px;
+ border-radius:8px;
+ font-size:14px;
+ font-weight:bold;
+ transition:.2s;
+}
+
+.btn:hover{
+ opacity:.95;
+ transform:translateY(-2px);
+ box-shadow:0 4px 10px rgba(15,35,60,.12);
+}
+
+.btn:disabled{
+ opacity:.55;
+ cursor:not-allowed;
+ transform:none;
+}
+
+.btn-primary{
+ background:linear-gradient(135deg,#173e68,#2563a6);
+ color:#fff;
+}
+
+.btn-teal{
+ background:linear-gradient(135deg,#0d9488,#14b8a6);
+ color:#fff;
+}
+
+.btn-secondary{
+ background:#e2e8f0;
+ color:#334155;
+}
+
+.btn-danger{
+ background:#fee2e2;
+ color:#b91c1c;
+}
+
+.btn-small{
+ padding:7px 10px;
+ font-size:12px;
+}
+
+.actions{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ margin-top:18px;
+}
+
+.form-actions{
+ padding-top:19px;
+ border-top:1px solid #dbe3ed;
+}
+
+/* ================= TABLES ================= */
+
+.table-wrap{
+ overflow-x:auto;
+ border:1px solid #d5e0ec;
+ border-radius:10px;
+ background:#fff;
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ min-width:760px;
+}
+
+th,td{
+ padding:12px;
+ text-align:left;
+ border-bottom:1px solid #e2e8f0;
+ font-size:13px;
+ vertical-align:middle;
+}
+
+th{
+ background:linear-gradient(100deg,#dce9f7,#eaf2fa);
+ color:#142d4e;
+ font-size:13px;
+ white-space:nowrap;
+ font-weight:800;
+}
+
+tbody tr:hover{
+ background:#f1f8ff;
+}
+
+td input,
+td select{
+ min-width:95px;
+ padding:9px;
+}
+
+.lineTotal{
+ font-weight:bold;
+ color:#087f5b;
+ white-space:nowrap;
+}
+
+/* ================= SUMMARY ================= */
+
+.summary{
+ max-width:410px;
+ margin:20px 0 0 auto;
+ padding:16px;
+ background:#fff;
+ border-radius:11px;
+ border:1px solid #d5e0ec;
+ box-shadow:0 3px 9px rgba(15,35,60,.05);
+}
+
+.summary-row{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ padding:10px 0;
+ border-bottom:1px solid #e2e8f0;
+ font-size:14px;
+}
+
+.summary-row:last-child{
+ border-bottom:0;
+}
+
+.summary-row.total{
+ color:#142d4e;
+ font-weight:bold;
+ font-size:19px;
+}
+
+.summary input{
+ max-width:155px;
+ text-align:right;
+}
+
+/* ================= VOUCHER UPLOAD ================= */
+
+.upload-box{
+ border:2px dashed #64748b;
+ border-radius:12px;
+ padding:24px;
+ background:linear-gradient(135deg,#dce5ef,#eaf0f6);
+ text-align:center;
+}
+
+.upload-box>b{
+ color:#142d4e;
+ font-size:15px;
+}
+
+.upload-box p{
+ color:#475569;
+ font-size:13px;
+ margin:10px 0 15px;
+ line-height:1.6;
+}
+
+.upload-box input{
+ max-width:460px;
+ margin:auto;
+}
+
+.file-list{
+ margin-top:15px;
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+ gap:10px;
+ text-align:left;
+}
+
+.file-item{
+ background:#fff;
+ border:1px solid #cbd5e1;
+ border-radius:9px;
+ padding:10px;
+ font-size:12px;
+ overflow-wrap:anywhere;
+}
+
+.file-item img{
+ width:100%;
+ height:105px;
+ object-fit:contain;
+ background:#f1f5f9;
+ border-radius:6px;
+ margin-bottom:7px;
+}
+
+/* ================= MESSAGES ================= */
+
+.message{
+ margin-top:15px;
+ padding:12px;
+ border-radius:8px;
+ display:none;
+ font-size:14px;
+ line-height:1.5;
+}
+
+.message.success{
+ display:block;
+ background:#dcfce7;
+ color:#166534;
+}
+
+.message.error{
+ display:block;
+ background:#fee2e2;
+ color:#991b1b;
+}
+
+/* ================= STATUS ================= */
+
+.status{
+ display:inline-block;
+ padding:5px 9px;
+ border-radius:20px;
+ font-size:11px;
+ font-weight:bold;
+ text-transform:capitalize;
+}
+
+.status.posted{
+ background:#dcfce7;
+ color:#166534;
+}
+
+.status.draft{
+ background:#fef3c7;
+ color:#92400e;
+}
+
+.status.cancelled{
+ background:#fee2e2;
+ color:#991b1b;
+}
+
+.empty{
+ padding:18px;
+ text-align:center;
+ color:var(--muted);
+}
+
+/* ================= SALES HISTORY ================= */
+
+.history-toolbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:end;
+ gap:15px;
+ flex-wrap:wrap;
+ margin-bottom:18px;
+}
+
+.history-toolbar .field{
+ width:100%;
+ max-width:360px;
+}
+
+.print-report-btn{
+ background:linear-gradient(135deg,#087f5b,#16a34a);
+ color:#fff;
+ padding:12px 20px;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes fadeUp{
+ from{
+  opacity:0;
+  transform:translateY(12px);
+ }
+ to{
+  opacity:1;
+  transform:translateY(0);
+ }
+}
+
+.overview-panel,
+.section{
+ animation:fadeUp .45s ease both;
+}
+
+/* ================= RESPONSIVE ================= */
+
 @media(max-width:1100px){
- .cards{grid-template-columns:repeat(2,1fr)}
- .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cards{
+  grid-template-columns:repeat(2,1fr);
+ }
+
+ .form-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
 }
+
 @media(max-width:650px){
- .layout{display:block}
- .sidebar{width:100%;padding:15px}
- .brand{padding-bottom:14px}
- .menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:14px}
- .menu a{padding:10px;font-size:12px;margin:0}
- .topbar{padding:14px}
- .topbar h2{font-size:18px}
- .content{padding:13px}
- .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
- .card{padding:14px}
- .number{font-size:19px}
- .label{font-size:12px}
- .form-grid{grid-template-columns:1fr}
- .section{padding:15px}
- .page-title{font-size:22px}
- .summary{max-width:100%}
+
+ .layout{
+  display:block;
+ }
+
+ .sidebar{
+  width:100%;
+  padding:15px;
+ }
+
+ .brand{
+  padding-bottom:14px;
+ }
+
+ .menu{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+  margin-top:14px;
+ }
+
+ .menu a{
+  padding:10px;
+  font-size:12px;
+  margin:0;
+ }
+
+ .topbar{
+  padding:10px;
+  grid-template-columns:1fr auto;
+ }
+
+ .topbar h2{
+  grid-column:1;
+  justify-self:start;
+  font-size:15px;
+  padding:9px 10px;
+ }
+
+ .topbar .logout{
+  grid-column:2;
+  font-size:12px;
+  padding:9px 12px;
+ }
+
+ .content{
+  padding:13px;
+ }
+
+ .overview-panel{
+  padding:14px;
+ }
+
+ .cards{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+ }
+
+ .card{
+  padding:14px;
+ }
+
+ .number{
+  font-size:19px!important;
+ }
+
+ .label{
+  font-size:12px!important;
+ }
+
+ .form-grid{
+  grid-template-columns:1fr;
+ }
+
+ .section{
+  padding:15px;
+ }
+
+ .form-group{
+  padding:13px;
+ }
+
+ .page-title{
+  font-size:22px;
+ }
+
+ .summary{
+  max-width:100%;
+ }
+
+ .history-toolbar .field{
+  max-width:100%;
+ }
+
+ .print-report-btn{
+  width:100%;
+ }
 }
+
+/* ================= PRINT ================= */
+
 @media print{
- .sidebar,.topbar,.no-print{display:none!important}
- .layout{display:block}
- .content{padding:0}
+ .sidebar,
+ .topbar,
+ .no-print{
+  display:none!important;
+ }
+
+ .layout{
+  display:block;
+ }
+
+ .content{
+  padding:0;
+ }
+
+ body{
+  background:#fff;
+ }
 }
 
- /* ===== AQUAFARM SALES PAGE DESIGN UPDATE ===== */
-
-body {
-background: #eef3f8;
-}
-
-/* Sticky Top Header */
-.topbar {
-position: sticky !important;
-top: 0;
-z-index: 1000;
-display: grid !important;
-grid-template-columns: 1fr auto 1fr !important;
-align-items: center;
-background: #142d4e !important;
-padding: 13px 25px !important;
-border-bottom: 3px solid #14b8a6;
-box-shadow: 0 4px 14px rgba(0,0,0,0.20);
-}
-
-/* Centered Page Title */
-.topbar h2 {
-grid-column: 2;
-justify-self: center;
-color: #ffffff !important;
-font-size: 21px !important;
-font-weight: 800;
-letter-spacing: 1px;
-border: 2px solid #5eead4;
-border-radius: 9px;
-padding: 9px 28px;
-margin: 0;
-background: #1e416b;
-}
-
-/* Logout Button */
-.topbar .logout {
-grid-column: 3;
-justify-self: end;
-background: #dc3545;
-color: #ffffff;
-border: none;
-border-radius: 7px;
-padding: 10px 19px;
-font-weight: 700;
-}
-
-/* Sales Overview Section */
-.section-title {
-background: #142d4e !important;
-color: #ffffff !important;
-padding: 13px 18px !important;
-border-radius: 8px;
-border: none !important;
-border-left: 5px solid #14b8a6 !important;
-margin-bottom: 18px;
-font-weight: 800;
-}
-
-/* Dashboard Summary Cards */
-.card {
-color: #ffffff !important;
-border: none !important;
-border-radius: 12px !important;
-padding: 22px !important;
-box-shadow: 0 5px 15px rgba(0,0,0,0.13);
-transition: transform 0.2s ease;
-}
-
-.card:hover {
-transform: translateY(-4px);
-}
-
-.cards .card:nth-child(1) {
-background: linear-gradient(135deg, #142d4e, #2563a6) !important;
-}
-
-.cards .card:nth-child(2) {
-background: linear-gradient(135deg, #087f5b, #20a779) !important;
-}
-
-.cards .card:nth-child(3) {
-background: linear-gradient(135deg, #b45309, #f59e0b) !important;
-}
-
-.cards .card:nth-child(4) {
-background: linear-gradient(135deg, #6b21a8, #9333ea) !important;
-}
-
-.card h3,
-.card h2,
-.card p,
-.card span,
-.card strong {
-color: #ffffff !important;
-}
-
-/* Form and Table Section */
-.section,
-.panel,
-.form-section {
-border-radius: 10px;
-}
-
-/* Mobile Header Adjustment */
-@media (max-width: 600px) {
-.topbar {
-padding: 10px !important;
-grid-template-columns: 1fr auto !important;
-}
-
-.topbar h2 {
-    grid-column: 1;
-    justify-self: start;
-    font-size: 15px !important;
-    padding: 8px 10px;
-}
-.topbar .logout {
-    grid-column: 2;
-    font-size: 12px;
-    padding: 8px 12px;
-}
-
-}
- 
 </style>
 </head>
 
 <body>
+
 <div class="layout">
 
+<!-- SIDEBAR -->
+
 <aside class="sidebar">
+
  <div class="brand">
   <div class="icon">🐟</div>
   <h2>AquaFarm ERP</h2>
@@ -263,7 +921,10 @@ grid-template-columns: 1fr auto !important;
   <a>📊 Reports</a>
   <a>⚙️ Settings</a>
  </nav>
+
 </aside>
+
+<!-- MAIN -->
 
 <main class="main">
 
@@ -274,10 +935,16 @@ grid-template-columns: 1fr auto !important;
 
 <div class="content">
 
+<!-- OVERVIEW -->
+
+<section class="overview-panel">
+
  <div class="page-heading">
   <div>
    <h2 class="page-title">Sales Overview</h2>
-   <p class="page-subtitle">Manage fish sales, payments, customer invoices and receipts.</p>
+   <p class="page-subtitle">
+    Manage fish sales, payments, customer invoices and receipts.
+   </p>
   </div>
  </div>
 
@@ -287,30 +954,45 @@ grid-template-columns: 1fr auto !important;
  </div>
 
  <div class="cards">
+
   <div class="card">
    <div class="label">📄 Total Invoices</div>
    <div class="number" id="totalInvoices">0</div>
   </div>
+
   <div class="card">
    <div class="label">💰 Total Sales</div>
    <div class="number" id="totalSales">৳0.00</div>
   </div>
+
   <div class="card">
    <div class="label">✅ Total Received</div>
    <div class="number" id="totalReceived">৳0.00</div>
   </div>
+
   <div class="card">
    <div class="label">⏳ Total Due</div>
    <div class="number" id="totalDue">৳0.00</div>
   </div>
+
  </div>
 
- <section class="section">
-  <h3 class="section-title">➕ Create New Sale</h3>
+</section>
+
+<!-- CREATE SALE -->
+
+<section class="section create-sale-panel">
+
+ <h3 class="section-title">➕ Create New Sale</h3>
+
+ <!-- 1 -->
+
+ <div class="form-group group-blue">
 
   <h4 class="subheading">1. Invoice & Customer Information</h4>
 
   <div class="form-grid">
+
    <div class="field">
     <label for="saleDate">Invoice Date</label>
     <input type="date" id="saleDate">
@@ -337,11 +1019,19 @@ grid-template-columns: 1fr auto !important;
     <label for="customerAddress">Address</label>
     <input id="customerAddress" type="text" placeholder="Customer address">
    </div>
+
   </div>
+
+ </div>
+
+ <!-- 2 -->
+
+ <div class="form-group group-green">
 
   <h4 class="subheading">2. Fish Items</h4>
 
   <div class="table-wrap">
+
    <table>
     <thead>
      <tr>
@@ -354,17 +1044,26 @@ grid-template-columns: 1fr auto !important;
       <th>Action</th>
      </tr>
     </thead>
+
     <tbody id="itemsBody"></tbody>
    </table>
+
   </div>
 
   <div class="actions">
    <button class="btn btn-teal" onclick="addItem()">＋ Add Fish</button>
   </div>
 
+ </div>
+
+ <!-- 3 -->
+
+ <div class="form-group group-orange">
+
   <h4 class="subheading">3. Sales Summary</h4>
 
   <div class="summary">
+
    <div class="summary-row">
     <span>Subtotal</span>
     <b id="subtotal">৳0.00</b>
@@ -372,21 +1071,33 @@ grid-template-columns: 1fr auto !important;
 
    <div class="summary-row">
     <label for="invoiceDiscount">Invoice Discount</label>
-    <input type="number" id="invoiceDiscount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+    <input type="number" id="invoiceDiscount"
+     min="0" step="0.01" value="0"
+     oninput="calculateTotal()">
    </div>
 
    <div class="summary-row total">
     <span>Grand Total</span>
     <span id="grandTotal">৳0.00</span>
    </div>
+
   </div>
+
+ </div>
+
+ <!-- 4 -->
+
+ <div class="form-group group-purple">
 
   <h4 class="subheading">4. Payment Information</h4>
 
   <div class="form-grid">
+
    <div class="field">
     <label for="paidAmount">Paid Amount</label>
-    <input type="number" id="paidAmount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+    <input type="number" id="paidAmount"
+     min="0" step="0.01" value="0"
+     oninput="calculateTotal()">
    </div>
 
    <div class="field">
@@ -402,89 +1113,143 @@ grid-template-columns: 1fr auto !important;
 
    <div class="field">
     <label for="transactionReference">Transaction Reference</label>
-    <input id="transactionReference" type="text" placeholder="Optional reference">
+    <input id="transactionReference" type="text"
+     placeholder="Optional reference">
    </div>
+
   </div>
 
   <div class="summary">
+
    <div class="summary-row">
     <span>Paid</span>
     <b id="paidDisplay">৳0.00</b>
    </div>
+
    <div class="summary-row total">
     <span>Due</span>
     <span id="dueDisplay">৳0.00</span>
    </div>
+
   </div>
+
+ </div>
+
+ <!-- 5 -->
+
+ <div class="form-group group-voucher">
 
   <h4 class="subheading">5. Voucher / Receipt Upload</h4>
 
   <div class="upload-box">
-   <div style="font-size:36px">📎</div>
+
+   <div style="font-size:38px">📎</div>
+
    <b>Attach Payment Voucher, Receipt or Fish Sale Photo</b>
+
    <p>
     Choose JPG, PNG or PDF files. Multiple files are allowed.
     Maximum 10 MB per file.<br>
     Images will show a preview before saving.
    </p>
+
    <input type="file" id="voucherFiles"
     accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
     multiple onchange="showSelectedFiles()">
+
    <div id="selectedFiles" class="file-list"></div>
+
   </div>
+
+ </div>
+
+ <!-- 6 -->
+
+ <div class="form-group group-gray">
 
   <h4 class="subheading">6. Additional Information</h4>
 
   <div class="field">
    <label for="saleNotes">Notes</label>
-   <textarea id="saleNotes" placeholder="Additional information"></textarea>
+   <textarea id="saleNotes"
+    placeholder="Additional information"></textarea>
   </div>
 
-  <div class="actions">
-   <button class="btn btn-primary" id="saveButton" onclick="saveSale()">Save Sale</button>
-   <button class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
-  </div>
+ </div>
 
-  <div id="formMessage" class="message"></div>
- </section>
+ <div class="actions form-actions">
 
- <section class="section">
-  <h3 class="section-title">📋 Sales History</h3>
+  <button class="btn btn-primary" id="saveButton"
+   onclick="saveSale()">Save Sale</button>
 
-  <div class="field" style="max-width:360px;margin-bottom:16px">
+  <button class="btn btn-secondary"
+   onclick="resetForm()">Clear Form</button>
+
+ </div>
+
+ <div id="formMessage" class="message"></div>
+
+</section>
+
+<!-- SALES HISTORY -->
+
+<section class="section sales-history-panel">
+
+ <h3 class="section-title">📋 Sales History</h3>
+
+ <div class="history-toolbar no-print">
+
+  <div class="field">
    <label for="searchSales">Search Invoice / Customer</label>
    <input id="searchSales" type="text"
     placeholder="Search invoice or customer..."
     oninput="renderSalesHistory()">
   </div>
 
-  <div class="table-wrap">
-   <table>
-    <thead>
-     <tr>
-      <th>Invoice No</th>
-      <th>Date</th>
-      <th>Customer</th>
-      <th>Total</th>
-      <th>Paid</th>
-      <th>Due</th>
-      <th>Status</th>
-      <th>Voucher</th>
-      <th>Action</th>
-     </tr>
-    </thead>
-    <tbody id="salesTable">
-     <tr><td colspan="9" class="empty">Loading...</td></tr>
-    </tbody>
-   </table>
-  </div>
- </section>
+  <button class="btn print-report-btn"
+   onclick="printSalesHistory()">
+   🖨 Print Sales History
+  </button>
+
+ </div>
+
+ <div class="table-wrap">
+
+  <table>
+   <thead>
+    <tr>
+     <th>Invoice No</th>
+     <th>Date</th>
+     <th>Customer</th>
+     <th>Total</th>
+     <th>Paid</th>
+     <th>Due</th>
+     <th>Status</th>
+     <th>Voucher</th>
+     <th>Action</th>
+    </tr>
+   </thead>
+
+   <tbody id="salesTable">
+    <tr>
+     <td colspan="9" class="empty">Loading...</td>
+    </tr>
+   </tbody>
+
+  </table>
+
+ </div>
+
+</section>
 
 </div>
 </main>
 </div>
 
 <script>
+
+/* ================= SUPABASE ================= */
+
 const SUPABASE_URL="https://qjutiprfupdgyvblzvlc.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
 const BUCKET_NAME="aquafarm-vouchers";
@@ -502,9 +1267,14 @@ let attachments=[];
 let savingSale=false;
 let previewUrls=[];
 
+/* ================= INITIALIZATION ================= */
+
 async function initializeSales(){
+
  try{
+
   const {data,error}=await supabaseClient.auth.getSession();
+
   if(error)throw error;
 
   if(!data.session){
@@ -554,30 +1324,45 @@ async function initializeSales(){
   document.getElementById("saleDate").value=localDateString();
 
   addItem();
+
   await loadSalesData();
 
  }catch(e){
+
   console.error(e);
   showMessage("formMessage",e.message,"error");
+
  }
+
 }
 
+/* ================= FARM ================= */
+
 async function changeFarm(){
+
  const id=document.getElementById("farmSelect").value;
  const next=farmList.find(f=>f.id===id);
 
  if(!next)return;
 
  currentFarm=next;
+
  resetForm();
+
  await loadSalesData();
+
 }
 
+/* ================= LOAD DATA ================= */
+
 async function loadSalesData(){
+
  if(!currentFarm)return;
 
  try{
+
   const [customerResult,salesResult,attachmentResult]=await Promise.all([
+
    supabaseClient.from("customers")
     .select("*")
     .eq("farm_id",currentFarm.id)
@@ -593,6 +1378,7 @@ async function loadSalesData(){
     .select("*")
     .eq("farm_id",currentFarm.id)
     .eq("module_name","sales")
+
   ]);
 
   if(customerResult.error)throw customerResult.error;
@@ -609,10 +1395,14 @@ async function loadSalesData(){
   select.innerHTML='<option value="">Walk-in / New Customer</option>';
 
   customers.forEach(c=>{
+
    const o=document.createElement("option");
+
    o.value=c.id;
    o.textContent=c.customer_name+(c.phone?" - "+c.phone:"");
+
    select.appendChild(o);
+
   });
 
   if(customers.some(c=>c.id===selected)){
@@ -623,12 +1413,23 @@ async function loadSalesData(){
   renderSalesHistory();
 
  }catch(e){
+
   console.error(e);
-  showMessage("formMessage","Could not load sales data: "+e.message,"error");
+
+  showMessage(
+   "formMessage",
+   "Could not load sales data: "+e.message,
+   "error"
+  );
+
  }
+
 }
 
+/* ================= CUSTOMER ================= */
+
 function selectCustomer(){
+
  const c=customers.find(
   x=>x.id===document.getElementById("customerSelect").value
  );
@@ -636,27 +1437,52 @@ function selectCustomer(){
  document.getElementById("customerName").value=c?c.customer_name:"";
  document.getElementById("customerPhone").value=c?(c.phone||""):"";
  document.getElementById("customerAddress").value=c?(c.address||""):"";
+
 }
 
+/* ================= FISH ITEMS ================= */
+
 function addItem(){
+
  const row=document.createElement("tr");
 
  row.innerHTML=`
-  <td><input class="species" placeholder="Rui, Katla..." required></td>
+
+  <td>
+   <input class="species" placeholder="Rui, Katla..." required>
+  </td>
+
   <td>
    <select class="unit">
     <option value="kg">KG</option>
     <option value="piece">Piece</option>
    </select>
   </td>
-  <td><input class="quantity" type="number" min="0.001" step="0.001" value="1"></td>
-  <td><input class="price" type="number" min="0" step="0.01" value="0"></td>
-  <td><input class="discount" type="number" min="0" step="0.01" value="0"></td>
-  <td class="lineTotal">৳0.00</td>
+
   <td>
-   <button class="btn btn-danger btn-small" type="button"
-    onclick="removeItem(this)">Remove</button>
+   <input class="quantity" type="number"
+    min="0.001" step="0.001" value="1">
   </td>
+
+  <td>
+   <input class="price" type="number"
+    min="0" step="0.01" value="0">
+  </td>
+
+  <td>
+   <input class="discount" type="number"
+    min="0" step="0.01" value="0">
+  </td>
+
+  <td class="lineTotal">৳0.00</td>
+
+  <td>
+   <button class="btn btn-danger btn-small"
+    type="button" onclick="removeItem(this)">
+    Remove
+   </button>
+  </td>
+
  `;
 
  document.getElementById("itemsBody").appendChild(row);
@@ -666,17 +1492,25 @@ function addItem(){
  });
 
  calculateTotal();
+
 }
 
 function removeItem(btn){
+
  btn.closest("tr").remove();
+
  calculateTotal();
+
 }
 
+/* ================= CALCULATE ================= */
+
 function calculateTotal(){
+
  let subtotal=0;
 
  document.querySelectorAll("#itemsBody tr").forEach(row=>{
+
   const q=Number(row.querySelector(".quantity").value);
   const p=Number(row.querySelector(".price").value);
   const d=Number(row.querySelector(".discount").value);
@@ -684,7 +1518,9 @@ function calculateTotal(){
   const line=Math.max(0,q*p-d);
 
   row.querySelector(".lineTotal").textContent=money(line);
+
   subtotal+=line;
+
  });
 
  const discount=Math.max(
@@ -713,16 +1549,25 @@ function calculateTotal(){
   paid,
   due
  };
+
 }
 
+/* ================= VOUCHER PREVIEW ================= */
+
 function clearPreviewUrls(){
+
  previewUrls.forEach(URL.revokeObjectURL);
+
  previewUrls=[];
+
 }
 
 function showSelectedFiles(){
+
  const box=document.getElementById("selectedFiles");
+
  box.innerHTML="";
+
  clearPreviewUrls();
 
  const files=Array.from(
@@ -730,30 +1575,42 @@ function showSelectedFiles(){
  );
 
  for(const f of files){
+
   const div=document.createElement("div");
+
   div.className="file-item";
 
   if(f.type==="image/jpeg"||f.type==="image/png"){
+
    const url=URL.createObjectURL(f);
+
    previewUrls.push(url);
 
    const img=document.createElement("img");
+
    img.src=url;
    img.alt=f.name;
+
    div.appendChild(img);
+
   }
 
   const name=document.createElement("div");
+
   name.textContent=
    (f.type==="application/pdf"?"📄 ":"📎 ")+
    f.name+" ("+(f.size/1048576).toFixed(2)+" MB)";
 
   div.appendChild(name);
+
   box.appendChild(div);
+
  }
+
 }
 
 function validateVoucherFiles(files){
+
  const allowed=[
   "image/jpeg",
   "image/png",
@@ -761,30 +1618,42 @@ function validateVoucherFiles(files){
  ];
 
  for(const f of files){
+
   if(!allowed.includes(f.type)){
+
    throw new Error(
     "Unsupported file: "+f.name+
     ". Only JPG, PNG and PDF are allowed."
    );
+
   }
 
   if(f.size<=0||f.size>10*1024*1024){
+
    throw new Error(
     f.name+" exceeds the 10 MB file limit."
    );
+
   }
+
  }
+
 }
 
+/* ================= UPLOAD VOUCHER ================= */
+
 async function uploadSaleVouchers(saleId,files){
+
  const userResult=await supabaseClient.auth.getUser();
 
  if(userResult.error)throw userResult.error;
 
  const userId=userResult.data.user.id;
+
  const uploaded=[];
 
  try{
+
   for(const file of files){
 
    const safe=file.name
@@ -821,21 +1690,31 @@ async function uploadSaleVouchers(saleId,files){
     });
 
    if(metaErr)throw metaErr;
+
   }
 
  }catch(e){
+
   if(uploaded.length){
+
    await supabaseClient.storage
     .from(BUCKET_NAME)
     .remove(uploaded);
+
   }
 
   throw e;
+
  }
+
 }
 
+/* ================= VIEW VOUCHERS ================= */
+
 async function viewSaleVouchers(saleId){
+
  try{
+
   const files=attachments.filter(a=>
    a.transaction_id===saleId&&a.module_name==="sales"
   );
@@ -850,10 +1729,12 @@ async function viewSaleVouchers(saleId){
   if(files.length===1){
    choice="1";
   }else{
+
    choice=prompt(
     "Enter file number to open:\n\n"+
     files.map((f,i)=>(i+1)+". "+f.file_name).join("\n")
    );
+
   }
 
   if(choice===null)return;
@@ -879,12 +1760,19 @@ async function viewSaleVouchers(saleId){
   }
 
  }catch(e){
+
   console.error(e);
+
   alert("Could not open voucher: "+e.message);
+
  }
+
 }
 
+/* ================= SAVE SALE ================= */
+
 async function saveSale(){
+
  if(savingSale)return;
 
  if(!currentFarm){
@@ -902,6 +1790,7 @@ async function saveSale(){
  const items=[];
 
  for(const row of rows){
+
   const species=row.querySelector(".species").value.trim();
   const unit=row.querySelector(".unit").value;
   const quantity=Number(row.querySelector(".quantity").value);
@@ -915,8 +1804,10 @@ async function saveSale(){
    !Number.isFinite(discount)||discount<0||
    discount>quantity*price
   ){
+
    alert("Please enter valid fish item information.");
    return;
+
   }
 
   items.push({
@@ -927,6 +1818,7 @@ async function saveSale(){
    unit_price:price,
    discount_amount:discount
   });
+
  }
 
  const totals=calculateTotal();
@@ -937,8 +1829,10 @@ async function saveSale(){
   !Number.isFinite(totals.paid)||
   totals.paid>totals.grandTotal
  ){
+
   alert("Please check invoice discount and paid amount.");
   return;
+
  }
 
  if(totals.grandTotal<=0){
@@ -958,10 +1852,14 @@ async function saveSale(){
  );
 
  try{
+
   validateVoucherFiles(files);
+
  }catch(e){
+
   alert(e.message);
   return;
+
  }
 
  const customerId=
@@ -979,6 +1877,7 @@ async function saveSale(){
  const button=document.getElementById("saveButton");
 
  savingSale=true;
+
  button.disabled=true;
  button.textContent="Saving Sale...";
 
@@ -986,9 +1885,11 @@ async function saveSale(){
  let invoiceNo="";
 
  try{
+
   let finalCustomerId=customerId;
 
   if(!customerId&&customerName){
+
    const {data:newCustomer,error}=await supabaseClient
     .from("customers")
     .insert({
@@ -1003,6 +1904,7 @@ async function saveSale(){
    if(error)throw error;
 
    finalCustomerId=newCustomer.id;
+
   }
 
   invoiceNo=
@@ -1041,6 +1943,7 @@ async function saveSale(){
   if(itemError)throw itemError;
 
   if(totals.paid>0){
+
    const {error:paymentError}=await supabaseClient
     .from("sale_payments")
     .insert({
@@ -1054,6 +1957,7 @@ async function saveSale(){
     });
 
    if(paymentError)throw paymentError;
+
   }
 
   const {error:updateError}=await supabaseClient
@@ -1069,45 +1973,66 @@ async function saveSale(){
   if(updateError)throw updateError;
 
   let msg="Sale saved successfully! Invoice: "+invoiceNo;
+
   let msgType="success";
 
   if(files.length){
+
    try{
+
     await uploadSaleVouchers(saleId,files);
+
     msg+=" "+files.length+" voucher file(s) uploaded.";
+
    }catch(uploadError){
+
     console.error(uploadError);
+
     msg+=" Sale saved, but voucher upload failed: "+
      uploadError.message+
      ". You may retry after checking the invoice.";
+
     msgType="error";
+
    }
+
   }
 
   showMessage("formMessage",msg,msgType);
 
   resetForm();
+
   await loadSalesData();
 
  }catch(e){
+
   console.error(e);
 
   let msg=e.message||"Unable to save sale.";
 
   if(saleId){
+
    msg+=" A draft invoice may remain. Check Sales History before retrying to avoid a duplicate.";
+
   }
 
   showMessage("formMessage",msg,"error");
 
  }finally{
+
   savingSale=false;
+
   button.disabled=false;
   button.textContent="Save Sale";
+
  }
+
 }
 
+/* ================= RESET FORM ================= */
+
 function resetForm(){
+
  document.getElementById("customerSelect").value="";
  document.getElementById("customerName").value="";
  document.getElementById("customerPhone").value="";
@@ -1124,22 +2049,34 @@ function resetForm(){
  document.getElementById("itemsBody").innerHTML="";
 
  addItem();
+
  calculateTotal();
+
 }
 
+/* ================= DASHBOARD ================= */
+
 function updateDashboard(){
+
  const posted=salesList.filter(s=>s.status==="posted");
 
  const sum=key=>
   posted.reduce((n,s)=>n+Number(s[key]||0),0);
 
  document.getElementById("totalInvoices").textContent=posted.length;
+
  document.getElementById("totalSales").textContent=money(sum("grand_total"));
+
  document.getElementById("totalReceived").textContent=money(sum("paid_amount"));
+
  document.getElementById("totalDue").textContent=money(sum("due_amount"));
+
 }
 
+/* ================= SALES HISTORY ================= */
+
 function renderSalesHistory(){
+
  const body=document.getElementById("salesTable");
 
  const term=document.getElementById("searchSales")
@@ -1151,44 +2088,335 @@ function renderSalesHistory(){
  );
 
  if(!filtered.length){
+
   body.innerHTML=
    '<tr><td colspan="9" class="empty">No sales records found.</td></tr>';
+
   return;
+
  }
 
  body.innerHTML=filtered.map(s=>{
+
   const count=attachments.filter(a=>
    a.transaction_id===s.id&&a.module_name==="sales"
   ).length;
 
   return `
+
    <tr>
+
     <td>${escapeHTML(s.invoice_no)}</td>
+
     <td>${escapeHTML(s.sale_date)}</td>
+
     <td>${escapeHTML(s.customer_name||"Walk-in Customer")}</td>
+
     <td>${money(s.grand_total)}</td>
+
     <td>${money(s.paid_amount)}</td>
+
     <td>${money(s.due_amount)}</td>
+
     <td>
      <span class="status ${escapeHTML(s.status)}">
       ${escapeHTML(s.status)}
      </span>
     </td>
+
     <td>
      <button class="btn btn-secondary btn-small"
-      onclick="viewSaleVouchers('${s.id}')">📎 ${count}</button>
+      onclick="viewSaleVouchers('${s.id}')">
+      📎 ${count}
+     </button>
     </td>
+
     <td>
      <button class="btn btn-primary btn-small"
-      onclick="printInvoice('${s.id}')">Print</button>
+      onclick="printInvoice('${s.id}')">
+      Print
+     </button>
     </td>
+
    </tr>
+
   `;
+
  }).join("");
+
 }
 
+/* ================= PRINT SALES HISTORY ================= */
+
+function printSalesHistory(){
+
+ if(!currentFarm){
+  alert("Please select a farm.");
+  return;
+ }
+
+ const term=document.getElementById("searchSales")
+  .value.trim().toLowerCase();
+
+ const filtered=salesList.filter(s=>
+  String(s.invoice_no||"").toLowerCase().includes(term)||
+  String(s.customer_name||"").toLowerCase().includes(term)
+ );
+
+ if(!filtered.length){
+  alert("No sales records available to print.");
+  return;
+ }
+
+ const rows=filtered.map((s,i)=>`
+
+  <tr>
+   <td>${i+1}</td>
+   <td>${escapeHTML(s.invoice_no)}</td>
+   <td>${escapeHTML(s.sale_date)}</td>
+   <td>${escapeHTML(s.customer_name||"Walk-in Customer")}</td>
+   <td class="amount">${money(s.grand_total)}</td>
+   <td class="amount">${money(s.paid_amount)}</td>
+   <td class="amount">${money(s.due_amount)}</td>
+   <td>${escapeHTML(s.status)}</td>
+  </tr>
+
+ `).join("");
+
+ const totalSales=filtered.reduce(
+  (n,s)=>n+Number(s.grand_total||0),0
+ );
+
+ const totalPaid=filtered.reduce(
+  (n,s)=>n+Number(s.paid_amount||0),0
+ );
+
+ const totalDue=filtered.reduce(
+  (n,s)=>n+Number(s.due_amount||0),0
+ );
+
+ const win=window.open("","_blank");
+
+ if(!win){
+  alert("Please allow pop-ups to print Sales History.");
+  return;
+ }
+
+ win.document.write(`
+
+ <!DOCTYPE html>
+ <html>
+ <head>
+ <meta charset="UTF-8">
+
+ <title>Sales History Report</title>
+
+ <style>
+
+ @page{
+  size:A4 portrait;
+  margin:0.5in 1in;
+ }
+
+ *{
+  box-sizing:border-box;
+ }
+
+ body{
+  font-family:Arial,sans-serif;
+  color:#1e293b;
+  font-size:11px;
+  margin:0;
+ }
+
+ .report-header{
+  text-align:center;
+  border-bottom:3px solid #142d4e;
+  padding-bottom:13px;
+  margin-bottom:18px;
+ }
+
+ .report-header h1{
+  color:#142d4e;
+  font-size:24px;
+  margin:0 0 6px;
+ }
+
+ .report-header h2{
+  font-size:17px;
+  margin:5px 0;
+ }
+
+ .report-header p{
+  margin:5px 0;
+  color:#475569;
+ }
+
+ .report-info{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:14px;
+ }
+
+ table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+ }
+
+ th,td{
+  border:1px solid #cbd5e1;
+  padding:8px 5px;
+  text-align:left;
+  font-size:10px;
+ }
+
+ th{
+  background:#142d4e;
+  color:white;
+ }
+
+ tbody tr:nth-child(even){
+  background:#f1f5f9;
+ }
+
+ .amount{
+  text-align:right;
+  white-space:nowrap;
+ }
+
+ .totals{
+  margin-top:18px;
+  margin-left:auto;
+  width:270px;
+ }
+
+ .totals div{
+  display:flex;
+  justify-content:space-between;
+  padding:8px;
+  border-bottom:1px solid #cbd5e1;
+ }
+
+ .grand{
+  font-weight:bold;
+  font-size:13px;
+  color:#142d4e;
+ }
+
+ .footer{
+  text-align:center;
+  margin-top:30px;
+  border-top:1px solid #cbd5e1;
+  padding-top:10px;
+  color:#64748b;
+ }
+
+ .print-button{
+  margin:20px 0;
+  padding:10px 20px;
+  background:#142d4e;
+  color:white;
+  border:0;
+  border-radius:5px;
+  cursor:pointer;
+ }
+
+ @media print{
+
+  .print-button{
+   display:none;
+  }
+
+  thead{
+   display:table-header-group;
+  }
+
+  tr{
+   page-break-inside:avoid;
+  }
+
+ }
+
+ </style>
+ </head>
+
+ <body>
+
+ <div class="report-header">
+  <h1>AquaFarm ERP</h1>
+  <h2>${escapeHTML(currentFarm.farm_name)}</h2>
+  <p>Sales History Report</p>
+ </div>
+
+ <div class="report-info">
+  <span>Farm Code: ${escapeHTML(currentFarm.farm_code)}</span>
+  <span>Report Date: ${localDateString()}</span>
+ </div>
+
+ <p><b>Total Records:</b> ${filtered.length}</p>
+
+ <table>
+
+ <thead>
+  <tr>
+   <th>SL</th>
+   <th>Invoice No</th>
+   <th>Date</th>
+   <th>Customer</th>
+   <th>Total</th>
+   <th>Paid</th>
+   <th>Due</th>
+   <th>Status</th>
+  </tr>
+ </thead>
+
+ <tbody>${rows}</tbody>
+
+ </table>
+
+ <div class="totals">
+
+  <div>
+   <span>Total Sales</span>
+   <b>${money(totalSales)}</b>
+  </div>
+
+  <div>
+   <span>Total Received</span>
+   <b>${money(totalPaid)}</b>
+  </div>
+
+  <div class="grand">
+   <span>Total Due</span>
+   <b>${money(totalDue)}</b>
+  </div>
+
+ </div>
+
+ <div class="footer">
+  Generated by AquaFarm ERP
+ </div>
+
+ <button class="print-button" onclick="window.print()">
+  Print Report
+ </button>
+
+ </body>
+ </html>
+
+ `);
+
+ win.document.close();
+
+}
+
+/* ================= PRINT INVOICE ================= */
+
 async function printInvoice(saleId){
+
  try{
+
   const {data:sale,error:saleErr}=await supabaseClient
    .from("sales")
    .select("*")
@@ -1199,6 +2427,7 @@ async function printInvoice(saleId){
   if(saleErr)throw saleErr;
 
   const [ir,pr]=await Promise.all([
+
    supabaseClient.from("sale_items")
     .select("*")
     .eq("sale_id",saleId)
@@ -1209,12 +2438,14 @@ async function printInvoice(saleId){
     .eq("sale_id",saleId)
     .eq("farm_id",currentFarm.id)
     .order("payment_date")
+
   ]);
 
   if(ir.error)throw ir.error;
   if(pr.error)throw pr.error;
 
   const rows=(ir.data||[]).map(i=>`
+
    <tr>
     <td>${escapeHTML(i.fish_species)}</td>
     <td>${escapeHTML(i.unit)}</td>
@@ -1223,14 +2454,17 @@ async function printInvoice(saleId){
     <td>${money(i.discount_amount)}</td>
     <td>${money(i.line_total)}</td>
    </tr>
+
   `).join("");
 
   const payments=(pr.data||[]).map(p=>`
+
    <tr>
     <td>${escapeHTML(p.payment_date)}</td>
     <td>${escapeHTML(p.payment_method)}</td>
     <td>${money(p.amount)}</td>
    </tr>
+
   `).join("");
 
   const win=window.open("","_blank");
@@ -1241,23 +2475,69 @@ async function printInvoice(saleId){
   }
 
   win.document.write(`
+
    <!DOCTYPE html>
    <html>
    <head>
     <meta charset="UTF-8">
+
     <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
+
     <style>
-     body{font-family:Arial,sans-serif;padding:28px;color:#1e293b}
-     h1,h2{color:#142d4e}
-     .header{text-align:center;margin-bottom:24px}
-     table{width:100%;border-collapse:collapse;margin-top:14px}
-     th,td{border:1px solid #ddd;padding:9px;text-align:left}
-     th{background:#eaf2fa}
-     .right{text-align:right;margin-top:20px}
-     @media print{button{display:none}}
+
+     @page{
+      size:A4 portrait;
+      margin:0.5in 1in;
+     }
+
+     body{
+      font-family:Arial,sans-serif;
+      padding:10px;
+      color:#1e293b;
+     }
+
+     h1,h2{
+      color:#142d4e;
+     }
+
+     .header{
+      text-align:center;
+      margin-bottom:24px;
+      border-bottom:2px solid #142d4e;
+      padding-bottom:15px;
+     }
+
+     table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:14px;
+     }
+
+     th,td{
+      border:1px solid #ddd;
+      padding:9px;
+      text-align:left;
+     }
+
+     th{
+      background:#eaf2fa;
+     }
+
+     .right{
+      text-align:right;
+      margin-top:20px;
+     }
+
+     @media print{
+      button{display:none}
+     }
+
     </style>
+
    </head>
+
    <body>
+
     <div class="header">
      <h1>AquaFarm ERP</h1>
      <h2>${escapeHTML(currentFarm.farm_name)}</h2>
@@ -1271,13 +2551,20 @@ async function printInvoice(saleId){
     <p><b>Address:</b> ${escapeHTML(sale.customer_address||"")}</p>
 
     <table>
+
      <thead>
       <tr>
-       <th>Fish</th><th>Unit</th><th>Quantity</th>
-       <th>Price</th><th>Discount</th><th>Total</th>
+       <th>Fish</th>
+       <th>Unit</th>
+       <th>Quantity</th>
+       <th>Price</th>
+       <th>Discount</th>
+       <th>Total</th>
       </tr>
      </thead>
+
      <tbody>${rows}</tbody>
+
     </table>
 
     <div class="right">
@@ -1289,38 +2576,58 @@ async function printInvoice(saleId){
     </div>
 
     <h3>Payment History</h3>
+
     <table>
      <thead>
-      <tr><th>Date</th><th>Method</th><th>Amount</th></tr>
+      <tr>
+       <th>Date</th>
+       <th>Method</th>
+       <th>Amount</th>
+      </tr>
      </thead>
+
      <tbody>
       ${payments||'<tr><td colspan="3">No payment recorded.</td></tr>'}
      </tbody>
+
     </table>
 
     <br>
+
     <p>Thank you for your business.</p>
+
     <button onclick="window.print()">Print Invoice</button>
+
    </body>
    </html>
+
   `);
 
   win.document.close();
 
  }catch(e){
+
   console.error(e);
+
   alert("Invoice Error: "+e.message);
+
  }
+
 }
 
+/* ================= HELPERS ================= */
+
 function money(v){
+
  return "৳"+Number(v||0).toLocaleString("en-BD",{
   minimumFractionDigits:2,
   maximumFractionDigits:2
  });
+
 }
 
 function escapeHTML(v){
+
  return String(v??"").replace(/[&<>"']/g,c=>({
   "&":"&amp;",
   "<":"&lt;",
@@ -1328,21 +2635,32 @@ function escapeHTML(v){
   '"':"&quot;",
   "'":"&#39;"
  }[c]));
+
 }
 
 function showMessage(id,msg,type){
+
  const el=document.getElementById(id);
+
  el.textContent=msg;
  el.className="message "+type;
+
 }
 
 function localDateString(){
+
  const d=new Date();
+
  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+
  return local.toISOString().slice(0,10);
+
 }
 
+/* ================= LOGOUT ================= */
+
 async function logout(){
+
  const {error}=await supabaseClient.auth.signOut();
 
  if(error){
@@ -1351,11 +2669,16 @@ async function logout(){
  }
 
  window.location.replace("index.html");
+
 }
+
+/* ================= START ================= */
 
 window.addEventListener("beforeunload",clearPreviewUrls);
 
 initializeSales();
+
 </script>
+
 </body>
 </html>
