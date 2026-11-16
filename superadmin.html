@@ -262,6 +262,24 @@ th {
         font-size: 24px;
     }
 }
+#createFarmForm input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#createFarmForm input:focus {
+    outline: 2px solid #059669;
+    border-color: #059669;
+}
+
+#createFarmBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+    
 </style>
 </head>
 <body>
@@ -485,6 +503,62 @@ async function checkPlatformAdmin() {
     }
     return true;
 }
+
+    // ===================================
+// CREATE NEW FARM
+// ===================================
+
+document.getElementById("createFarmForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const btn = document.getElementById("createFarmBtn");
+    const msg = document.getElementById("createFarmMessage");
+
+    btn.disabled = true;
+    btn.innerText = "Creating...";
+    msg.innerText = "";
+
+    try {
+
+        const { data, error } = await supabaseClient.rpc(
+            "platform_create_farm",
+            {
+                p_farm_code: document.getElementById("newFarmCode").value,
+                p_farm_name: document.getElementById("newFarmName").value,
+                p_email: document.getElementById("newFarmEmail").value,
+                p_phone: document.getElementById("newFarmPhone").value,
+                p_address: document.getElementById("newFarmAddress").value
+            }
+        );
+
+        if (error) throw error;
+
+        msg.innerText = "Farm created successfully!";
+        msg.className = "success";
+
+        document.getElementById("createFarmForm").reset();
+
+        await loadFarms();
+
+    } catch (error) {
+
+        console.error("Create Farm Error:", error);
+
+        msg.innerText = "Error: " + error.message;
+        msg.className = "error";
+
+    } finally {
+
+        btn.disabled = false;
+        btn.innerText = "Create Farm";
+
+    }
+
+});
+    
+    
 // ===================================
 // LOAD ALL FARMS
 // ===================================
