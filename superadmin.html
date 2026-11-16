@@ -202,7 +202,8 @@ th {
     background: #fee2e2;
     color: #991b1b;
 }
-#message {
+#message,
+#ownerMessage {
     margin-top: 15px;
     font-size: 14px;
 }
@@ -215,6 +216,11 @@ th {
 .loading {
     color: #64748b;
     padding: 20px 0;
+}
+.empty {
+    color: #64748b;
+    padding: 20px;
+    text-align: center;
 }
 .footer {
     text-align: center;
@@ -261,124 +267,155 @@ th {
 <body>
 <div class="layout">
 <aside class="sidebar">
-    <div class="brand">
-        <div class="icon">🐟</div>
-        <h2>AquaFarm ERP</h2>
-        <p>Fish Farming Management System</p>
-        <div class="admin-label">PLATFORM SUPER ADMIN</div>
-    </div>
-    <nav class="menu">
-        <a href="#dashboard" class="active">🏠 Dashboard</a>
-        <a href="#farms">🏞 Farm Management</a>
-        <a href="#owners">👥 Farm Owners</a>
-        <a href="#subscriptions">📋 Subscriptions</a>
-        <a href="#payments">💳 Payments</a>
-        <a href="#reports">📊 Reports</a>
-        <a href="#settings">⚙️ Platform Settings</a>
-        <a href="dashboard.html">🐟 My Farm Dashboard</a>
-    </nav>
+<div class="brand">
+    <div class="icon">🐟</div>
+    <h2>AquaFarm ERP</h2>
+    <p>Fish Farming Management System</p>
+    <div class="admin-label">PLATFORM SUPER ADMIN</div>
+</div>
+<nav class="menu">
+    <a href="#dashboard" class="active">🏠 Dashboard</a>
+    <a href="#farms">🏞 Farm Management</a>
+    <a href="#owners">👥 Farm Owners</a>
+    <a href="#subscriptions">📋 Subscriptions</a>
+    <a href="#payments">💳 Payments</a>
+    <a href="#reports">📊 Reports</a>
+    <a href="#settings">⚙️ Platform Settings</a>
+    <a href="dashboard.html">🐟 My Farm Dashboard</a>
+</nav>
 </aside>
 <main class="main">
-    <header class="topbar">
-        <h2>Super Admin Dashboard</h2>
-        <button class="logout" onclick="logout()">Logout</button>
-    </header>
-    <div class="content" id="dashboard">
-        <div class="welcome">
-            <h2>Welcome to AquaFarm ERP</h2>
-            <p>Platform Super Admin Control Panel</p>
-            <p id="adminEmail" style="margin-top:10px;"></p>
+<header class="topbar">
+    <h2>Super Admin Dashboard</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+<div class="content" id="dashboard">
+    <div class="welcome">
+        <h2>Welcome to AquaFarm ERP</h2>
+        <p>Platform Super Admin Control Panel</p>
+        <p id="adminEmail" style="margin-top:10px;"></p>
+    </div>
+    <!-- DASHBOARD CARDS -->
+    <div class="cards">
+        <div class="card">
+            <div class="label">Total Farms</div>
+            <div class="number" id="totalFarms">-</div>
         </div>
-        <div class="cards">
-            <div class="card">
-                <div class="label">Total Farms</div>
-                <div class="number" id="totalFarms">-</div>
-            </div>
-            <div class="card">
-                <div class="label">Active Farms</div>
-                <div class="number" id="activeFarms">-</div>
-            </div>
-            <div class="card inactive">
-                <div class="label">Inactive Farms</div>
-                <div class="number" id="inactiveFarms">-</div>
-            </div>
-            <div class="card pending">
-                <div class="label">Farm Owners</div>
-                <div class="number" id="totalOwners">Not Connected</div>
-            </div>
+        <div class="card">
+            <div class="label">Active Farms</div>
+            <div class="number" id="activeFarms">-</div>
         </div>
-        <div class="section" id="farms">
-            <div class="section-header">
-                <h3>Farm Management</h3>
-                <button class="refresh" onclick="loadFarms()">
-                    ↻ Refresh Farms
-                </button>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Farm Code</th>
-                            <th>Farm Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                        </tr>
-                    </thead>
-                    <tbody id="farmTable">
-                        <tr>
-                            <td colspan="6" class="loading">
-                                Loading farms...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <p id="message"></p>
+        <div class="card inactive">
+            <div class="label">Inactive Farms</div>
+            <div class="number" id="inactiveFarms">-</div>
         </div>
-        <div class="section" id="owners">
-            <h3>Farm Owners</h3>
-            <p style="margin-top:12px;color:#64748b;font-size:14px;">
-                Owner information module will be connected in the next development phase.
-            </p>
-        </div>
-        <div class="section" id="subscriptions">
-            <h3>Subscription Management</h3>
-            <p style="margin-top:12px;color:#64748b;font-size:14px;">
-                Monthly, Half-Yearly and Yearly subscription management will be developed here.
-            </p>
-        </div>
-        <div class="section" id="payments">
-            <h3>Payment Management</h3>
-            <p style="margin-top:12px;color:#64748b;font-size:14px;">
-                bKash and Nagad payment management will be developed here.
-            </p>
-        </div>
-        <div class="section" id="reports">
-            <h3>Platform Reports</h3>
-            <p style="margin-top:12px;color:#64748b;font-size:14px;">
-                Platform reports will be developed here.
-            </p>
-        </div>
-        <div class="section" id="settings">
-            <h3>Platform Settings</h3>
-            <p style="margin-top:12px;color:#64748b;font-size:14px;">
-                Platform settings will be developed here.
-            </p>
+        <div class="card pending">
+            <div class="label">Farm Owners</div>
+            <div class="number" id="totalOwners">-</div>
         </div>
     </div>
-    <div class="footer">
-        AquaFarm ERP &copy; 2026 | Platform Administration
+    <!-- FARM MANAGEMENT -->
+    <div class="section" id="farms">
+        <div class="section-header">
+            <h3>Farm Management</h3>
+            <button class="refresh" onclick="loadFarms()">
+                ↻ Refresh Farms
+            </button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Farm Code</th>
+                        <th>Farm Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody id="farmTable">
+                    <tr>
+                        <td colspan="6" class="loading">
+                            Loading farms...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p id="message"></p>
     </div>
+    <!-- FARM OWNERS -->
+    <div class="section" id="owners">
+        <div class="section-header">
+            <h3>Farm Owner Information</h3>
+            <button class="refresh" onclick="loadFarmOwners()">
+                ↻ Refresh Owners
+            </button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Farm Code</th>
+                        <th>Farm Name</th>
+                        <th>Owner Name</th>
+                        <th>Owner Email</th>
+                        <th>Owner Phone</th>
+                        <th>Account Status</th>
+                        <th>Joined Date</th>
+                    </tr>
+                </thead>
+                <tbody id="ownerTable">
+                    <tr>
+                        <td colspan="7" class="loading">
+                            Loading owner information...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p id="ownerMessage"></p>
+    </div>
+    <!-- OTHER MODULES -->
+    <div class="section" id="subscriptions">
+        <h3>Subscription Management</h3>
+        <p style="margin-top:12px;color:#64748b;font-size:14px;">
+            Monthly, Half-Yearly and Yearly subscription management will be developed here.
+        </p>
+    </div>
+    <div class="section" id="payments">
+        <h3>Payment Management</h3>
+        <p style="margin-top:12px;color:#64748b;font-size:14px;">
+            bKash and Nagad payment management will be developed here.
+        </p>
+    </div>
+    <div class="section" id="reports">
+        <h3>Platform Reports</h3>
+        <p style="margin-top:12px;color:#64748b;font-size:14px;">
+            Platform reports will be developed here.
+        </p>
+    </div>
+    <div class="section" id="settings">
+        <h3>Platform Settings</h3>
+        <p style="margin-top:12px;color:#64748b;font-size:14px;">
+            Platform settings will be developed here.
+        </p>
+    </div>
+</div>
+<div class="footer">
+    AquaFarm ERP &copy; 2026 | Platform Administration
+</div>
 </main>
 </div>
 <script>
 // ===================================
 // SUPABASE CONFIGURATION
 // ===================================
-const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const SUPABASE_URL =
+"https://qjutiprfupdgyvblzvlc.supabase.co";
+const SUPABASE_ANON_KEY =
+"sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
@@ -406,6 +443,8 @@ async function checkPlatformAdmin() {
         document.getElementById("message").className = "error";
         document.getElementById("farmTable").innerHTML =
             '<tr><td colspan="6">You do not have permission to view this page.</td></tr>';
+        document.getElementById("ownerTable").innerHTML =
+            '<tr><td colspan="7">You do not have permission to view this page.</td></tr>';
         return false;
     }
     return true;
@@ -441,12 +480,14 @@ async function loadFarms() {
             inactive;
         if (farmList.length === 0) {
             farmTable.innerHTML =
-                '<tr><td colspan="6">No farms found.</td></tr>';
+                '<tr><td colspan="6" class="empty">No farms found.</td></tr>';
             return;
         }
         farmTable.innerHTML = farmList.map(farm => {
             const statusClass =
-                farm.status === "active" ? "active-badge" : "inactive-badge";
+                farm.status === "active"
+                ? "active-badge"
+                : "inactive-badge";
             const createdAt = farm.created_at
                 ? new Date(farm.created_at).toLocaleDateString()
                 : "-";
@@ -465,14 +506,84 @@ async function loadFarms() {
                 </tr>
             `;
         }).join("");
-        message.innerText = "Farm information loaded successfully.";
+        message.innerText =
+            "Farm information loaded successfully.";
         message.className = "success";
     } catch (error) {
         console.error("Farm Loading Error:", error);
         farmTable.innerHTML =
             '<tr><td colspan="6">Unable to load farm information.</td></tr>';
-        message.innerText = "Dashboard Error: " + error.message;
+        message.innerText =
+            "Dashboard Error: " + error.message;
         message.className = "error";
+    }
+}
+// ===================================
+// LOAD FARM OWNERS
+// ===================================
+async function loadFarmOwners() {
+    const ownerTable =
+        document.getElementById("ownerTable");
+    const ownerMessage =
+        document.getElementById("ownerMessage");
+    ownerMessage.innerText = "";
+    ownerMessage.className = "";
+    ownerTable.innerHTML =
+        '<tr><td colspan="7" class="loading">Loading owner information...</td></tr>';
+    try {
+        const { data: owners, error } =
+            await supabaseClient.rpc("get_platform_farm_owners");
+        if (error) throw error;
+        const ownerList = owners || [];
+        // Count actual owner/admin records
+        const actualOwners = ownerList.filter(owner =>
+            owner.owner_email ||
+            owner.owner_name ||
+            owner.owner_phone
+        );
+        document.getElementById("totalOwners").innerText =
+            actualOwners.length;
+        if (actualOwners.length === 0) {
+            ownerTable.innerHTML =
+                '<tr><td colspan="7" class="empty">No farm owner information found.</td></tr>';
+            ownerMessage.innerText =
+                "No active Farm Admin information is currently available.";
+            return;
+        }
+        ownerTable.innerHTML = actualOwners.map(owner => {
+            const statusClass =
+                owner.owner_status === "active"
+                ? "active-badge"
+                : "inactive-badge";
+            const joinedDate = owner.joined_at
+                ? new Date(owner.joined_at).toLocaleDateString()
+                : "-";
+            return `
+                <tr>
+                    <td>${escapeHTML(owner.farm_code || "-")}</td>
+                    <td>${escapeHTML(owner.farm_name || "-")}</td>
+                    <td>${escapeHTML(owner.owner_name || "-")}</td>
+                    <td>${escapeHTML(owner.owner_email || "-")}</td>
+                    <td>${escapeHTML(owner.owner_phone || "-")}</td>
+                    <td>
+                        <span class="badge ${statusClass}">
+                            ${escapeHTML(owner.owner_status || "unknown")}
+                        </span>
+                    </td>
+                    <td>${escapeHTML(joinedDate)}</td>
+                </tr>
+            `;
+        }).join("");
+        ownerMessage.innerText =
+            "Farm Owner information loaded successfully.";
+        ownerMessage.className = "success";
+    } catch (error) {
+        console.error("Farm Owner Loading Error:", error);
+        ownerTable.innerHTML =
+            '<tr><td colspan="7">Unable to load Farm Owner information.</td></tr>';
+        ownerMessage.innerText =
+            "Owner Loading Error: " + error.message;
+        ownerMessage.className = "error";
     }
 }
 // ===================================
@@ -493,7 +604,8 @@ function escapeHTML(value) {
 // LOGOUT
 // ===================================
 async function logout() {
-    const { error } = await supabaseClient.auth.signOut();
+    const { error } =
+        await supabaseClient.auth.signOut();
     if (error) {
         alert(error.message);
         return;
@@ -507,12 +619,16 @@ async function initializeDashboard() {
     try {
         const isAdmin = await checkPlatformAdmin();
         if (!isAdmin) return;
-        await loadFarms();
+        await Promise.all([
+            loadFarms(),
+            loadFarmOwners()
+        ]);
     } catch (error) {
         console.error(error);
         document.getElementById("message").innerText =
             "Dashboard Error: " + error.message;
-        document.getElementById("message").className = "error";
+        document.getElementById("message").className =
+            "error";
     }
 }
 initializeDashboard();
