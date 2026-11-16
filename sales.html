@@ -1449,12 +1449,17 @@ function renderSalesHistory(){
   return;
  }
 
+ const role=String(currentFarmRole||"").toLowerCase();
+
+ const canEdit=["admin","manager","accountant"].includes(role);
+ const canDelete=role==="admin";
+
  body.innerHTML=filtered.map(s=>{
 
   const count=attachments.filter(a=>
- String(a.transaction_id)===String(s.id)&&
- a.module_name==="sales"
-).length;
+   String(a.transaction_id)===String(s.id)&&
+   a.module_name==="sales"
+  ).length;
 
   return `
    <tr>
@@ -1465,11 +1470,33 @@ function renderSalesHistory(){
     <td>${money(s.paid_amount)}</td>
     <td>${money(s.due_amount)}</td>
     <td><span class="status ${escapeHTML(s.status)}">${escapeHTML(s.status)}</span></td>
+
     <td>
-     <button class="btn btn-secondary btn-small" onclick="viewSaleVouchers('${s.id}')">📎 ${count}</button>
+     <button class="btn btn-secondary btn-small"
+      onclick="viewSaleVouchers('${s.id}')">
+      📎 ${count}
+     </button>
     </td>
+
     <td>
-     <button class="btn btn-primary btn-small" onclick="printInvoice('${s.id}')">Print</button>
+     ${canEdit ? `
+      <button class="btn btn-primary btn-small"
+       onclick="editSale('${s.id}')">
+       Edit
+      </button>
+     ` : ""}
+
+     ${canDelete ? `
+      <button class="btn btn-danger btn-small"
+       onclick="deleteSale('${s.id}')">
+       Delete
+      </button>
+     ` : ""}
+
+     <button class="btn btn-primary btn-small"
+      onclick="printInvoice('${s.id}')">
+      Print
+     </button>
     </td>
    </tr>
   `;
