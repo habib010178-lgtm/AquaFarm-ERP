@@ -1067,8 +1067,9 @@ async function viewSaleVouchers(saleId){
  try{
 
   const files=attachments.filter(a=>
-   a.transaction_id===saleId&&a.module_name==="sales"
-  );
+ String(a.transaction_id)===String(saleId)&&
+ a.module_name==="sales"
+);
 
   if(!files.length){
    alert("No voucher or receipt attached to this sale.");
@@ -1397,8 +1398,9 @@ function renderSalesHistory(){
  body.innerHTML=filtered.map(s=>{
 
   const count=attachments.filter(a=>
-   a.transaction_id===s.id&&a.module_name==="sales"
-  ).length;
+ String(a.transaction_id)===String(s.id)&&
+ a.module_name==="sales"
+).length;
 
   return `
    <tr>
