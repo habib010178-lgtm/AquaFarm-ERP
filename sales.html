@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AquaFarm ERP - Sales Management</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -21,885 +20,345 @@
  --purple:#7c3aed;
  --red:#dc2626;
  --bg:#edf3f9;
- --white:#ffffff;
+ --white:#fff;
  --text:#1e293b;
  --muted:#64748b;
  --border:#dbe3ed;
 }
 
-*{
- margin:0;
- padding:0;
- box-sizing:border-box;
- font-family:Arial,sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:linear-gradient(135deg,#edf3f9,#e6eef7,#f4f7fb);color:var(--text);min-height:100vh}
+button{cursor:pointer}
+.layout{display:flex;min-height:100vh}
 
-body{
- background:linear-gradient(135deg,#edf3f9,#e6eef7,#f4f7fb);
- color:var(--text);
- min-height:100vh;
-}
-
-button{
- cursor:pointer;
-}
-
-.layout{
- display:flex;
- min-height:100vh;
-}
-
-/* ================= SIDEBAR ================= */
+/* SIDEBAR */
 
 .sidebar{
- width:255px;
- flex-shrink:0;
+ width:255px;flex-shrink:0;
  background:linear-gradient(180deg,#102846,#173e68,#102846);
- color:#fff;
- padding:25px 15px;
- box-shadow:5px 0 20px rgba(15,35,60,.13);
+ color:#fff;padding:25px 15px;
+ box-shadow:5px 0 20px rgba(15,35,60,.13)
 }
-
-.brand{
- text-align:center;
- padding-bottom:24px;
- border-bottom:1px solid #36516f;
-}
-
-.brand .icon{
- font-size:45px;
-}
-
-.brand h2{
- color:#5eead4;
- margin-top:8px;
- font-size:23px;
-}
-
-.brand p{
- font-size:11px;
- margin-top:6px;
- color:#cbd5e1;
-}
-
-.menu{
- margin-top:24px;
-}
-
+.brand{text-align:center;padding-bottom:24px;border-bottom:1px solid #36516f}
+.brand .icon{font-size:45px}
+.brand h2{color:#5eead4;margin-top:8px;font-size:23px}
+.brand p{font-size:11px;margin-top:6px;color:#cbd5e1}
+.menu{margin-top:24px}
 .menu a{
- display:block;
- color:#dbeafe;
- padding:12px;
- margin-bottom:5px;
- text-decoration:none;
- border-radius:8px;
- font-size:14px;
- transition:.25s;
+ display:block;color:#dbeafe;padding:12px;margin-bottom:5px;
+ text-decoration:none;border-radius:8px;font-size:14px;transition:.25s
 }
-
-.menu a:hover,
-.menu a.active{
+.menu a:hover,.menu a.active{
  background:linear-gradient(90deg,#0d9488,#14b8a6);
- color:#fff;
- transform:translateX(3px);
+ color:#fff;transform:translateX(3px)
 }
 
-/* ================= MAIN ================= */
+/* MAIN */
 
-.main{
- flex:1;
- min-width:0;
-}
-
-/* ================= TOPBAR ================= */
-
+.main{flex:1;min-width:0}
 .topbar{
- position:sticky;
- top:0;
- z-index:1000;
- display:grid;
- grid-template-columns:1fr auto 1fr;
- align-items:center;
- background:linear-gradient(110deg,#102846,#173e68,#102846);
- padding:13px 25px;
- border-bottom:3px solid var(--teal2);
- box-shadow:0 5px 18px rgba(15,35,60,.20);
+ position:sticky;top:0;z-index:1000;
+ display:grid;grid-template-columns:1fr auto 1fr;
+ align-items:center;background:linear-gradient(110deg,#102846,#173e68,#102846);
+ padding:13px 25px;border-bottom:3px solid var(--teal2);
+ box-shadow:0 5px 18px rgba(15,35,60,.20)
 }
-
 .topbar h2{
- grid-column:2;
- justify-self:center;
- color:#fff;
- font-size:21px;
- font-weight:800;
- letter-spacing:1px;
- border:2px solid #5eead4;
- border-radius:9px;
- padding:10px 30px;
+ grid-column:2;justify-self:center;color:#fff;font-size:21px;
+ font-weight:800;letter-spacing:1px;border:2px solid #5eead4;
+ border-radius:9px;padding:10px 30px;
  background:linear-gradient(135deg,#245786,#173e68);
- box-shadow:0 3px 12px rgba(0,0,0,.15);
+ box-shadow:0 3px 12px rgba(0,0,0,.15)
 }
-
 .logout{
- grid-column:3;
- justify-self:end;
+ grid-column:3;justify-self:end;
  background:linear-gradient(135deg,#dc2626,#ef4444);
- color:#fff;
- border:1px solid rgba(255,255,255,.25);
- padding:11px 20px;
- border-radius:8px;
- font-weight:bold;
- transition:.25s;
+ color:#fff;border:1px solid rgba(255,255,255,.25);
+ padding:11px 20px;border-radius:8px;font-weight:bold;transition:.25s
+}
+.logout:hover{transform:translateY(-2px);box-shadow:0 5px 12px rgba(220,38,38,.3)}
+
+.content{padding:25px;max-width:1650px;margin:auto}
+
+/* FARM SELECT */
+
+.farm-select{
+ max-width:420px;margin-bottom:20px;background:#fff;padding:14px 16px;
+ border-radius:12px;border:1px solid #b9d3eb;
+ box-shadow:0 3px 10px rgba(30,64,120,.06)
+}
+.farm-select label,.field label{
+ display:block;font-weight:bold;margin-bottom:8px;color:#334155;font-size:14px
 }
 
-.logout:hover{
- transform:translateY(-2px);
- box-shadow:0 5px 12px rgba(220,38,38,.3);
+/* TABS */
+
+.sales-tabs{
+ display:flex;gap:10px;padding:9px;margin-bottom:22px;
+ background:#dce8f4;border:1px solid #c4d5e7;
+ border-radius:14px;box-shadow:0 4px 12px rgba(15,35,60,.06)
 }
-
-/* ================= CONTENT ================= */
-
-.content{
- padding:26px;
- max-width:1650px;
- margin:auto;
+.sales-tab{
+ flex:1;border:1px solid transparent;border-radius:10px;
+ padding:15px 12px;background:transparent;color:#36516f;
+ font-size:15px;font-weight:800;transition:.25s
 }
-
-.page-heading{
- display:flex;
- justify-content:space-between;
- align-items:center;
- flex-wrap:wrap;
- gap:12px;
- margin-bottom:20px;
+.sales-tab:hover{background:#fff;color:var(--navy)}
+.sales-tab.active{
+ color:#fff;background:linear-gradient(135deg,#102846,#245786);
+ border-color:#5eead4;box-shadow:0 4px 12px rgba(16,40,70,.2);
+ transform:translateY(-1px)
 }
+.sales-tab span{margin-right:7px;font-size:18px}
 
-.page-title{
- color:var(--navy);
- font-size:27px;
- font-weight:800;
-}
+/* TAB PANELS */
 
-.page-subtitle{
- color:var(--muted);
- font-size:14px;
- margin-top:7px;
-}
+.tab-panel{display:none;animation:fadeUp .3s ease}
+.tab-panel.active{display:block}
 
-/* ================= OVERVIEW PANEL ================= */
+/* OVERVIEW */
 
 .overview-panel{
  background:linear-gradient(135deg,#dceeff,#e8f4ff,#dceeea);
- border:1px solid #a8c9e8;
- border-radius:17px;
- padding:24px;
- margin-bottom:24px;
+ border:1px solid #a8c9e8;border-radius:17px;
+ padding:24px;margin-bottom:24px;
  box-shadow:0 6px 20px rgba(30,64,120,.09);
- position:relative;
- overflow:hidden;
+ position:relative;overflow:hidden
 }
-
 .overview-panel:before{
- content:"";
- position:absolute;
- top:-90px;
- right:-60px;
- width:230px;
- height:230px;
- border-radius:50%;
- background:rgba(255,255,255,.35);
- pointer-events:none;
+ content:"";position:absolute;top:-90px;right:-60px;
+ width:230px;height:230px;border-radius:50%;
+ background:rgba(255,255,255,.35);pointer-events:none
 }
-
-.overview-panel>*{
- position:relative;
- z-index:1;
-}
-
-.farm-select{
- max-width:390px;
- margin-bottom:20px;
- background:#fff;
- padding:15px;
- border-radius:11px;
- border:1px solid #b9d3eb;
- box-shadow:0 3px 10px rgba(30,64,120,.06);
-}
-
-.farm-select label,
-.field label{
- display:block;
- font-weight:bold;
- margin-bottom:8px;
- color:#334155;
- font-size:14px;
-}
-
-/* ================= SUMMARY CARDS ================= */
-
-.cards{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:16px;
-}
-
+.overview-panel>*{position:relative;z-index:1}
+.page-heading{margin-bottom:20px}
+.page-title{color:var(--navy);font-size:27px;font-weight:800}
+.page-subtitle{color:var(--muted);font-size:14px;margin-top:7px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .card{
- padding:22px;
- border-radius:14px;
- color:#fff;
+ padding:22px;border-radius:14px;color:#fff;
  border:1px solid rgba(255,255,255,.18);
  box-shadow:0 6px 17px rgba(15,35,60,.15);
  transition:transform .25s,box-shadow .25s;
- position:relative;
- overflow:hidden;
+ position:relative;overflow:hidden
 }
-
 .card:after{
- content:"";
- position:absolute;
- width:100px;
- height:100px;
- right:-25px;
- top:-30px;
- background:rgba(255,255,255,.10);
- border-radius:50%;
+ content:"";position:absolute;width:100px;height:100px;
+ right:-25px;top:-30px;background:rgba(255,255,255,.10);border-radius:50%
 }
+.card:hover{transform:translateY(-5px);box-shadow:0 12px 23px rgba(15,35,60,.20)}
+.cards .card:nth-child(1){background:linear-gradient(135deg,#142d4e,#2563a6)}
+.cards .card:nth-child(2){background:linear-gradient(135deg,#087f5b,#20a779)}
+.cards .card:nth-child(3){background:linear-gradient(135deg,#b45309,#f59e0b)}
+.cards .card:nth-child(4){background:linear-gradient(135deg,#6b21a8,#9333ea)}
+.card .label{color:#fff;font-size:14px;font-weight:bold;position:relative;z-index:1}
+.card .number{color:#fff;font-size:27px;font-weight:800;margin-top:13px;position:relative;z-index:1}
 
-.card:hover{
- transform:translateY(-5px);
- box-shadow:0 12px 23px rgba(15,35,60,.20);
-}
-
-.cards .card:nth-child(1){
- background:linear-gradient(135deg,#142d4e,#2563a6);
-}
-
-.cards .card:nth-child(2){
- background:linear-gradient(135deg,#087f5b,#20a779);
-}
-
-.cards .card:nth-child(3){
- background:linear-gradient(135deg,#b45309,#f59e0b);
-}
-
-.cards .card:nth-child(4){
- background:linear-gradient(135deg,#6b21a8,#9333ea);
-}
-
-.card .label{
- color:#fff;
- font-size:14px;
- font-weight:bold;
- position:relative;
- z-index:1;
-}
-
-.card .number{
- color:#fff;
- font-size:27px;
- font-weight:800;
- margin-top:13px;
- position:relative;
- z-index:1;
-}
-
-/* ================= GENERAL SECTIONS ================= */
+/* SECTIONS */
 
 .section{
- background:#fff;
- padding:24px;
- border-radius:15px;
- margin-top:23px;
+ background:#fff;padding:24px;border-radius:15px;
  box-shadow:0 5px 18px rgba(15,35,60,.07);
- border:1px solid #e0e8f1;
+ border:1px solid #e0e8f1
 }
-
 .section-title{
- color:#fff;
- font-size:19px;
- margin-bottom:20px;
- padding:14px 18px;
- border-radius:9px;
- background:linear-gradient(100deg,#142d4e,#245786);
- border-left:5px solid #14b8a6;
- box-shadow:0 3px 10px rgba(15,35,60,.12);
+ color:#fff;font-size:19px;margin-bottom:20px;padding:14px 18px;
+ border-radius:9px;background:linear-gradient(100deg,#142d4e,#245786);
+ border-left:5px solid #14b8a6;box-shadow:0 3px 10px rgba(15,35,60,.12)
 }
 
-/* ================= FORM GROUPS ================= */
+/* ACCORDION */
 
 .form-group{
- padding:21px;
- border-radius:13px;
- margin-top:20px;
- border:1px solid #d5e0ec;
- transition:box-shadow .2s;
+ border-radius:13px;margin-top:15px;border:1px solid #d5e0ec;
+ overflow:hidden;transition:box-shadow .2s
 }
-
-.form-group:hover{
- box-shadow:0 4px 13px rgba(15,35,60,.06);
+.form-group:hover{box-shadow:0 4px 13px rgba(15,35,60,.06)}
+.accordion-head{
+ width:100%;display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:16px 19px;border:0;text-align:left;
+ font-size:15px;font-weight:800;transition:.2s
 }
-
-.form-group .subheading{
- font-size:16px;
- margin:0 0 19px;
- padding:11px 14px;
- border-radius:8px;
- font-weight:800;
+.accordion-head .left{display:flex;align-items:center;gap:11px}
+.accordion-head .step{
+ width:29px;height:29px;border-radius:50%;display:grid;
+ place-items:center;background:rgba(255,255,255,.75);
+ font-size:13px;flex-shrink:0
 }
+.accordion-head .arrow{font-size:18px;transition:transform .25s}
+.form-group.open .accordion-head .arrow{transform:rotate(180deg)}
+.accordion-body{display:none;padding:20px}
+.form-group.open .accordion-body{display:block;animation:fadeUp .25s ease}
 
-/* 1 BLUE */
+/* ACCORDION COLORS */
 
-.group-blue{
- background:linear-gradient(135deg,#eff6ff,#e5f0ff);
- border-color:#bfdbfe;
+.group-blue{background:linear-gradient(135deg,#eff6ff,#e5f0ff);border-color:#bfdbfe}
+.group-blue .accordion-head{background:#dbeafe;color:#1e40af;border-left:4px solid #2563eb}
+.group-green{background:linear-gradient(135deg,#effcf4,#e4f7eb);border-color:#bbf7d0}
+.group-green .accordion-head{background:#d1fae5;color:#166534;border-left:4px solid #16a34a}
+.group-orange{background:linear-gradient(135deg,#fff8ed,#fff0dc);border-color:#fed7aa}
+.group-orange .accordion-head{background:#ffedd5;color:#9a3412;border-left:4px solid #ea580c}
+.group-purple{background:linear-gradient(135deg,#f7f2ff,#eee8ff);border-color:#ddd6fe}
+.group-purple .accordion-head{background:#ede9fe;color:#6b21a8;border-left:4px solid #7c3aed}
+.group-voucher{background:linear-gradient(135deg,#e8edf3,#dce5ef);border-color:#aab9ca}
+.group-voucher .accordion-head{background:#cbd5e1;color:#1e293b;border-left:4px solid #475569}
+.group-gray{background:linear-gradient(135deg,#f8fafc,#eaf0f6);border-color:#cbd5e1}
+.group-gray .accordion-head{background:#e2e8f0;color:#334155;border-left:4px solid #64748b}
+
+/* FORM */
+
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.field{min-width:0}
+input,select,textarea{
+ width:100%;padding:12px 13px;border:1px solid #cbd5e1;
+ border-radius:8px;font-size:14px;background:#fff;color:var(--text);
+ outline:none;transition:.2s
 }
-
-.group-blue .subheading{
- background:#dbeafe;
- color:#1e40af;
- border-left:4px solid #2563eb;
+input:focus,select:focus,textarea:focus{
+ border-color:var(--teal);box-shadow:0 0 0 3px #0d94881a
 }
+textarea{resize:vertical;min-height:90px}
 
-/* 2 GREEN */
-
-.group-green{
- background:linear-gradient(135deg,#effcf4,#e4f7eb);
- border-color:#bbf7d0;
-}
-
-.group-green .subheading{
- background:#d1fae5;
- color:#166534;
- border-left:4px solid #16a34a;
-}
-
-/* 3 ORANGE */
-
-.group-orange{
- background:linear-gradient(135deg,#fff8ed,#fff0dc);
- border-color:#fed7aa;
-}
-
-.group-orange .subheading{
- background:#ffedd5;
- color:#9a3412;
- border-left:4px solid #ea580c;
-}
-
-/* 4 PURPLE */
-
-.group-purple{
- background:linear-gradient(135deg,#f7f2ff,#eee8ff);
- border-color:#ddd6fe;
-}
-
-.group-purple .subheading{
- background:#ede9fe;
- color:#6b21a8;
- border-left:4px solid #7c3aed;
-}
-
-/* 5 VOUCHER */
-
-.group-voucher{
- background:linear-gradient(135deg,#e8edf3,#dce5ef);
- border-color:#aab9ca;
-}
-
-.group-voucher .subheading{
- background:#cbd5e1;
- color:#1e293b;
- border-left:4px solid #475569;
-}
-
-/* 6 ADDITIONAL */
-
-.group-gray{
- background:linear-gradient(135deg,#f8fafc,#eaf0f6);
- border-color:#cbd5e1;
-}
-
-.group-gray .subheading{
- background:#e2e8f0;
- color:#334155;
- border-left:4px solid #64748b;
-}
-
-/* ================= FORM GRID ================= */
-
-.form-grid{
- display:grid;
- grid-template-columns:repeat(3,minmax(0,1fr));
- gap:16px;
-}
-
-.field{
- min-width:0;
-}
-
-input,
-select,
-textarea{
- width:100%;
- padding:12px 13px;
- border:1px solid #cbd5e1;
- border-radius:8px;
- font-size:14px;
- background:#fff;
- color:var(--text);
- outline:none;
- transition:.2s;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
- border-color:var(--teal);
- box-shadow:0 0 0 3px #0d94881a;
-}
-
-textarea{
- resize:vertical;
- min-height:90px;
-}
-
-/* ================= BUTTONS ================= */
+/* BUTTONS */
 
 .btn{
- border:0;
- padding:11px 17px;
- border-radius:8px;
- font-size:14px;
- font-weight:bold;
- transition:.2s;
+ border:0;padding:11px 17px;border-radius:8px;
+ font-size:14px;font-weight:bold;transition:.2s
 }
+.btn:hover{opacity:.95;transform:translateY(-2px);box-shadow:0 4px 10px rgba(15,35,60,.12)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(135deg,#173e68,#2563a6);color:#fff}
+.btn-teal{background:linear-gradient(135deg,#0d9488,#14b8a6);color:#fff}
+.btn-secondary{background:#e2e8f0;color:#334155}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+.btn-small{padding:7px 10px;font-size:12px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.form-actions{padding-top:19px;border-top:1px solid #dbe3ed}
 
-.btn:hover{
- opacity:.95;
- transform:translateY(-2px);
- box-shadow:0 4px 10px rgba(15,35,60,.12);
-}
+/* TABLES */
 
-.btn:disabled{
- opacity:.55;
- cursor:not-allowed;
- transform:none;
-}
+.table-wrap{overflow-x:auto;border:1px solid #d5e0ec;border-radius:10px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:middle}
+th{background:linear-gradient(100deg,#dce9f7,#eaf2fa);color:#142d4e;font-size:13px;white-space:nowrap;font-weight:800}
+tbody tr:hover{background:#f1f8ff}
+td input,td select{min-width:95px;padding:9px}
+.lineTotal{font-weight:bold;color:#087f5b;white-space:nowrap}
 
-.btn-primary{
- background:linear-gradient(135deg,#173e68,#2563a6);
- color:#fff;
-}
-
-.btn-teal{
- background:linear-gradient(135deg,#0d9488,#14b8a6);
- color:#fff;
-}
-
-.btn-secondary{
- background:#e2e8f0;
- color:#334155;
-}
-
-.btn-danger{
- background:#fee2e2;
- color:#b91c1c;
-}
-
-.btn-small{
- padding:7px 10px;
- font-size:12px;
-}
-
-.actions{
- display:flex;
- gap:10px;
- flex-wrap:wrap;
- margin-top:18px;
-}
-
-.form-actions{
- padding-top:19px;
- border-top:1px solid #dbe3ed;
-}
-
-/* ================= TABLES ================= */
-
-.table-wrap{
- overflow-x:auto;
- border:1px solid #d5e0ec;
- border-radius:10px;
- background:#fff;
-}
-
-table{
- width:100%;
- border-collapse:collapse;
- min-width:760px;
-}
-
-th,td{
- padding:12px;
- text-align:left;
- border-bottom:1px solid #e2e8f0;
- font-size:13px;
- vertical-align:middle;
-}
-
-th{
- background:linear-gradient(100deg,#dce9f7,#eaf2fa);
- color:#142d4e;
- font-size:13px;
- white-space:nowrap;
- font-weight:800;
-}
-
-tbody tr:hover{
- background:#f1f8ff;
-}
-
-td input,
-td select{
- min-width:95px;
- padding:9px;
-}
-
-.lineTotal{
- font-weight:bold;
- color:#087f5b;
- white-space:nowrap;
-}
-
-/* ================= SUMMARY ================= */
+/* SUMMARY */
 
 .summary{
- max-width:410px;
- margin:20px 0 0 auto;
- padding:16px;
- background:#fff;
- border-radius:11px;
- border:1px solid #d5e0ec;
- box-shadow:0 3px 9px rgba(15,35,60,.05);
+ max-width:410px;margin:20px 0 0 auto;padding:16px;
+ background:#fff;border-radius:11px;border:1px solid #d5e0ec;
+ box-shadow:0 3px 9px rgba(15,35,60,.05)
 }
-
 .summary-row{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:12px;
- padding:10px 0;
- border-bottom:1px solid #e2e8f0;
- font-size:14px;
+ display:flex;justify-content:space-between;align-items:center;
+ gap:12px;padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px
 }
+.summary-row:last-child{border-bottom:0}
+.summary-row.total{color:#142d4e;font-weight:bold;font-size:19px}
+.summary input{max-width:155px;text-align:right}
 
-.summary-row:last-child{
- border-bottom:0;
-}
-
-.summary-row.total{
- color:#142d4e;
- font-weight:bold;
- font-size:19px;
-}
-
-.summary input{
- max-width:155px;
- text-align:right;
-}
-
-/* ================= VOUCHER UPLOAD ================= */
+/* VOUCHER */
 
 .upload-box{
- border:2px dashed #64748b;
- border-radius:12px;
- padding:24px;
- background:linear-gradient(135deg,#dce5ef,#eaf0f6);
- text-align:center;
+ border:2px dashed #64748b;border-radius:12px;padding:24px;
+ background:linear-gradient(135deg,#dce5ef,#eaf0f6);text-align:center
 }
-
-.upload-box>b{
- color:#142d4e;
- font-size:15px;
-}
-
-.upload-box p{
- color:#475569;
- font-size:13px;
- margin:10px 0 15px;
- line-height:1.6;
-}
-
-.upload-box input{
- max-width:460px;
- margin:auto;
-}
-
+.upload-box>b{color:#142d4e;font-size:15px}
+.upload-box p{color:#475569;font-size:13px;margin:10px 0 15px;line-height:1.6}
+.upload-box input{max-width:460px;margin:auto}
 .file-list{
- margin-top:15px;
- display:grid;
+ margin-top:15px;display:grid;
  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
- gap:10px;
- text-align:left;
+ gap:10px;text-align:left
 }
-
 .file-item{
- background:#fff;
- border:1px solid #cbd5e1;
- border-radius:9px;
- padding:10px;
- font-size:12px;
- overflow-wrap:anywhere;
+ background:#fff;border:1px solid #cbd5e1;border-radius:9px;
+ padding:10px;font-size:12px;overflow-wrap:anywhere
 }
-
 .file-item img{
- width:100%;
- height:105px;
- object-fit:contain;
- background:#f1f5f9;
- border-radius:6px;
- margin-bottom:7px;
+ width:100%;height:105px;object-fit:contain;background:#f1f5f9;
+ border-radius:6px;margin-bottom:7px
 }
 
-/* ================= MESSAGES ================= */
+/* MESSAGES */
 
-.message{
- margin-top:15px;
- padding:12px;
- border-radius:8px;
- display:none;
- font-size:14px;
- line-height:1.5;
-}
+.message{margin-top:15px;padding:12px;border-radius:8px;display:none;font-size:14px;line-height:1.5}
+.message.success{display:block;background:#dcfce7;color:#166534}
+.message.error{display:block;background:#fee2e2;color:#991b1b}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold;text-transform:capitalize}
+.status.posted{background:#dcfce7;color:#166534}
+.status.draft{background:#fef3c7;color:#92400e}
+.status.cancelled{background:#fee2e2;color:#991b1b}
+.empty{padding:18px;text-align:center;color:var(--muted)}
 
-.message.success{
- display:block;
- background:#dcfce7;
- color:#166534;
-}
-
-.message.error{
- display:block;
- background:#fee2e2;
- color:#991b1b;
-}
-
-/* ================= STATUS ================= */
-
-.status{
- display:inline-block;
- padding:5px 9px;
- border-radius:20px;
- font-size:11px;
- font-weight:bold;
- text-transform:capitalize;
-}
-
-.status.posted{
- background:#dcfce7;
- color:#166534;
-}
-
-.status.draft{
- background:#fef3c7;
- color:#92400e;
-}
-
-.status.cancelled{
- background:#fee2e2;
- color:#991b1b;
-}
-
-.empty{
- padding:18px;
- text-align:center;
- color:var(--muted);
-}
-
-/* ================= SALES HISTORY ================= */
+/* HISTORY */
 
 .history-toolbar{
- display:flex;
- justify-content:space-between;
- align-items:end;
- gap:15px;
- flex-wrap:wrap;
- margin-bottom:18px;
+ display:flex;justify-content:space-between;align-items:end;
+ gap:15px;flex-wrap:wrap;margin-bottom:18px
 }
+.history-toolbar .field{width:100%;max-width:360px}
+.print-report-btn{background:linear-gradient(135deg,#087f5b,#16a34a);color:#fff;padding:12px 20px}
 
-.history-toolbar .field{
- width:100%;
- max-width:360px;
-}
-
-.print-report-btn{
- background:linear-gradient(135deg,#087f5b,#16a34a);
- color:#fff;
- padding:12px 20px;
-}
-
-/* ================= ANIMATIONS ================= */
+/* ANIMATION */
 
 @keyframes fadeUp{
- from{
-  opacity:0;
-  transform:translateY(12px);
- }
- to{
-  opacity:1;
-  transform:translateY(0);
- }
+ from{opacity:0;transform:translateY(10px)}
+ to{opacity:1;transform:translateY(0)}
 }
 
-.overview-panel,
-.section{
- animation:fadeUp .45s ease both;
-}
-
-/* ================= RESPONSIVE ================= */
+/* RESPONSIVE */
 
 @media(max-width:1100px){
- .cards{
-  grid-template-columns:repeat(2,1fr);
- }
-
- .form-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr));
- }
+ .cards{grid-template-columns:repeat(2,1fr)}
+ .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
 @media(max-width:650px){
-
- .layout{
-  display:block;
- }
-
- .sidebar{
-  width:100%;
-  padding:15px;
- }
-
- .brand{
-  padding-bottom:14px;
- }
-
- .menu{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:5px;
-  margin-top:14px;
- }
-
- .menu a{
-  padding:10px;
-  font-size:12px;
-  margin:0;
- }
-
- .topbar{
-  padding:10px;
-  grid-template-columns:1fr auto;
- }
-
- .topbar h2{
-  grid-column:1;
-  justify-self:start;
-  font-size:15px;
-  padding:9px 10px;
- }
-
- .topbar .logout{
-  grid-column:2;
-  font-size:12px;
-  padding:9px 12px;
- }
-
- .content{
-  padding:13px;
- }
-
- .overview-panel{
-  padding:14px;
- }
-
- .cards{
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:9px;
- }
-
- .card{
-  padding:14px;
- }
-
- .number{
-  font-size:19px!important;
- }
-
- .label{
-  font-size:12px!important;
- }
-
- .form-grid{
-  grid-template-columns:1fr;
- }
-
- .section{
-  padding:15px;
- }
-
- .form-group{
-  padding:13px;
- }
-
- .page-title{
-  font-size:22px;
- }
-
- .summary{
-  max-width:100%;
- }
-
- .history-toolbar .field{
-  max-width:100%;
- }
-
- .print-report-btn{
-  width:100%;
- }
+ .layout{display:block}
+ .sidebar{width:100%;padding:15px}
+ .brand{padding-bottom:14px}
+ .menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:14px}
+ .menu a{padding:10px;font-size:12px;margin:0}
+ .topbar{padding:10px;grid-template-columns:1fr auto}
+ .topbar h2{grid-column:1;justify-self:start;font-size:15px;padding:9px 10px}
+ .topbar .logout{grid-column:2;font-size:12px;padding:9px 12px}
+ .content{padding:13px}
+ .sales-tabs{gap:5px;padding:6px}
+ .sales-tab{padding:12px 5px;font-size:12px}
+ .sales-tab span{display:block;margin:0 0 5px;font-size:19px}
+ .overview-panel{padding:15px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .card{padding:14px}
+ .number{font-size:19px!important}
+ .label{font-size:12px!important}
+ .form-grid{grid-template-columns:1fr}
+ .section{padding:15px}
+ .accordion-body{padding:13px}
+ .accordion-head{padding:13px;font-size:13px}
+ .summary{max-width:100%}
+ .history-toolbar .field{max-width:100%}
+ .print-report-btn{width:100%}
+ .page-title{font-size:22px}
 }
 
-/* ================= PRINT ================= */
+/* PRINT */
 
 @media print{
- .sidebar,
- .topbar,
- .no-print{
-  display:none!important;
- }
-
- .layout{
-  display:block;
- }
-
- .content{
-  padding:0;
- }
-
- body{
-  background:#fff;
- }
+ .sidebar,.topbar,.no-print{display:none!important}
+ .layout{display:block}
+ .content{padding:0}
+ body{background:#fff}
 }
-
 </style>
 </head>
 
 <body>
-
 <div class="layout">
 
-<!-- SIDEBAR -->
-
 <aside class="sidebar">
-
  <div class="brand">
   <div class="icon">🐟</div>
   <h2>AquaFarm ERP</h2>
@@ -921,13 +380,9 @@ td select{
   <a>📊 Reports</a>
   <a>⚙️ Settings</a>
  </nav>
-
 </aside>
 
-<!-- MAIN -->
-
 <main class="main">
-
 <header class="topbar">
  <h2>Sales Management</h2>
  <button class="logout" onclick="logout()">Logout</button>
@@ -935,318 +390,313 @@ td select{
 
 <div class="content">
 
-<!-- OVERVIEW -->
+<!-- FARM SELECTION -->
 
-<section class="overview-panel">
+<div class="farm-select">
+ <label for="farmSelect">🏞 Select Farm</label>
+ <select id="farmSelect" onchange="changeFarm()"></select>
+</div>
 
- <div class="page-heading">
-  <div>
+<!-- NAVIGATION TABS -->
+
+<nav class="sales-tabs no-print">
+ <button class="sales-tab active" data-tab="overview" onclick="showSalesTab('overview',this)">
+  <span>📊</span>Overview
+ </button>
+ <button class="sales-tab" data-tab="new-sale" onclick="showSalesTab('new-sale',this)">
+  <span>➕</span>New Sale
+ </button>
+ <button class="sales-tab" data-tab="history" onclick="showSalesTab('history',this)">
+  <span>📋</span>Sales History
+ </button>
+</nav>
+
+<!-- OVERVIEW TAB -->
+
+<div class="tab-panel active" id="tab-overview">
+ <section class="overview-panel">
+  <div class="page-heading">
    <h2 class="page-title">Sales Overview</h2>
-   <p class="page-subtitle">
-    Manage fish sales, payments, customer invoices and receipts.
-   </p>
-  </div>
- </div>
-
- <div class="farm-select">
-  <label for="farmSelect">Select Farm</label>
-  <select id="farmSelect" onchange="changeFarm()"></select>
- </div>
-
- <div class="cards">
-
-  <div class="card">
-   <div class="label">📄 Total Invoices</div>
-   <div class="number" id="totalInvoices">0</div>
+   <p class="page-subtitle">Manage fish sales, payments, customer invoices and receipts.</p>
   </div>
 
-  <div class="card">
-   <div class="label">💰 Total Sales</div>
-   <div class="number" id="totalSales">৳0.00</div>
-  </div>
-
-  <div class="card">
-   <div class="label">✅ Total Received</div>
-   <div class="number" id="totalReceived">৳0.00</div>
-  </div>
-
-  <div class="card">
-   <div class="label">⏳ Total Due</div>
-   <div class="number" id="totalDue">৳0.00</div>
-  </div>
-
- </div>
-
-</section>
-
-<!-- CREATE SALE -->
-
-<section class="section create-sale-panel">
-
- <h3 class="section-title">➕ Create New Sale</h3>
-
- <!-- 1 -->
-
- <div class="form-group group-blue">
-
-  <h4 class="subheading">1. Invoice & Customer Information</h4>
-
-  <div class="form-grid">
-
-   <div class="field">
-    <label for="saleDate">Invoice Date</label>
-    <input type="date" id="saleDate">
+  <div class="cards">
+   <div class="card">
+    <div class="label">📄 Total Invoices</div>
+    <div class="number" id="totalInvoices">0</div>
    </div>
-
-   <div class="field">
-    <label for="customerSelect">Select Customer</label>
-    <select id="customerSelect" onchange="selectCustomer()">
-     <option value="">Walk-in / New Customer</option>
-    </select>
+   <div class="card">
+    <div class="label">💰 Total Sales</div>
+    <div class="number" id="totalSales">৳0.00</div>
    </div>
-
-   <div class="field">
-    <label for="customerName">Customer Name</label>
-    <input id="customerName" type="text" placeholder="Customer name">
+   <div class="card">
+    <div class="label">✅ Total Received</div>
+    <div class="number" id="totalReceived">৳0.00</div>
    </div>
-
-   <div class="field">
-    <label for="customerPhone">Phone Number</label>
-    <input id="customerPhone" type="tel" placeholder="Phone number">
+   <div class="card">
+    <div class="label">⏳ Total Due</div>
+    <div class="number" id="totalDue">৳0.00</div>
    </div>
+  </div>
+ </section>
 
-   <div class="field">
-    <label for="customerAddress">Address</label>
-    <input id="customerAddress" type="text" placeholder="Customer address">
+ <section class="section">
+  <h3 class="section-title">✨ Welcome to Sales Management</h3>
+  <p style="color:#64748b;line-height:1.8">
+   Manage your fish sales, customer payments, invoices and receipts from one place.
+   Use the tabs above to create a new sale or view your sales history.
+  </p>
+  <div class="actions">
+   <button class="btn btn-primary" onclick="showSalesTab('new-sale')">＋ Create New Sale</button>
+   <button class="btn btn-teal" onclick="showSalesTab('history')">📋 View Sales History</button>
+  </div>
+ </section>
+</div>
+
+<!-- NEW SALE TAB -->
+
+<div class="tab-panel" id="tab-new-sale">
+ <section class="section create-sale-panel">
+  <h3 class="section-title">➕ Create New Sale</h3>
+
+  <!-- 1 CUSTOMER -->
+
+  <div class="form-group group-blue open">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">1</span>Invoice & Customer Information</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="form-grid">
+     <div class="field">
+      <label for="saleDate">Invoice Date</label>
+      <input type="date" id="saleDate">
+     </div>
+     <div class="field">
+      <label for="customerSelect">Select Customer</label>
+      <select id="customerSelect" onchange="selectCustomer()">
+       <option value="">Walk-in / New Customer</option>
+      </select>
+     </div>
+     <div class="field">
+      <label for="customerName">Customer Name</label>
+      <input id="customerName" type="text" placeholder="Customer name">
+     </div>
+     <div class="field">
+      <label for="customerPhone">Phone Number</label>
+      <input id="customerPhone" type="tel" placeholder="Phone number">
+     </div>
+     <div class="field">
+      <label for="customerAddress">Address</label>
+      <input id="customerAddress" type="text" placeholder="Customer address">
+     </div>
+    </div>
    </div>
-
   </div>
 
- </div>
+  <!-- 2 FISH ITEMS -->
 
- <!-- 2 -->
+  <div class="form-group group-green">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">2</span>Fish Items</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>Fish Species</th><th>Unit</th><th>Quantity</th>
+        <th>Unit Price</th><th>Discount</th><th>Total</th><th>Action</th>
+       </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+     </table>
+    </div>
+    <div class="actions">
+     <button class="btn btn-teal" onclick="addItem()">＋ Add Fish</button>
+    </div>
+   </div>
+  </div>
 
- <div class="form-group group-green">
+  <!-- 3 SUMMARY -->
 
-  <h4 class="subheading">2. Fish Items</h4>
+  <div class="form-group group-orange">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">3</span>Sales Summary</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="summary">
+     <div class="summary-row"><span>Subtotal</span><b id="subtotal">৳0.00</b></div>
+     <div class="summary-row">
+      <label for="invoiceDiscount">Invoice Discount</label>
+      <input type="number" id="invoiceDiscount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+     </div>
+     <div class="summary-row total"><span>Grand Total</span><span id="grandTotal">৳0.00</span></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- 4 PAYMENT -->
+
+  <div class="form-group group-purple">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">4</span>Payment Information</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="form-grid">
+     <div class="field">
+      <label for="paidAmount">Paid Amount</label>
+      <input type="number" id="paidAmount" min="0" step="0.01" value="0" oninput="calculateTotal()">
+     </div>
+     <div class="field">
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod">
+       <option value="cash">Cash</option>
+       <option value="bank">Bank</option>
+       <option value="bkash">bKash</option>
+       <option value="nagad">Nagad</option>
+       <option value="other">Other</option>
+      </select>
+     </div>
+     <div class="field">
+      <label for="transactionReference">Transaction Reference</label>
+      <input id="transactionReference" type="text" placeholder="Optional reference">
+     </div>
+    </div>
+    <div class="summary">
+     <div class="summary-row"><span>Paid</span><b id="paidDisplay">৳0.00</b></div>
+     <div class="summary-row total"><span>Due</span><span id="dueDisplay">৳0.00</span></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- 5 VOUCHER -->
+
+  <div class="form-group group-voucher">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">5</span>Voucher / Receipt Upload</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="upload-box">
+     <div style="font-size:38px">📎</div>
+     <b>Attach Payment Voucher, Receipt or Fish Sale Photo</b>
+     <p>Choose JPG, PNG or PDF files. Multiple files are allowed.
+      Maximum 10 MB per file.<br>Images will show a preview before saving.</p>
+     <input type="file" id="voucherFiles"
+      accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+      multiple onchange="showSelectedFiles()">
+     <div id="selectedFiles" class="file-list"></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- 6 NOTES -->
+
+  <div class="form-group group-gray">
+   <button type="button" class="accordion-head" onclick="toggleAccordion(this)">
+    <span class="left"><span class="step">6</span>Additional Information</span>
+    <span class="arrow">⌄</span>
+   </button>
+   <div class="accordion-body">
+    <div class="field">
+     <label for="saleNotes">Notes</label>
+     <textarea id="saleNotes" placeholder="Additional information"></textarea>
+    </div>
+   </div>
+  </div>
+
+  <div class="actions form-actions">
+   <button class="btn btn-primary" id="saveButton" onclick="saveSale()">Save Sale</button>
+   <button class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+  </div>
+  <div id="formMessage" class="message"></div>
+ </section>
+</div>
+
+<!-- HISTORY TAB -->
+
+<div class="tab-panel" id="tab-history">
+ <section class="section sales-history-panel">
+  <h3 class="section-title">📋 Sales History</h3>
+
+  <div class="history-toolbar no-print">
+   <div class="field">
+    <label for="searchSales">Search Invoice / Customer</label>
+    <input id="searchSales" type="text"
+     placeholder="Search invoice or customer..."
+     oninput="renderSalesHistory()">
+   </div>
+   <button class="btn print-report-btn" onclick="printSalesHistory()">
+    🖨 Print Sales History
+   </button>
+  </div>
 
   <div class="table-wrap">
-
    <table>
     <thead>
      <tr>
-      <th>Fish Species</th>
-      <th>Unit</th>
-      <th>Quantity</th>
-      <th>Unit Price</th>
-      <th>Discount</th>
-      <th>Total</th>
-      <th>Action</th>
+      <th>Invoice No</th><th>Date</th><th>Customer</th>
+      <th>Total</th><th>Paid</th><th>Due</th>
+      <th>Status</th><th>Voucher</th><th>Action</th>
      </tr>
     </thead>
-
-    <tbody id="itemsBody"></tbody>
+    <tbody id="salesTable">
+     <tr><td colspan="9" class="empty">Loading...</td></tr>
+    </tbody>
    </table>
-
   </div>
-
-  <div class="actions">
-   <button class="btn btn-teal" onclick="addItem()">＋ Add Fish</button>
-  </div>
-
- </div>
-
- <!-- 3 -->
-
- <div class="form-group group-orange">
-
-  <h4 class="subheading">3. Sales Summary</h4>
-
-  <div class="summary">
-
-   <div class="summary-row">
-    <span>Subtotal</span>
-    <b id="subtotal">৳0.00</b>
-   </div>
-
-   <div class="summary-row">
-    <label for="invoiceDiscount">Invoice Discount</label>
-    <input type="number" id="invoiceDiscount"
-     min="0" step="0.01" value="0"
-     oninput="calculateTotal()">
-   </div>
-
-   <div class="summary-row total">
-    <span>Grand Total</span>
-    <span id="grandTotal">৳0.00</span>
-   </div>
-
-  </div>
-
- </div>
-
- <!-- 4 -->
-
- <div class="form-group group-purple">
-
-  <h4 class="subheading">4. Payment Information</h4>
-
-  <div class="form-grid">
-
-   <div class="field">
-    <label for="paidAmount">Paid Amount</label>
-    <input type="number" id="paidAmount"
-     min="0" step="0.01" value="0"
-     oninput="calculateTotal()">
-   </div>
-
-   <div class="field">
-    <label for="paymentMethod">Payment Method</label>
-    <select id="paymentMethod">
-     <option value="cash">Cash</option>
-     <option value="bank">Bank</option>
-     <option value="bkash">bKash</option>
-     <option value="nagad">Nagad</option>
-     <option value="other">Other</option>
-    </select>
-   </div>
-
-   <div class="field">
-    <label for="transactionReference">Transaction Reference</label>
-    <input id="transactionReference" type="text"
-     placeholder="Optional reference">
-   </div>
-
-  </div>
-
-  <div class="summary">
-
-   <div class="summary-row">
-    <span>Paid</span>
-    <b id="paidDisplay">৳0.00</b>
-   </div>
-
-   <div class="summary-row total">
-    <span>Due</span>
-    <span id="dueDisplay">৳0.00</span>
-   </div>
-
-  </div>
-
- </div>
-
- <!-- 5 -->
-
- <div class="form-group group-voucher">
-
-  <h4 class="subheading">5. Voucher / Receipt Upload</h4>
-
-  <div class="upload-box">
-
-   <div style="font-size:38px">📎</div>
-
-   <b>Attach Payment Voucher, Receipt or Fish Sale Photo</b>
-
-   <p>
-    Choose JPG, PNG or PDF files. Multiple files are allowed.
-    Maximum 10 MB per file.<br>
-    Images will show a preview before saving.
-   </p>
-
-   <input type="file" id="voucherFiles"
-    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-    multiple onchange="showSelectedFiles()">
-
-   <div id="selectedFiles" class="file-list"></div>
-
-  </div>
-
- </div>
-
- <!-- 6 -->
-
- <div class="form-group group-gray">
-
-  <h4 class="subheading">6. Additional Information</h4>
-
-  <div class="field">
-   <label for="saleNotes">Notes</label>
-   <textarea id="saleNotes"
-    placeholder="Additional information"></textarea>
-  </div>
-
- </div>
-
- <div class="actions form-actions">
-
-  <button class="btn btn-primary" id="saveButton"
-   onclick="saveSale()">Save Sale</button>
-
-  <button class="btn btn-secondary"
-   onclick="resetForm()">Clear Form</button>
-
- </div>
-
- <div id="formMessage" class="message"></div>
-
-</section>
-
-<!-- SALES HISTORY -->
-
-<section class="section sales-history-panel">
-
- <h3 class="section-title">📋 Sales History</h3>
-
- <div class="history-toolbar no-print">
-
-  <div class="field">
-   <label for="searchSales">Search Invoice / Customer</label>
-   <input id="searchSales" type="text"
-    placeholder="Search invoice or customer..."
-    oninput="renderSalesHistory()">
-  </div>
-
-  <button class="btn print-report-btn"
-   onclick="printSalesHistory()">
-   🖨 Print Sales History
-  </button>
-
- </div>
-
- <div class="table-wrap">
-
-  <table>
-   <thead>
-    <tr>
-     <th>Invoice No</th>
-     <th>Date</th>
-     <th>Customer</th>
-     <th>Total</th>
-     <th>Paid</th>
-     <th>Due</th>
-     <th>Status</th>
-     <th>Voucher</th>
-     <th>Action</th>
-    </tr>
-   </thead>
-
-   <tbody id="salesTable">
-    <tr>
-     <td colspan="9" class="empty">Loading...</td>
-    </tr>
-   </tbody>
-
-  </table>
-
- </div>
-
-</section>
+ </section>
+</div>
 
 </div>
 </main>
 </div>
 
 <script>
+
+/* ================= NAVIGATION ================= */
+
+function showSalesTab(tab,button){
+
+ document.querySelectorAll(".tab-panel").forEach(p=>{
+  p.classList.remove("active");
+ });
+
+ document.querySelectorAll(".sales-tab").forEach(b=>{
+  b.classList.remove("active");
+ });
+
+ const panel=document.getElementById("tab-"+tab);
+
+ if(panel)panel.classList.add("active");
+
+ if(button){
+  button.classList.add("active");
+ }else{
+  const tabButton=document.querySelector('.sales-tab[data-tab="'+tab+'"]');
+  if(tabButton)tabButton.classList.add("active");
+ }
+
+ window.scrollTo({top:0,behavior:"smooth"});
+
+}
+
+function toggleAccordion(button){
+
+ const group=button.closest(".form-group");
+ const parent=group.parentElement;
+
+ parent.querySelectorAll(".form-group").forEach(item=>{
+  if(item!==group)item.classList.remove("open");
+ });
+
+ group.classList.toggle("open");
+
+}
 
 /* ================= SUPABASE ================= */
 
@@ -1274,7 +724,6 @@ async function initializeSales(){
  try{
 
   const {data,error}=await supabaseClient.auth.getSession();
-
   if(error)throw error;
 
   if(!data.session){
@@ -1294,9 +743,7 @@ async function initializeSales(){
 
   const farmIds=(memberships||[]).map(x=>x.farm_id);
 
-  if(!farmIds.length){
-   throw new Error("No active farm membership found.");
-  }
+  if(!farmIds.length)throw new Error("No active farm membership found.");
 
   const {data:farms,error:farmError}=await supabaseClient
    .from("farms")
@@ -1309,9 +756,7 @@ async function initializeSales(){
 
   farmList=farms||[];
 
-  if(!farmList.length){
-   throw new Error("No active farm found.");
-  }
+  if(!farmList.length)throw new Error("No active farm found.");
 
   const sel=document.getElementById("farmSelect");
 
@@ -1395,19 +840,13 @@ async function loadSalesData(){
   select.innerHTML='<option value="">Walk-in / New Customer</option>';
 
   customers.forEach(c=>{
-
    const o=document.createElement("option");
-
    o.value=c.id;
    o.textContent=c.customer_name+(c.phone?" - "+c.phone:"");
-
    select.appendChild(o);
-
   });
 
-  if(customers.some(c=>c.id===selected)){
-   select.value=selected;
-  }
+  if(customers.some(c=>c.id===selected))select.value=selected;
 
   updateDashboard();
   renderSalesHistory();
@@ -1415,12 +854,7 @@ async function loadSalesData(){
  }catch(e){
 
   console.error(e);
-
-  showMessage(
-   "formMessage",
-   "Could not load sales data: "+e.message,
-   "error"
-  );
+  showMessage("formMessage","Could not load sales data: "+e.message,"error");
 
  }
 
@@ -1447,42 +881,18 @@ function addItem(){
  const row=document.createElement("tr");
 
  row.innerHTML=`
-
-  <td>
-   <input class="species" placeholder="Rui, Katla..." required>
-  </td>
-
+  <td><input class="species" placeholder="Rui, Katla..." required></td>
   <td>
    <select class="unit">
     <option value="kg">KG</option>
     <option value="piece">Piece</option>
    </select>
   </td>
-
-  <td>
-   <input class="quantity" type="number"
-    min="0.001" step="0.001" value="1">
-  </td>
-
-  <td>
-   <input class="price" type="number"
-    min="0" step="0.01" value="0">
-  </td>
-
-  <td>
-   <input class="discount" type="number"
-    min="0" step="0.01" value="0">
-  </td>
-
+  <td><input class="quantity" type="number" min="0.001" step="0.001" value="1"></td>
+  <td><input class="price" type="number" min="0" step="0.01" value="0"></td>
+  <td><input class="discount" type="number" min="0" step="0.01" value="0"></td>
   <td class="lineTotal">৳0.00</td>
-
-  <td>
-   <button class="btn btn-danger btn-small"
-    type="button" onclick="removeItem(this)">
-    Remove
-   </button>
-  </td>
-
+  <td><button class="btn btn-danger btn-small" type="button" onclick="removeItem(this)">Remove</button></td>
  `;
 
  document.getElementById("itemsBody").appendChild(row);
@@ -1496,11 +906,8 @@ function addItem(){
 }
 
 function removeItem(btn){
-
  btn.closest("tr").remove();
-
  calculateTotal();
-
 }
 
 /* ================= CALCULATE ================= */
@@ -1518,23 +925,13 @@ function calculateTotal(){
   const line=Math.max(0,q*p-d);
 
   row.querySelector(".lineTotal").textContent=money(line);
-
   subtotal+=line;
 
  });
 
- const discount=Math.max(
-  0,
-  Number(document.getElementById("invoiceDiscount").value)||0
- );
-
+ const discount=Math.max(0,Number(document.getElementById("invoiceDiscount").value)||0);
  const grand=Math.max(0,subtotal-discount);
-
- const paid=Math.max(
-  0,
-  Number(document.getElementById("paidAmount").value)||0
- );
-
+ const paid=Math.max(0,Number(document.getElementById("paidAmount").value)||0);
  const due=Math.max(0,grand-paid);
 
  document.getElementById("subtotal").textContent=money(subtotal);
@@ -1542,67 +939,47 @@ function calculateTotal(){
  document.getElementById("paidDisplay").textContent=money(paid);
  document.getElementById("dueDisplay").textContent=money(due);
 
- return{
-  subtotal,
-  invoiceDiscount:discount,
-  grandTotal:grand,
-  paid,
-  due
- };
+ return{subtotal,invoiceDiscount:discount,grandTotal:grand,paid,due};
 
 }
 
 /* ================= VOUCHER PREVIEW ================= */
 
 function clearPreviewUrls(){
-
  previewUrls.forEach(URL.revokeObjectURL);
-
  previewUrls=[];
-
 }
 
 function showSelectedFiles(){
 
  const box=document.getElementById("selectedFiles");
-
  box.innerHTML="";
-
  clearPreviewUrls();
 
- const files=Array.from(
-  document.getElementById("voucherFiles").files||[]
- );
+ const files=Array.from(document.getElementById("voucherFiles").files||[]);
 
  for(const f of files){
 
   const div=document.createElement("div");
-
   div.className="file-item";
 
   if(f.type==="image/jpeg"||f.type==="image/png"){
 
    const url=URL.createObjectURL(f);
-
    previewUrls.push(url);
 
    const img=document.createElement("img");
-
    img.src=url;
    img.alt=f.name;
-
    div.appendChild(img);
 
   }
 
   const name=document.createElement("div");
-
-  name.textContent=
-   (f.type==="application/pdf"?"📄 ":"📎 ")+
+  name.textContent=(f.type==="application/pdf"?"📄 ":"📎 ")+
    f.name+" ("+(f.size/1048576).toFixed(2)+" MB)";
 
   div.appendChild(name);
-
   box.appendChild(div);
 
  }
@@ -1611,29 +988,16 @@ function showSelectedFiles(){
 
 function validateVoucherFiles(files){
 
- const allowed=[
-  "image/jpeg",
-  "image/png",
-  "application/pdf"
- ];
+ const allowed=["image/jpeg","image/png","application/pdf"];
 
  for(const f of files){
 
   if(!allowed.includes(f.type)){
-
-   throw new Error(
-    "Unsupported file: "+f.name+
-    ". Only JPG, PNG and PDF are allowed."
-   );
-
+   throw new Error("Unsupported file: "+f.name+". Only JPG, PNG and PDF are allowed.");
   }
 
   if(f.size<=0||f.size>10*1024*1024){
-
-   throw new Error(
-    f.name+" exceeds the 10 MB file limit."
-   );
-
+   throw new Error(f.name+" exceeds the 10 MB file limit.");
   }
 
  }
@@ -1645,32 +1009,23 @@ function validateVoucherFiles(files){
 async function uploadSaleVouchers(saleId,files){
 
  const userResult=await supabaseClient.auth.getUser();
-
  if(userResult.error)throw userResult.error;
 
  const userId=userResult.data.user.id;
-
  const uploaded=[];
 
  try{
 
   for(const file of files){
 
-   const safe=file.name
-    .replace(/[^a-zA-Z0-9._-]/g,"_")
-    .substring(0,100);
+   const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").substring(0,100);
 
-   const path=
-    currentFarm.id+"/sales/"+saleId+"/"+
+   const path=currentFarm.id+"/sales/"+saleId+"/"+
     Date.now()+"_"+crypto.randomUUID()+"_"+safe;
 
-   const {error:upErr}=await supabaseClient
-    .storage
+   const {error:upErr}=await supabaseClient.storage
     .from(BUCKET_NAME)
-    .upload(path,file,{
-     contentType:file.type,
-     upsert:false
-    });
+    .upload(path,file,{contentType:file.type,upsert:false});
 
    if(upErr)throw upErr;
 
@@ -1696,11 +1051,7 @@ async function uploadSaleVouchers(saleId,files){
  }catch(e){
 
   if(uploaded.length){
-
-   await supabaseClient.storage
-    .from(BUCKET_NAME)
-    .remove(uploaded);
-
+   await supabaseClient.storage.from(BUCKET_NAME).remove(uploaded);
   }
 
   throw e;
@@ -1729,12 +1080,8 @@ async function viewSaleVouchers(saleId){
   if(files.length===1){
    choice="1";
   }else{
-
-   choice=prompt(
-    "Enter file number to open:\n\n"+
-    files.map((f,i)=>(i+1)+". "+f.file_name).join("\n")
-   );
-
+   choice=prompt("Enter file number to open:\n\n"+
+    files.map((f,i)=>(i+1)+". "+f.file_name).join("\n"));
   }
 
   if(choice===null)return;
@@ -1746,23 +1093,18 @@ async function viewSaleVouchers(saleId){
    return;
   }
 
-  const {data,error}=await supabaseClient
-   .storage
+  const {data,error}=await supabaseClient.storage
    .from(BUCKET_NAME)
    .createSignedUrl(files[index].file_path,120);
 
   if(error)throw error;
 
   const opened=window.open(data.signedUrl,"_blank");
-
-  if(!opened){
-   window.location.href=data.signedUrl;
-  }
+  if(!opened)window.location.href=data.signedUrl;
 
  }catch(e){
 
   console.error(e);
-
   alert("Could not open voucher: "+e.message);
 
  }
@@ -1797,13 +1139,10 @@ async function saveSale(){
   const price=Number(row.querySelector(".price").value);
   const discount=Number(row.querySelector(".discount").value);
 
-  if(
-   !species||
-   !Number.isFinite(quantity)||quantity<=0||
+  if(!species||!Number.isFinite(quantity)||quantity<=0||
    !Number.isFinite(price)||price<0||
    !Number.isFinite(discount)||discount<0||
-   discount>quantity*price
-  ){
+   discount>quantity*price){
 
    alert("Please enter valid fish item information.");
    return;
@@ -1823,12 +1162,10 @@ async function saveSale(){
 
  const totals=calculateTotal();
 
- if(
-  !Number.isFinite(totals.invoiceDiscount)||
+ if(!Number.isFinite(totals.invoiceDiscount)||
   totals.invoiceDiscount>totals.subtotal||
   !Number.isFinite(totals.paid)||
-  totals.paid>totals.grandTotal
- ){
+  totals.paid>totals.grandTotal){
 
   alert("Please check invoice discount and paid amount.");
   return;
@@ -1847,37 +1184,23 @@ async function saveSale(){
   return;
  }
 
- const files=Array.from(
-  document.getElementById("voucherFiles").files||[]
- );
+ const files=Array.from(document.getElementById("voucherFiles").files||[]);
 
  try{
-
   validateVoucherFiles(files);
-
  }catch(e){
-
   alert(e.message);
   return;
-
  }
 
- const customerId=
-  document.getElementById("customerSelect").value||null;
-
- const customerName=
-  document.getElementById("customerName").value.trim();
-
- const customerPhone=
-  document.getElementById("customerPhone").value.trim();
-
- const customerAddress=
-  document.getElementById("customerAddress").value.trim();
+ const customerId=document.getElementById("customerSelect").value||null;
+ const customerName=document.getElementById("customerName").value.trim();
+ const customerPhone=document.getElementById("customerPhone").value.trim();
+ const customerAddress=document.getElementById("customerAddress").value.trim();
 
  const button=document.getElementById("saveButton");
 
  savingSale=true;
-
  button.disabled=true;
  button.textContent="Saving Sale...";
 
@@ -1902,13 +1225,11 @@ async function saveSale(){
     .single();
 
    if(error)throw error;
-
    finalCustomerId=newCustomer.id;
 
   }
 
-  invoiceNo=
-   currentFarm.farm_code+"-S-"+
+  invoiceNo=currentFarm.farm_code+"-S-"+
    Date.now()+"-"+Math.floor(Math.random()*1000);
 
   const {data:sale,error:saleError}=await supabaseClient
@@ -1952,8 +1273,7 @@ async function saveSale(){
      payment_date:saleDate,
      amount:totals.paid,
      payment_method:document.getElementById("paymentMethod").value,
-     transaction_reference:
-      document.getElementById("transactionReference").value.trim()||null
+     transaction_reference:document.getElementById("transactionReference").value.trim()||null
     });
 
    if(paymentError)throw paymentError;
@@ -1973,34 +1293,25 @@ async function saveSale(){
   if(updateError)throw updateError;
 
   let msg="Sale saved successfully! Invoice: "+invoiceNo;
-
   let msgType="success";
 
   if(files.length){
 
    try{
-
     await uploadSaleVouchers(saleId,files);
-
     msg+=" "+files.length+" voucher file(s) uploaded.";
-
    }catch(uploadError){
-
     console.error(uploadError);
-
     msg+=" Sale saved, but voucher upload failed: "+
-     uploadError.message+
-     ". You may retry after checking the invoice.";
-
+     uploadError.message+". You may retry after checking the invoice.";
     msgType="error";
-
    }
 
   }
 
-  showMessage("formMessage",msg,msgType);
-
   resetForm();
+  showSalesTab("history");
+  showMessage("formMessage",msg,msgType);
 
   await loadSalesData();
 
@@ -2011,17 +1322,16 @@ async function saveSale(){
   let msg=e.message||"Unable to save sale.";
 
   if(saleId){
-
    msg+=" A draft invoice may remain. Check Sales History before retrying to avoid a duplicate.";
-
   }
 
   showMessage("formMessage",msg,"error");
 
+  showSalesTab("new-sale");
+
  }finally{
 
   savingSale=false;
-
   button.disabled=false;
   button.textContent="Save Sale";
 
@@ -2047,9 +1357,7 @@ function resetForm(){
  clearPreviewUrls();
 
  document.getElementById("itemsBody").innerHTML="";
-
  addItem();
-
  calculateTotal();
 
 }
@@ -2060,15 +1368,11 @@ function updateDashboard(){
 
  const posted=salesList.filter(s=>s.status==="posted");
 
- const sum=key=>
-  posted.reduce((n,s)=>n+Number(s[key]||0),0);
+ const sum=key=>posted.reduce((n,s)=>n+Number(s[key]||0),0);
 
  document.getElementById("totalInvoices").textContent=posted.length;
-
  document.getElementById("totalSales").textContent=money(sum("grand_total"));
-
  document.getElementById("totalReceived").textContent=money(sum("paid_amount"));
-
  document.getElementById("totalDue").textContent=money(sum("due_amount"));
 
 }
@@ -2078,9 +1382,7 @@ function updateDashboard(){
 function renderSalesHistory(){
 
  const body=document.getElementById("salesTable");
-
- const term=document.getElementById("searchSales")
-  .value.trim().toLowerCase();
+ const term=document.getElementById("searchSales").value.trim().toLowerCase();
 
  const filtered=salesList.filter(s=>
   String(s.invoice_no||"").toLowerCase().includes(term)||
@@ -2088,12 +1390,8 @@ function renderSalesHistory(){
  );
 
  if(!filtered.length){
-
-  body.innerHTML=
-   '<tr><td colspan="9" class="empty">No sales records found.</td></tr>';
-
+  body.innerHTML='<tr><td colspan="9" class="empty">No sales records found.</td></tr>';
   return;
-
  }
 
  body.innerHTML=filtered.map(s=>{
@@ -2103,43 +1401,21 @@ function renderSalesHistory(){
   ).length;
 
   return `
-
    <tr>
-
     <td>${escapeHTML(s.invoice_no)}</td>
-
     <td>${escapeHTML(s.sale_date)}</td>
-
     <td>${escapeHTML(s.customer_name||"Walk-in Customer")}</td>
-
     <td>${money(s.grand_total)}</td>
-
     <td>${money(s.paid_amount)}</td>
-
     <td>${money(s.due_amount)}</td>
-
+    <td><span class="status ${escapeHTML(s.status)}">${escapeHTML(s.status)}</span></td>
     <td>
-     <span class="status ${escapeHTML(s.status)}">
-      ${escapeHTML(s.status)}
-     </span>
+     <button class="btn btn-secondary btn-small" onclick="viewSaleVouchers('${s.id}')">📎 ${count}</button>
     </td>
-
     <td>
-     <button class="btn btn-secondary btn-small"
-      onclick="viewSaleVouchers('${s.id}')">
-      📎 ${count}
-     </button>
+     <button class="btn btn-primary btn-small" onclick="printInvoice('${s.id}')">Print</button>
     </td>
-
-    <td>
-     <button class="btn btn-primary btn-small"
-      onclick="printInvoice('${s.id}')">
-      Print
-     </button>
-    </td>
-
    </tr>
-
   `;
 
  }).join("");
@@ -2155,8 +1431,7 @@ function printSalesHistory(){
   return;
  }
 
- const term=document.getElementById("searchSales")
-  .value.trim().toLowerCase();
+ const term=document.getElementById("searchSales").value.trim().toLowerCase();
 
  const filtered=salesList.filter(s=>
   String(s.invoice_no||"").toLowerCase().includes(term)||
@@ -2169,7 +1444,6 @@ function printSalesHistory(){
  }
 
  const rows=filtered.map((s,i)=>`
-
   <tr>
    <td>${i+1}</td>
    <td>${escapeHTML(s.invoice_no)}</td>
@@ -2180,20 +1454,11 @@ function printSalesHistory(){
    <td class="amount">${money(s.due_amount)}</td>
    <td>${escapeHTML(s.status)}</td>
   </tr>
-
  `).join("");
 
- const totalSales=filtered.reduce(
-  (n,s)=>n+Number(s.grand_total||0),0
- );
-
- const totalPaid=filtered.reduce(
-  (n,s)=>n+Number(s.paid_amount||0),0
- );
-
- const totalDue=filtered.reduce(
-  (n,s)=>n+Number(s.due_amount||0),0
- );
+ const totalSales=filtered.reduce((n,s)=>n+Number(s.grand_total||0),0);
+ const totalPaid=filtered.reduce((n,s)=>n+Number(s.paid_amount||0),0);
+ const totalDue=filtered.reduce((n,s)=>n+Number(s.due_amount||0),0);
 
  const win=window.open("","_blank");
 
@@ -2203,208 +1468,63 @@ function printSalesHistory(){
  }
 
  win.document.write(`
-
  <!DOCTYPE html>
  <html>
  <head>
  <meta charset="UTF-8">
-
  <title>Sales History Report</title>
-
  <style>
-
- @page{
-  size:A4 portrait;
-  margin:0.5in 1in;
- }
-
- *{
-  box-sizing:border-box;
- }
-
- body{
-  font-family:Arial,sans-serif;
-  color:#1e293b;
-  font-size:11px;
-  margin:0;
- }
-
- .report-header{
-  text-align:center;
-  border-bottom:3px solid #142d4e;
-  padding-bottom:13px;
-  margin-bottom:18px;
- }
-
- .report-header h1{
-  color:#142d4e;
-  font-size:24px;
-  margin:0 0 6px;
- }
-
- .report-header h2{
-  font-size:17px;
-  margin:5px 0;
- }
-
- .report-header p{
-  margin:5px 0;
-  color:#475569;
- }
-
- .report-info{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:14px;
- }
-
- table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:12px;
- }
-
- th,td{
-  border:1px solid #cbd5e1;
-  padding:8px 5px;
-  text-align:left;
-  font-size:10px;
- }
-
- th{
-  background:#142d4e;
-  color:white;
- }
-
- tbody tr:nth-child(even){
-  background:#f1f5f9;
- }
-
- .amount{
-  text-align:right;
-  white-space:nowrap;
- }
-
- .totals{
-  margin-top:18px;
-  margin-left:auto;
-  width:270px;
- }
-
- .totals div{
-  display:flex;
-  justify-content:space-between;
-  padding:8px;
-  border-bottom:1px solid #cbd5e1;
- }
-
- .grand{
-  font-weight:bold;
-  font-size:13px;
-  color:#142d4e;
- }
-
- .footer{
-  text-align:center;
-  margin-top:30px;
-  border-top:1px solid #cbd5e1;
-  padding-top:10px;
-  color:#64748b;
- }
-
- .print-button{
-  margin:20px 0;
-  padding:10px 20px;
-  background:#142d4e;
-  color:white;
-  border:0;
-  border-radius:5px;
-  cursor:pointer;
- }
-
+ @page{size:A4 portrait;margin:0.5in 1in}
+ *{box-sizing:border-box}
+ body{font-family:Arial,sans-serif;color:#1e293b;font-size:11px;margin:0}
+ .report-header{text-align:center;border-bottom:3px solid #142d4e;padding-bottom:13px;margin-bottom:18px}
+ .report-header h1{color:#142d4e;font-size:24px;margin:0 0 6px}
+ .report-header h2{font-size:17px;margin:5px 0}
+ .report-header p{margin:5px 0;color:#475569}
+ .report-info{display:flex;justify-content:space-between;margin-bottom:14px}
+ table{width:100%;border-collapse:collapse;margin-top:12px}
+ th,td{border:1px solid #cbd5e1;padding:8px 5px;text-align:left;font-size:10px}
+ th{background:#142d4e;color:white}
+ tbody tr:nth-child(even){background:#f1f5f9}
+ .amount{text-align:right;white-space:nowrap}
+ .totals{margin-top:18px;margin-left:auto;width:270px}
+ .totals div{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #cbd5e1}
+ .grand{font-weight:bold;font-size:13px;color:#142d4e}
+ .footer{text-align:center;margin-top:30px;border-top:1px solid #cbd5e1;padding-top:10px;color:#64748b}
+ .print-button{margin:20px 0;padding:10px 20px;background:#142d4e;color:white;border:0;border-radius:5px;cursor:pointer}
  @media print{
-
-  .print-button{
-   display:none;
-  }
-
-  thead{
-   display:table-header-group;
-  }
-
-  tr{
-   page-break-inside:avoid;
-  }
-
+  .print-button{display:none}
+  thead{display:table-header-group}
+  tr{page-break-inside:avoid}
  }
-
  </style>
  </head>
-
  <body>
-
  <div class="report-header">
   <h1>AquaFarm ERP</h1>
   <h2>${escapeHTML(currentFarm.farm_name)}</h2>
   <p>Sales History Report</p>
  </div>
-
  <div class="report-info">
   <span>Farm Code: ${escapeHTML(currentFarm.farm_code)}</span>
   <span>Report Date: ${localDateString()}</span>
  </div>
-
  <p><b>Total Records:</b> ${filtered.length}</p>
-
  <table>
-
- <thead>
-  <tr>
-   <th>SL</th>
-   <th>Invoice No</th>
-   <th>Date</th>
-   <th>Customer</th>
-   <th>Total</th>
-   <th>Paid</th>
-   <th>Due</th>
-   <th>Status</th>
-  </tr>
- </thead>
-
- <tbody>${rows}</tbody>
-
+  <thead>
+   <tr><th>SL</th><th>Invoice No</th><th>Date</th><th>Customer</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th></tr>
+  </thead>
+  <tbody>${rows}</tbody>
  </table>
-
  <div class="totals">
-
-  <div>
-   <span>Total Sales</span>
-   <b>${money(totalSales)}</b>
-  </div>
-
-  <div>
-   <span>Total Received</span>
-   <b>${money(totalPaid)}</b>
-  </div>
-
-  <div class="grand">
-   <span>Total Due</span>
-   <b>${money(totalDue)}</b>
-  </div>
-
+  <div><span>Total Sales</span><b>${money(totalSales)}</b></div>
+  <div><span>Total Received</span><b>${money(totalPaid)}</b></div>
+  <div class="grand"><span>Total Due</span><b>${money(totalDue)}</b></div>
  </div>
-
- <div class="footer">
-  Generated by AquaFarm ERP
- </div>
-
- <button class="print-button" onclick="window.print()">
-  Print Report
- </button>
-
+ <div class="footer">Generated by AquaFarm ERP</div>
+ <button class="print-button" onclick="window.print()">Print Report</button>
  </body>
  </html>
-
  `);
 
  win.document.close();
@@ -2445,7 +1565,6 @@ async function printInvoice(saleId){
   if(pr.error)throw pr.error;
 
   const rows=(ir.data||[]).map(i=>`
-
    <tr>
     <td>${escapeHTML(i.fish_species)}</td>
     <td>${escapeHTML(i.unit)}</td>
@@ -2454,17 +1573,14 @@ async function printInvoice(saleId){
     <td>${money(i.discount_amount)}</td>
     <td>${money(i.line_total)}</td>
    </tr>
-
   `).join("");
 
   const payments=(pr.data||[]).map(p=>`
-
    <tr>
     <td>${escapeHTML(p.payment_date)}</td>
     <td>${escapeHTML(p.payment_method)}</td>
     <td>${money(p.amount)}</td>
    </tr>
-
   `).join("");
 
   const win=window.open("","_blank");
@@ -2475,98 +1591,38 @@ async function printInvoice(saleId){
   }
 
   win.document.write(`
-
    <!DOCTYPE html>
    <html>
    <head>
     <meta charset="UTF-8">
-
     <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
-
     <style>
-
-     @page{
-      size:A4 portrait;
-      margin:0.5in 1in;
-     }
-
-     body{
-      font-family:Arial,sans-serif;
-      padding:10px;
-      color:#1e293b;
-     }
-
-     h1,h2{
-      color:#142d4e;
-     }
-
-     .header{
-      text-align:center;
-      margin-bottom:24px;
-      border-bottom:2px solid #142d4e;
-      padding-bottom:15px;
-     }
-
-     table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:14px;
-     }
-
-     th,td{
-      border:1px solid #ddd;
-      padding:9px;
-      text-align:left;
-     }
-
-     th{
-      background:#eaf2fa;
-     }
-
-     .right{
-      text-align:right;
-      margin-top:20px;
-     }
-
-     @media print{
-      button{display:none}
-     }
-
+     @page{size:A4 portrait;margin:0.5in 1in}
+     body{font-family:Arial,sans-serif;padding:10px;color:#1e293b}
+     h1,h2{color:#142d4e}
+     .header{text-align:center;margin-bottom:24px;border-bottom:2px solid #142d4e;padding-bottom:15px}
+     table{width:100%;border-collapse:collapse;margin-top:14px}
+     th,td{border:1px solid #ddd;padding:9px;text-align:left}
+     th{background:#eaf2fa}
+     .right{text-align:right;margin-top:20px}
+     @media print{button{display:none}}
     </style>
-
    </head>
-
    <body>
-
     <div class="header">
      <h1>AquaFarm ERP</h1>
      <h2>${escapeHTML(currentFarm.farm_name)}</h2>
      <p>Sales Invoice</p>
     </div>
-
     <p><b>Invoice:</b> ${escapeHTML(sale.invoice_no)}</p>
     <p><b>Date:</b> ${escapeHTML(sale.sale_date)}</p>
     <p><b>Customer:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}</p>
     <p><b>Phone:</b> ${escapeHTML(sale.customer_phone||"")}</p>
     <p><b>Address:</b> ${escapeHTML(sale.customer_address||"")}</p>
-
     <table>
-
-     <thead>
-      <tr>
-       <th>Fish</th>
-       <th>Unit</th>
-       <th>Quantity</th>
-       <th>Price</th>
-       <th>Discount</th>
-       <th>Total</th>
-      </tr>
-     </thead>
-
+     <thead><tr><th>Fish</th><th>Unit</th><th>Quantity</th><th>Price</th><th>Discount</th><th>Total</th></tr></thead>
      <tbody>${rows}</tbody>
-
     </table>
-
     <div class="right">
      <p>Subtotal: ${money(sale.subtotal)}</p>
      <p>Discount: ${money(sale.discount_amount)}</p>
@@ -2574,33 +1630,15 @@ async function printInvoice(saleId){
      <p>Paid: ${money(sale.paid_amount)}</p>
      <p>Due: ${money(sale.due_amount)}</p>
     </div>
-
     <h3>Payment History</h3>
-
     <table>
-     <thead>
-      <tr>
-       <th>Date</th>
-       <th>Method</th>
-       <th>Amount</th>
-      </tr>
-     </thead>
-
-     <tbody>
-      ${payments||'<tr><td colspan="3">No payment recorded.</td></tr>'}
-     </tbody>
-
+     <thead><tr><th>Date</th><th>Method</th><th>Amount</th></tr></thead>
+     <tbody>${payments||'<tr><td colspan="3">No payment recorded.</td></tr>'}</tbody>
     </table>
-
-    <br>
-
-    <p>Thank you for your business.</p>
-
+    <br><p>Thank you for your business.</p>
     <button onclick="window.print()">Print Invoice</button>
-
    </body>
    </html>
-
   `);
 
   win.document.close();
@@ -2608,7 +1646,6 @@ async function printInvoice(saleId){
  }catch(e){
 
   console.error(e);
-
   alert("Invoice Error: "+e.message);
 
  }
@@ -2618,16 +1655,13 @@ async function printInvoice(saleId){
 /* ================= HELPERS ================= */
 
 function money(v){
-
  return "৳"+Number(v||0).toLocaleString("en-BD",{
   minimumFractionDigits:2,
   maximumFractionDigits:2
  });
-
 }
 
 function escapeHTML(v){
-
  return String(v??"").replace(/[&<>"']/g,c=>({
   "&":"&amp;",
   "<":"&lt;",
@@ -2635,26 +1669,18 @@ function escapeHTML(v){
   '"':"&quot;",
   "'":"&#39;"
  }[c]));
-
 }
 
 function showMessage(id,msg,type){
-
  const el=document.getElementById(id);
-
  el.textContent=msg;
  el.className="message "+type;
-
 }
 
 function localDateString(){
-
  const d=new Date();
-
  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
-
  return local.toISOString().slice(0,10);
-
 }
 
 /* ================= LOGOUT ================= */
@@ -2675,10 +1701,8 @@ async function logout(){
 /* ================= START ================= */
 
 window.addEventListener("beforeunload",clearPreviewUrls);
-
 initializeSales();
 
 </script>
-
 </body>
 </html>
