@@ -719,6 +719,15 @@ let previewUrls=[];
 // Current user information
 let currentUserId=null;
 let currentFarmRole=null;
+let editingSaleId=null;
+
+document.getElementById("paidAmount").disabled=false;
+document.getElementById("paymentMethod").disabled=false;
+document.getElementById("transactionReference").disabled=false;
+
+document.getElementById("saveButton").textContent="Save Sale";
+
+document.querySelector(".create-sale-panel .section-title").textContent="➕ Create New Sale";
 
 /* ================= INITIALIZATION ================= */
 
@@ -901,6 +910,13 @@ function selectCustomer(){
 
 function addItem(){
 
+ if(editingSaleId){
+  alert("Fish items cannot be added while editing an existing sale.");
+  return;
+ } 
+ 
+function addItem(){
+
  const row=document.createElement("tr");
 
  row.innerHTML=`
@@ -929,8 +945,15 @@ function addItem(){
 }
 
 function removeItem(btn){
+
+ if(editingSaleId){
+  alert("Existing fish items cannot be removed while editing a sale.");
+  return;
+ }
+
  btn.closest("tr").remove();
  calculateTotal();
+
 }
 
 /* ================= CALCULATE ================= */
@@ -1169,6 +1192,11 @@ async function viewSaleVouchers(saleId){
 /* ================= SAVE SALE ================= */
 
 async function saveSale(){
+
+ if(editingSaleId){
+  await updateExistingSale();
+  return;
+ }
 
  if(savingSale)return;
 
@@ -1417,6 +1445,416 @@ function resetForm(){
 
 }
 
+/* ================= EDIT SALE ================= */
+
+async function editSale(saleId){
+
+ if(!["admin","manager","accountant"].includes(currentFarmRole)){
+  alert("You do not have permission to edit sales.");
+  return;
+ }
+
+ try{
+
+  const sale=salesList.find(s=>String(s.id)===String(saleId));
+
+  if(!sale){
+   throw new Error("Sale record not found.");
+  }
+
+  const {data:items,error}=await supabaseClient
+   .from("sale_items")
+   .select("*")
+   .eq("sale_id",saleId)
+   .eq("farm_id",currentFarm.id)
+   .order("created_at",{ascending:true});
+
+  if(error)throw error;
+
+  if(!items||!items.length){
+   throw new Error("No fish items found for this sale.");
+  }
+
+  if(items.some(item=>!item.id)){
+   throw new Error("An existing fish item ID is missing. Editing cancelled.");
+  }
+
+  resetForm();
+
+  document.getElementById("itemsBody").innerHTML="";
+
+  document.getElementById("saleDate").value=sale.sale_date||"";
+
+  document.getElementById("customerSelect").value=
+   sale.customer_id||"";
+
+  document.getElementById("customerName").value=
+   sale.customer_name||"";
+
+  document.getElementById("customerPhone").value=
+   sale.customer_phone||"";
+
+  document.getElementById("customerAddress").value=
+   sale.customer_address||"";
+
+  document.getElementById("invoiceDiscount").value=
+   Number(sale.discount_amount||0);
+
+  document.getElementById("paidAmount").value=
+   Number(sale.paid_amount||0);
+
+  document.getElementById("saleNotes").value=
+   sale.notes||"";
+
+  // Load existing fish items without changing their IDs
+
+  items.forEach(item=>{
+
+   addItem();
+
+   const row=document.querySelector("#itemsBody tr:last-child");
+
+   row.dataset.itemId=item.id;
+
+   row.querySelector(".species").value=
+    item.fish_species||"";
+
+   row.querySelector(".unit").value=
+    item.unit||"kg";
+
+   row.querySelector(".quantity").value=
+    Number(item.quantity||0);
+
+   row.querySelector(".price").value=
+    Number(item.unit_price||0);
+
+   row.querySelector(".discount").value=
+    Number(item.discount_amount||0);
+
+  });
+
+  editingSaleId=sale.id;
+
+  // Existing payment records must remain unchanged
+
+  document.getElementById("paidAmount").disabled=true;
+  document.getElementById("paymentMethod").disabled=true;
+  document.getElementById("transactionReference").disabled=true;
+
+  document.getElementById("saveButton").textContent="Update Sale";
+
+  document.querySelector(".create-sale-panel .section-title").textContent=
+   "✏️ Edit Sale - "+sale.invoice_no;
+
+  // Open the first accordion
+
+  document.querySelectorAll("#tab-new-sale .form-group").forEach((group,index)=>{
+   group.classList.toggle("open",index===0);
+  });
+
+  calculateTotal();
+
+  showSalesTab("new-sale");
+
+  window.scrollTo({top:0,behavior:"smooth"});
+
+ }catch(e){
+
+  console.error("Edit Sale Error:",e);
+  alert("Could not open sale for editing: "+e.message);
+
+ }
+
+}
+
+
+/* ================= UPDATE EXISTING SALE ================= */
+
+async function updateExistingSale(){
+
+ if(savingSale)return;
+
+ if(!editingSaleId||!currentFarm)return;
+
+ const rows=[...document.querySelectorAll("#itemsBody tr")];
+
+ if(!rows.length){
+  alert("No fish items found.");
+  return;
+ }
+
+ const items=[];
+
+ for(const row of rows){
+
+  const itemId=row.dataset.itemId;
+
+  const species=row.querySelector(".species").value.trim();
+  const unit=row.querySelector(".unit").value;
+  const quantity=Number(row.querySelector(".quantity").value);
+  const price=Number(row.querySelector(".price").value);
+  const discount=Number(row.querySelector(".discount").value);
+
+  if(!itemId||!species||
+   !Number.isFinite(quantity)||quantity<=0||
+   !Number.isFinite(price)||price<0||
+   !Number.isFinite(discount)||discount<0||
+   discount>quantity*price){
+
+   alert("Please check all fish item information.");
+   return;
+
+  }
+
+  items.push({
+   id:itemId,
+   fish_species:species,
+   unit:unit,
+   quantity:quantity,
+   unit_price:price,
+   discount_amount:discount,
+   line_total:Math.max(0,quantity*price-discount)
+  });
+
+ }
+
+ const totals=calculateTotal();
+
+ if(totals.invoiceDiscount>totals.subtotal||
+  totals.paid>totals.grandTotal){
+
+  alert("Invoice discount or paid amount is invalid.");
+  return;
+
+ }
+
+ if(totals.grandTotal<=0){
+  alert("Sale total must be greater than zero.");
+  return;
+ }
+
+ const saleDate=document.getElementById("saleDate").value;
+
+ if(!saleDate){
+  alert("Please select invoice date.");
+  return;
+ }
+
+ const files=Array.from(
+  document.getElementById("voucherFiles").files||[]
+ );
+
+ try{
+  validateVoucherFiles(files);
+ }catch(e){
+  alert(e.message);
+  return;
+ }
+
+ const customerId=
+  document.getElementById("customerSelect").value||null;
+
+ const customerName=
+  document.getElementById("customerName").value.trim();
+
+ const customerPhone=
+  document.getElementById("customerPhone").value.trim();
+
+ const customerAddress=
+  document.getElementById("customerAddress").value.trim();
+
+ const button=document.getElementById("saveButton");
+
+ savingSale=true;
+ button.disabled=true;
+ button.textContent="Updating Sale...";
+
+ try{
+
+  // Update existing fish item rows only.
+  // Do not delete or recreate item records.
+
+  for(const item of items){
+
+   const {error:itemError}=await supabaseClient
+    .from("sale_items")
+    .update({
+     fish_species:item.fish_species,
+     unit:item.unit,
+     quantity:item.quantity,
+     unit_price:item.unit_price,
+     discount_amount:item.discount_amount,
+     line_total:item.line_total
+    })
+    .eq("id",item.id)
+    .eq("sale_id",editingSaleId)
+    .eq("farm_id",currentFarm.id);
+
+   if(itemError)throw itemError;
+
+  }
+
+  // Update sale information.
+  // Existing paid_amount and payment records remain unchanged.
+
+  const {error:saleError}=await supabaseClient
+   .from("sales")
+   .update({
+    customer_id:customerId,
+    customer_name:customerName||"Walk-in Customer",
+    customer_phone:customerPhone||null,
+    customer_address:customerAddress||null,
+    sale_date:saleDate,
+    subtotal:totals.subtotal,
+    discount_amount:totals.invoiceDiscount,
+    grand_total:totals.grandTotal,
+    due_amount:totals.due,
+    notes:document.getElementById("saleNotes").value.trim()||null
+   })
+   .eq("id",editingSaleId)
+   .eq("farm_id",currentFarm.id);
+
+  if(saleError)throw saleError;
+
+  const updatedSaleId=editingSaleId;
+
+  let message="Sale updated successfully.";
+
+  if(files.length){
+
+   try{
+
+    await uploadSaleVouchers(updatedSaleId,files);
+
+    message+=" "+files.length+" new voucher file(s) uploaded.";
+
+   }catch(uploadError){
+
+    console.error("Voucher Upload Error:",uploadError);
+
+    message+=" However, voucher upload failed: "+uploadError.message;
+
+   }
+
+  }
+
+  resetForm();
+
+  await loadSalesData();
+
+  showSalesTab("history");
+
+  showMessage("formMessage",message,"success");
+
+ }catch(e){
+
+  console.error("Update Sale Error:",e);
+
+  alert("Could not update sale: "+e.message);
+
+ }finally{
+
+  savingSale=false;
+
+  button.disabled=false;
+
+  if(editingSaleId){
+   button.textContent="Update Sale";
+  }else{
+   button.textContent="Save Sale";
+  }
+
+ }
+
+}
+
+/* ================= DELETE SALE ================= */
+
+async function deleteSale(saleId){
+
+ if(currentFarmRole!=="admin"){
+  alert("Only Admin can delete sales.");
+  return;
+ }
+
+ const sale=salesList.find(s=>String(s.id)===String(saleId));
+
+ if(!sale){
+  alert("Sale record not found.");
+  return;
+ }
+
+ const confirmed=confirm(
+  "Are you sure you want to permanently delete this sale?\n\n"+
+  "Invoice: "+sale.invoice_no+"\n"+
+  "Customer: "+sale.customer_name+"\n"+
+  "Amount: "+money(sale.grand_total)+"\n\n"+
+  "Its fish items, payment records and attached vouchers will also be deleted."
+ );
+
+ if(!confirmed)return;
+
+ try{
+
+  // Find attached vouchers
+
+  const files=attachments.filter(a=>
+   String(a.transaction_id)===String(saleId)&&
+   a.module_name==="sales"
+  );
+
+  // Remove storage files first
+
+  if(files.length){
+
+   const paths=files.map(f=>f.file_path);
+
+   const {error:storageError}=await supabaseClient.storage
+    .from(BUCKET_NAME)
+    .remove(paths);
+
+   if(storageError)throw storageError;
+
+   // Remove voucher metadata
+
+   const {error:metaError}=await supabaseClient
+    .from("transaction_attachments")
+    .delete()
+    .eq("farm_id",currentFarm.id)
+    .eq("module_name","sales")
+    .eq("transaction_id",saleId);
+
+   if(metaError)throw metaError;
+
+  }
+
+  // Delete the sale.
+  // Related sale_items and sale_payments are expected
+  // to be removed through the existing database cascade.
+
+  const {error:saleError}=await supabaseClient
+   .from("sales")
+   .delete()
+   .eq("id",saleId)
+   .eq("farm_id",currentFarm.id);
+
+  if(saleError)throw saleError;
+
+  alert("Sale deleted successfully.");
+
+  await loadSalesData();
+
+ }catch(e){
+
+  console.error("Delete Sale Error:",e);
+
+  alert("Could not delete sale: "+e.message);
+
+ }
+
+}
+
+ 
 /* ================= DASHBOARD ================= */
 
 function updateDashboard(){
