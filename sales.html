@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AquaFarm ERP - Dashboard</title>
+<title>AquaFarm ERP - Sales Management</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -67,7 +67,6 @@ body {
     text-decoration: none;
     border-radius: 7px;
     font-size: 14px;
-    cursor: pointer;
 }
 
 .menu a:hover,
@@ -108,27 +107,20 @@ body {
     padding: 25px;
 }
 
-.welcome {
-    background: linear-gradient(120deg,#047857,#10b981);
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-}
-
-.welcome h2 {
-    margin-bottom: 10px;
+.page-title {
+    color: #065f46;
+    margin-bottom: 20px;
 }
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 18px;
+    grid-template-columns: repeat(4,1fr);
+    gap: 15px;
 }
 
 .card {
     background: white;
-    padding: 23px;
+    padding: 20px;
     border-radius: 12px;
     box-shadow: 0 3px 12px rgba(0,0,0,.05);
     border-left: 4px solid #059669;
@@ -136,12 +128,12 @@ body {
 
 .card .label {
     color: #64748b;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .card .number {
     color: #047857;
-    font-size: 29px;
+    font-size: 25px;
     font-weight: bold;
     margin-top: 12px;
 }
@@ -150,24 +142,89 @@ body {
     background: white;
     padding: 22px;
     border-radius: 12px;
-    margin-top: 25px;
+    margin-top: 22px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.04);
 }
 
 .section h3 {
     color: #065f46;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 7px;
+    color: #475569;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+    background: white;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 65px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.btn {
+    border: none;
+    padding: 11px 17px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background: #059669;
+    color: white;
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.btn-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn:hover {
+    opacity: .9;
+}
+
+.table-wrap {
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 650px;
 }
 
-th,td {
+th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 th {
@@ -175,18 +232,76 @@ th {
     color: #065f46;
 }
 
-.status {
+.item-input {
+    min-width: 100px;
+}
+
+.summary {
+    max-width: 350px;
+    margin-left: auto;
+    margin-top: 20px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-row.total {
     color: #047857;
     font-weight: bold;
+    font-size: 18px;
 }
 
-#message {
+.summary input {
+    max-width: 150px;
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.message {
     margin-top: 15px;
-    color: #dc2626;
+    padding: 12px;
+    border-radius: 7px;
+    display: none;
+    font-size: 14px;
 }
 
-@media(max-width:900px) {
+.success {
+    display: block;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.error {
+    display: block;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.hidden {
+    display: none;
+}
+
+.farm-select {
+    max-width: 350px;
+    margin-bottom: 20px;
+}
+
+@media(max-width:1000px) {
     .cards {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .form-grid {
         grid-template-columns: repeat(2,1fr);
     }
 }
@@ -215,16 +330,40 @@ th {
     }
 
     .cards {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2,1fr);
         gap: 10px;
     }
 
     .card {
-        padding: 15px;
+        padding: 14px;
     }
 
     .card .number {
-        font-size: 23px;
+        font-size: 21px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 15px;
+    }
+}
+
+@media print {
+    .sidebar,
+    .topbar,
+    .no-print {
+        display: none !important;
+    }
+
+    .layout {
+        display: block;
+    }
+
+    .content {
+        padding: 0;
     }
 }
 </style>
@@ -243,7 +382,7 @@ th {
         </div>
 
         <nav class="menu">
-            <a class="active">🏠 Dashboard</a>
+            <a href="dashboard.html">🏠 Dashboard</a>
             <a href="farmmanagement.html">🏞 Farm Management</a>
             <a>💧 Pond Management</a>
             <a>🐟 Fish Batch Management</a>
@@ -251,7 +390,7 @@ th {
             <a>🌾 Feed Management</a>
             <a>📦 Inventory</a>
             <a>🛒 Purchase Management</a>
-            <a>💰 Sales Management</a>
+            <a class="active" href="sales.html">💰 Sales Management</a>
             <a>💳 Income & Expense</a>
             <a>📚 Accounting</a>
             <a>📊 Reports</a>
@@ -263,97 +402,251 @@ th {
     <main class="main">
 
         <header class="topbar">
-            <h2>Admin Dashboard</h2>
+            <h2>Sales Management</h2>
             <button class="logout" onclick="logout()">Logout</button>
         </header>
 
         <div class="content">
 
-            <div class="welcome">
-                <h2 id="welcomeTitle">Welcome to AquaFarm ERP</h2>
-                <p id="farmName">Loading farm information...</p>
+            <h2 class="page-title">Sales Overview</h2>
+
+            <div class="farm-select">
+                <label><b>Select Farm</b></label>
+                <select id="farmSelect" onchange="changeFarm()"></select>
             </div>
 
             <div class="cards">
 
                 <div class="card">
-                    <div class="label">Total Ponds</div>
-                    <div class="number" id="pondCount">-</div>
+                    <div class="label">Total Invoices</div>
+                    <div class="number" id="totalInvoices">0</div>
                 </div>
 
                 <div class="card">
-                    <div class="label">Active Fish Batches</div>
-                    <div class="number" id="batchCount">-</div>
+                    <div class="label">Total Sales</div>
+                    <div class="number" id="totalSales">৳0</div>
                 </div>
 
                 <div class="card">
-                    <div class="label">Total Fingerlings</div>
-                    <div class="number" id="fishCount">-</div>
+                    <div class="label">Total Received</div>
+                    <div class="number" id="totalReceived">৳0</div>
                 </div>
 
                 <div class="card">
-                    <div class="label">Feed Products in Stock</div>
-                    <div class="number" id="feedCount">-</div>
-                </div>
-
-                <div class="card">
-                    <div class="label">Feed Stock Quantity</div>
-                    <div class="number" id="feedQuantity">-</div>
-                </div>
-
-                <div class="card">
-                    <div class="label">Received Purchases</div>
-                    <div class="number" id="purchaseCount">-</div>
+                    <div class="label">Total Due</div>
+                    <div class="number" id="totalDue">৳0</div>
                 </div>
 
             </div>
 
+            <!-- NEW SALE -->
+
             <div class="section">
-                <h3>Farm Information</h3>
 
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Farm Name</th>
-                            <td id="infoName">-</td>
-                        </tr>
-                        <tr>
-                            <th>Farm Code</th>
-                            <td id="infoCode">-</td>
-                        </tr>
-                        <tr>
-                            <th>Farm Status</th>
-                            <td id="infoStatus">-</td>
-                        </tr>
-                        <tr>
-                            <th>Login Email</th>
-                            <td id="infoEmail">-</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3>➕ Create New Sale</h3>
 
-                <p id="message"></p>
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Invoice Date</label>
+                        <input type="date" id="saleDate">
+                    </div>
+
+                    <div class="field">
+                        <label>Select Customer</label>
+                        <select id="customerSelect"
+                            onchange="selectCustomer()">
+                            <option value="">Walk-in / New Customer</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Customer Name</label>
+                        <input type="text" id="customerName"
+                            placeholder="Customer name">
+                    </div>
+
+                    <div class="field">
+                        <label>Phone Number</label>
+                        <input type="text" id="customerPhone"
+                            placeholder="Phone number">
+                    </div>
+
+                    <div class="field">
+                        <label>Address</label>
+                        <input type="text" id="customerAddress"
+                            placeholder="Customer address">
+                    </div>
+
+                </div>
+
+                <br>
+
+                <h3>Fish Items</h3>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Fish Species</th>
+                                <th>Unit</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="itemsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary"
+                        onclick="addItem()">
+                        + Add Fish
+                    </button>
+                </div>
+
+                <div class="summary">
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <b id="subtotal">৳0.00</b>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Invoice Discount</span>
+                        <input type="number" id="invoiceDiscount"
+                            min="0" step="0.01" value="0"
+                            oninput="calculateTotal()">
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Grand Total</span>
+                        <span id="grandTotal">৳0.00</span>
+                    </div>
+
+                </div>
+
+                <br>
+
+                <h3>Payment Information</h3>
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Paid Amount</label>
+                        <input type="number" id="paidAmount"
+                            min="0" step="0.01" value="0"
+                            oninput="calculateTotal()">
+                    </div>
+
+                    <div class="field">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod">
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
+                            <option value="bkash">bKash</option>
+                            <option value="nagad">Nagad</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Transaction Reference</label>
+                        <input type="text" id="transactionReference"
+                            placeholder="Optional reference">
+                    </div>
+
+                </div>
+
+                <div class="summary">
+
+                    <div class="summary-row">
+                        <span>Paid</span>
+                        <b id="paidDisplay">৳0.00</b>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Due</span>
+                        <span id="dueDisplay">৳0.00</span>
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="field">
+                    <label>Notes</label>
+                    <textarea id="saleNotes"
+                        placeholder="Additional information"></textarea>
+                </div>
+
+                <div class="actions">
+
+                    <button class="btn btn-primary"
+                        id="saveButton"
+                        onclick="saveSale()">
+                        Save Sale
+                    </button>
+
+                    <button class="btn btn-secondary"
+                        onclick="resetForm()">
+                        Clear Form
+                    </button>
+
+                </div>
+
+                <div id="formMessage" class="message"></div>
+
             </div>
 
+            <!-- SALES HISTORY -->
+
             <div class="section">
-                <h3>Fish Batch Overview</h3>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Batch Code</th>
-                            <th>Fish Species</th>
-                            <th>Fingerlings</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
+                <h3>📋 Sales History</h3>
 
-                    <tbody id="batchTable">
-                        <tr>
-                            <td colspan="4">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="field" style="max-width:300px;margin-bottom:15px">
+                    <label>Search Invoice / Customer</label>
+                    <input type="text" id="searchSales"
+                        placeholder="Search..."
+                        oninput="renderSalesHistory()">
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Invoice No</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Paid</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="salesTable">
+                            <tr>
+                                <td colspan="8">Loading...</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
             </div>
 
         </div>
@@ -368,183 +661,942 @@ th {
 // SUPABASE CONFIGURATION
 // ===================================
 
-const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const SUPABASE_URL =
+    "https://qjutiprfupdgyvblzvlc.supabase.co";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
+let currentFarm = null;
+let farmList = [];
+let customers = [];
+let salesList = [];
+
+
 // ===================================
-// DASHBOARD INITIALIZATION
+// INITIALIZATION
 // ===================================
 
-async function loadDashboard() {
-
-    const message = document.getElementById("message");
+async function initializeSales() {
 
     try {
 
-        const { data: sessionData, error: sessionError } =
+        const { data, error } =
             await supabaseClient.auth.getSession();
 
-        if (sessionError) throw sessionError;
+        if (error) throw error;
 
-        const session = sessionData.session;
-
-        if (!session) {
+        if (!data.session) {
             window.location.replace("index.html");
             return;
         }
 
-        document.getElementById("infoEmail").innerText =
-            session.user.email || "-";
-
-        document.getElementById("welcomeTitle").innerText =
-            "Welcome to AquaFarm ERP";
-
-        // Load user's accessible farms
-
         const { data: farms, error: farmError } =
             await supabaseClient
-            .from("farms")
-            .select("id, farm_code, farm_name, status")
-            .order("created_at", { ascending: true });
+                .from("farms")
+                .select("id, farm_code, farm_name, status")
+                .order("created_at", { ascending: true });
 
         if (farmError) throw farmError;
 
-        if (!farms || farms.length === 0) {
-            throw new Error("No accessible farm found for this account.");
+        farmList = (farms || []).filter(
+            farm => farm.status === "active"
+        );
+
+        if (farmList.length === 0) {
+            throw new Error("No active farm found.");
         }
 
-        const farm = farms[0];
-        const farmId = farm.id;
+        const select = document.getElementById("farmSelect");
 
-        document.getElementById("farmName").innerText =
-            farm.farm_name;
+        select.innerHTML = farmList.map(farm => `
+            <option value="${escapeHTML(farm.id)}">
+                ${escapeHTML(farm.farm_name)}
+            </option>
+        `).join("");
 
-        document.getElementById("infoName").innerText =
-            farm.farm_name;
+        currentFarm = farmList[0];
 
-        document.getElementById("infoCode").innerText =
-            farm.farm_code;
+        await loadSalesData();
 
-        document.getElementById("infoStatus").innerText =
-            farm.status;
+        document.getElementById("saleDate").value =
+            new Date().toLocaleDateString("en-CA");
 
-        // Load pond count
-
-        const { count: ponds, error: pondError } =
-            await supabaseClient
-            .from("ponds")
-            .select("*", { count: "exact", head: true })
-            .eq("farm_id", farmId);
-
-        if (pondError) throw pondError;
-
-        document.getElementById("pondCount").innerText =
-            ponds ?? 0;
-
-        // Load fish batches
-
-        const { data: batches, error: batchError } =
-            await supabaseClient
-            .from("fish_batches")
-            .select("batch_code, fish_species, fingerling_count, status")
-            .eq("farm_id", farmId);
-
-        if (batchError) throw batchError;
-
-        const activeBatches = batches.filter(
-            b => b.status === "active"
-        );
-
-        const totalFish = activeBatches.reduce(
-            (sum, b) => sum + Number(b.fingerling_count || 0), 0
-        );
-
-        document.getElementById("batchCount").innerText =
-            activeBatches.length;
-
-        document.getElementById("fishCount").innerText =
-            totalFish.toLocaleString();
-
-        const batchTable = document.getElementById("batchTable");
-
-        if (batches.length === 0) {
-
-            batchTable.innerHTML =
-                '<tr><td colspan="4">No fish batches found.</td></tr>';
-
-        } else {
-
-            batchTable.innerHTML = batches.map(b => `
-                <tr>
-                    <td>${escapeHTML(b.batch_code)}</td>
-                    <td>${escapeHTML(b.fish_species)}</td>
-                    <td>${Number(b.fingerling_count || 0).toLocaleString()}</td>
-                    <td class="status">${escapeHTML(b.status)}</td>
-                </tr>
-            `).join("");
-
-        }
-
-        // Load feed stock
-
-        const { data: stocks, error: stockError } =
-            await supabaseClient
-            .from("feed_stock_balances")
-            .select("quantity_on_hand")
-            .eq("farm_id", farmId);
-
-        if (stockError) throw stockError;
-
-        const availableStocks = stocks.filter(
-            s => Number(s.quantity_on_hand) > 0
-        );
-
-        const totalFeed = stocks.reduce(
-            (sum, s) => sum + Number(s.quantity_on_hand || 0), 0
-        );
-
-        document.getElementById("feedCount").innerText =
-            availableStocks.length;
-
-        document.getElementById("feedQuantity").innerText =
-            totalFeed.toLocaleString() + " KG";
-
-        // Load received purchases
-
-        const { count: purchases, error: purchaseError } =
-            await supabaseClient
-            .from("feed_purchases")
-            .select("*", { count: "exact", head: true })
-            .eq("farm_id", farmId)
-            .eq("status", "received");
-
-        if (purchaseError) throw purchaseError;
-
-        document.getElementById("purchaseCount").innerText =
-            purchases ?? 0;
+        addItem();
 
     } catch (error) {
 
         console.error(error);
 
-        message.innerText = "Dashboard Error: " + error.message;
+        showMessage(
+            "formMessage",
+            error.message,
+            "error"
+        );
 
     }
 
 }
 
+
 // ===================================
-// HTML SAFE DISPLAY
+// FARM CHANGE
 // ===================================
+
+async function changeFarm() {
+
+    const farmId =
+        document.getElementById("farmSelect").value;
+
+    currentFarm = farmList.find(
+        farm => farm.id === farmId
+    );
+
+    await loadSalesData();
+
+}
+
+
+// ===================================
+// LOAD CUSTOMERS AND SALES
+// ===================================
+
+async function loadSalesData() {
+
+    if (!currentFarm) return;
+
+    try {
+
+        const { data: customerData, error: customerError } =
+            await supabaseClient
+                .from("customers")
+                .select("*")
+                .eq("farm_id", currentFarm.id)
+                .eq("status", "active")
+                .order("customer_name");
+
+        if (customerError) throw customerError;
+
+        customers = customerData || [];
+
+        const customerSelect =
+            document.getElementById("customerSelect");
+
+        customerSelect.innerHTML =
+            '<option value="">Walk-in / New Customer</option>';
+
+        customers.forEach(customer => {
+
+            const option = document.createElement("option");
+
+            option.value = customer.id;
+            option.textContent =
+                customer.customer_name +
+                (customer.phone ? " - " + customer.phone : "");
+
+            customerSelect.appendChild(option);
+
+        });
+
+        const { data: sales, error: salesError } =
+            await supabaseClient
+                .from("sales")
+                .select("*")
+                .eq("farm_id", currentFarm.id)
+                .order("sale_date", { ascending: false });
+
+        if (salesError) throw salesError;
+
+        salesList = sales || [];
+
+        updateDashboard();
+        renderSalesHistory();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "formMessage",
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+// ===================================
+// CUSTOMER SELECTION
+// ===================================
+
+function selectCustomer() {
+
+    const customerId =
+        document.getElementById("customerSelect").value;
+
+    const customer = customers.find(
+        c => c.id === customerId
+    );
+
+    document.getElementById("customerName").value =
+        customer ? customer.customer_name : "";
+
+    document.getElementById("customerPhone").value =
+        customer ? customer.phone || "" : "";
+
+    document.getElementById("customerAddress").value =
+        customer ? customer.address || "" : "";
+
+}
+
+
+// ===================================
+// ADD FISH ITEM
+// ===================================
+
+function addItem() {
+
+    const body = document.getElementById("itemsBody");
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+
+        <td>
+            <input class="item-input species"
+                placeholder="Rui, Katla..."
+                required>
+        </td>
+
+        <td>
+            <select class="item-input unit">
+                <option value="kg">KG</option>
+                <option value="piece">Piece</option>
+            </select>
+        </td>
+
+        <td>
+            <input class="item-input quantity"
+                type="number" min="0.001"
+                step="0.001" value="1">
+        </td>
+
+        <td>
+            <input class="item-input price"
+                type="number" min="0"
+                step="0.01" value="0">
+        </td>
+
+        <td>
+            <input class="item-input discount"
+                type="number" min="0"
+                step="0.01" value="0">
+        </td>
+
+        <td class="lineTotal">৳0.00</td>
+
+        <td>
+            <button class="btn btn-danger"
+                onclick="removeItem(this)">
+                Remove
+            </button>
+        </td>
+
+    `;
+
+    body.appendChild(row);
+
+    row.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", calculateTotal);
+    });
+
+    calculateTotal();
+
+}
+
+
+// ===================================
+// REMOVE ITEM
+// ===================================
+
+function removeItem(button) {
+
+    button.closest("tr").remove();
+
+    calculateTotal();
+
+}
+
+
+// ===================================
+// CALCULATE TOTAL
+// ===================================
+
+function calculateTotal() {
+
+    let subtotal = 0;
+
+    document.querySelectorAll("#itemsBody tr")
+        .forEach(row => {
+
+            const quantity =
+                Number(row.querySelector(".quantity").value);
+
+            const price =
+                Number(row.querySelector(".price").value);
+
+            const discount =
+                Number(row.querySelector(".discount").value);
+
+            const gross = quantity * price;
+
+            const total = gross - discount;
+
+            row.querySelector(".lineTotal").innerText =
+                money(Math.max(0, total));
+
+            subtotal += Math.max(0, total);
+
+        });
+
+    const invoiceDiscount = Math.max(
+        0,
+        Number(document.getElementById("invoiceDiscount").value)
+    );
+
+    const grandTotal = Math.max(
+        0,
+        subtotal - invoiceDiscount
+    );
+
+    const paid = Math.max(
+        0,
+        Number(document.getElementById("paidAmount").value)
+    );
+
+    const due = Math.max(0, grandTotal - paid);
+
+    document.getElementById("subtotal").innerText =
+        money(subtotal);
+
+    document.getElementById("grandTotal").innerText =
+        money(grandTotal);
+
+    document.getElementById("paidDisplay").innerText =
+        money(paid);
+
+    document.getElementById("dueDisplay").innerText =
+        money(due);
+
+    return {
+        subtotal,
+        invoiceDiscount,
+        grandTotal,
+        paid,
+        due
+    };
+
+}
+
+
+// ===================================
+// SAVE SALE
+// ===================================
+
+async function saveSale() {
+
+    const button = document.getElementById("saveButton");
+
+    if (!currentFarm) {
+        alert("Please select a farm.");
+        return;
+    }
+
+    const rows = [
+        ...document.querySelectorAll("#itemsBody tr")
+    ];
+
+    if (rows.length === 0) {
+        alert("Please add at least one fish item.");
+        return;
+    }
+
+    const items = [];
+
+    for (const row of rows) {
+
+        const species =
+            row.querySelector(".species").value.trim();
+
+        const unit =
+            row.querySelector(".unit").value;
+
+        const quantity =
+            Number(row.querySelector(".quantity").value);
+
+        const price =
+            Number(row.querySelector(".price").value);
+
+        const discount =
+            Number(row.querySelector(".discount").value);
+
+        if (!species || quantity <= 0 || price < 0) {
+            alert("Please enter valid fish item information.");
+            return;
+        }
+
+        if (
+            !Number.isFinite(quantity) ||
+            !Number.isFinite(price) ||
+            !Number.isFinite(discount) ||
+            discount < 0 ||
+            discount > quantity * price
+        ) {
+            alert("Please check quantity, price and discount.");
+            return;
+        }
+
+        items.push({
+            farm_id: currentFarm.id,
+            fish_species: species,
+            unit: unit,
+            quantity: quantity,
+            unit_price: price,
+            discount_amount: discount
+        });
+
+    }
+
+    const totals = calculateTotal();
+
+    if (
+        totals.invoiceDiscount > totals.subtotal ||
+        totals.paid > totals.grandTotal
+    ) {
+        alert("Please check discount and paid amount.");
+        return;
+    }
+
+    if (totals.grandTotal <= 0) {
+        alert("Sale total must be greater than zero.");
+        return;
+    }
+
+    const customerId =
+        document.getElementById("customerSelect").value || null;
+
+    const customerName =
+        document.getElementById("customerName").value.trim();
+
+    const customerPhone =
+        document.getElementById("customerPhone").value.trim();
+
+    const customerAddress =
+        document.getElementById("customerAddress").value.trim();
+
+    const saleDate =
+        document.getElementById("saleDate").value;
+
+    if (!saleDate) {
+        alert("Please select sale date.");
+        return;
+    }
+
+    button.disabled = true;
+    button.innerText = "Saving...";
+
+    let saleId = null;
+
+    try {
+
+        // Create a new customer if necessary.
+
+        let finalCustomerId = customerId;
+
+        if (!customerId && customerName) {
+
+            const { data: newCustomer, error: customerError } =
+                await supabaseClient
+                    .from("customers")
+                    .insert({
+                        farm_id: currentFarm.id,
+                        customer_name: customerName,
+                        phone: customerPhone || null,
+                        address: customerAddress || null
+                    })
+                    .select()
+                    .single();
+
+            if (customerError) throw customerError;
+
+            finalCustomerId = newCustomer.id;
+
+        }
+
+        // Generate invoice number.
+
+        const invoiceNo =
+            currentFarm.farm_code +
+            "-S-" +
+            Date.now();
+
+        // Create draft sale.
+
+        const { data: sale, error: saleError } =
+            await supabaseClient
+                .from("sales")
+                .insert({
+                    farm_id: currentFarm.id,
+                    invoice_no: invoiceNo,
+                    customer_id: finalCustomerId,
+                    customer_name: customerName || "Walk-in Customer",
+                    customer_phone: customerPhone || null,
+                    customer_address: customerAddress || null,
+                    sale_date: saleDate,
+                    subtotal: totals.subtotal,
+                    discount_amount: totals.invoiceDiscount,
+                    grand_total: totals.grandTotal,
+                    paid_amount: 0,
+                    due_amount: 0,
+                    status: "draft",
+                    notes: document.getElementById("saleNotes").value
+                })
+                .select()
+                .single();
+
+        if (saleError) throw saleError;
+
+        saleId = sale.id;
+
+        // Add fish items.
+
+        const saleItems = items.map(item => ({
+            ...item,
+            sale_id: saleId
+        }));
+
+        const { error: itemError } =
+            await supabaseClient
+                .from("sale_items")
+                .insert(saleItems);
+
+        if (itemError) throw itemError;
+
+        // Save payment if paid amount is greater than zero.
+
+        if (totals.paid > 0) {
+
+            const { error: paymentError } =
+                await supabaseClient
+                    .from("sale_payments")
+                    .insert({
+                        farm_id: currentFarm.id,
+                        sale_id: saleId,
+                        payment_date: saleDate,
+                        amount: totals.paid,
+                        payment_method:
+                            document.getElementById("paymentMethod").value,
+                        transaction_reference:
+                            document.getElementById("transactionReference").value || null
+                    });
+
+            if (paymentError) throw paymentError;
+
+        }
+
+        // Mark invoice as posted.
+
+        const { error: updateError } =
+            await supabaseClient
+                .from("sales")
+                .update({
+                    paid_amount: totals.paid,
+                    due_amount: totals.due,
+                    status: "posted"
+                })
+                .eq("id", saleId)
+                .eq("farm_id", currentFarm.id);
+
+        if (updateError) throw updateError;
+
+        showMessage(
+            "formMessage",
+            "Sale saved successfully! Invoice: " + invoiceNo,
+            "success"
+        );
+
+        resetForm();
+
+        await loadSalesData();
+
+    } catch (error) {
+
+        console.error(error);
+
+        let message = error.message;
+
+        if (saleId) {
+            message +=
+                " A draft invoice may have been created. " +
+                "Please check Sales History before trying again.";
+        }
+
+        showMessage("formMessage", message, "error");
+
+    } finally {
+
+        button.disabled = false;
+        button.innerText = "Save Sale";
+
+    }
+
+}
+
+
+// ===================================
+// RESET FORM
+// ===================================
+
+function resetForm() {
+
+    document.getElementById("customerSelect").value = "";
+
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerPhone").value = "";
+    document.getElementById("customerAddress").value = "";
+
+    document.getElementById("invoiceDiscount").value = 0;
+    document.getElementById("paidAmount").value = 0;
+
+    document.getElementById("transactionReference").value = "";
+    document.getElementById("saleNotes").value = "";
+
+    document.getElementById("itemsBody").innerHTML = "";
+
+    addItem();
+
+    calculateTotal();
+
+}
+
+
+// ===================================
+// UPDATE DASHBOARD
+// ===================================
+
+function updateDashboard() {
+
+    const postedSales = salesList.filter(
+        sale => sale.status === "posted"
+    );
+
+    const totalSales = postedSales.reduce(
+        (sum, sale) => sum + Number(sale.grand_total || 0), 0
+    );
+
+    const totalPaid = postedSales.reduce(
+        (sum, sale) => sum + Number(sale.paid_amount || 0), 0
+    );
+
+    const totalDue = postedSales.reduce(
+        (sum, sale) => sum + Number(sale.due_amount || 0), 0
+    );
+
+    document.getElementById("totalInvoices").innerText =
+        postedSales.length;
+
+    document.getElementById("totalSales").innerText =
+        money(totalSales);
+
+    document.getElementById("totalReceived").innerText =
+        money(totalPaid);
+
+    document.getElementById("totalDue").innerText =
+        money(totalDue);
+
+}
+
+
+// ===================================
+// SALES HISTORY
+// ===================================
+
+function renderSalesHistory() {
+
+    const tbody = document.getElementById("salesTable");
+
+    const search =
+        document.getElementById("searchSales").value.toLowerCase();
+
+    const filtered = salesList.filter(sale => {
+
+        return (
+            String(sale.invoice_no || "").toLowerCase().includes(search) ||
+            String(sale.customer_name || "").toLowerCase().includes(search)
+        );
+
+    });
+
+    if (filtered.length === 0) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="8">No sales records found.</td></tr>';
+
+        return;
+
+    }
+
+    tbody.innerHTML = filtered.map(sale => `
+
+        <tr>
+            <td>${escapeHTML(sale.invoice_no)}</td>
+            <td>${escapeHTML(sale.sale_date)}</td>
+            <td>${escapeHTML(sale.customer_name || "Walk-in Customer")}</td>
+            <td>${money(sale.grand_total)}</td>
+            <td>${money(sale.paid_amount)}</td>
+            <td>${money(sale.due_amount)}</td>
+            <td>${escapeHTML(sale.status)}</td>
+            <td>
+                <button class="btn btn-secondary"
+                    onclick="printInvoice('${sale.id}')">
+                    Print
+                </button>
+            </td>
+        </tr>
+
+    `).join("");
+
+}
+
+
+// ===================================
+// PRINT INVOICE
+// ===================================
+
+async function printInvoice(saleId) {
+
+    try {
+
+        const { data: sale, error: saleError } =
+            await supabaseClient
+                .from("sales")
+                .select("*")
+                .eq("id", saleId)
+                .eq("farm_id", currentFarm.id)
+                .single();
+
+        if (saleError) throw saleError;
+
+        const { data: items, error: itemError } =
+            await supabaseClient
+                .from("sale_items")
+                .select("*")
+                .eq("sale_id", saleId)
+                .eq("farm_id", currentFarm.id);
+
+        if (itemError) throw itemError;
+
+        const { data: payments, error: paymentError } =
+            await supabaseClient
+                .from("sale_payments")
+                .select("*")
+                .eq("sale_id", saleId)
+                .eq("farm_id", currentFarm.id)
+                .order("payment_date");
+
+        if (paymentError) throw paymentError;
+
+        const farm = currentFarm;
+
+        const rows = (items || []).map(item => `
+
+            <tr>
+                <td>${escapeHTML(item.fish_species)}</td>
+                <td>${escapeHTML(item.unit)}</td>
+                <td>${Number(item.quantity).toLocaleString()}</td>
+                <td>${money(item.unit_price)}</td>
+                <td>${money(item.discount_amount)}</td>
+                <td>${money(item.line_total)}</td>
+            </tr>
+
+        `).join("");
+
+        const paymentRows = (payments || []).map(payment => `
+
+            <tr>
+                <td>${escapeHTML(payment.payment_date)}</td>
+                <td>${escapeHTML(payment.payment_method)}</td>
+                <td>${money(payment.amount)}</td>
+            </tr>
+
+        `).join("");
+
+        const win = window.open("", "_blank");
+
+        if (!win) {
+            alert("Please allow pop-ups to print invoices.");
+            return;
+        }
+
+        win.document.write(`
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Invoice ${escapeHTML(sale.invoice_no)}</title>
+
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 30px;
+                        color: #1e293b;
+                    }
+
+                    h1,h2 {
+                        color: #047857;
+                    }
+
+                    .header {
+                        text-align: center;
+                        margin-bottom: 25px;
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 15px;
+                    }
+
+                    th,td {
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        text-align: left;
+                    }
+
+                    th {
+                        background: #ecfdf5;
+                    }
+
+                    .right {
+                        text-align: right;
+                        margin-top: 20px;
+                    }
+
+                    @media print {
+                        button {
+                            display: none;
+                        }
+                    }
+                </style>
+
+            </head>
+
+            <body>
+
+                <div class="header">
+                    <h1>AquaFarm ERP</h1>
+                    <h2>${escapeHTML(farm.farm_name)}</h2>
+                    <p>Sales Invoice</p>
+                </div>
+
+                <p><b>Invoice:</b> ${escapeHTML(sale.invoice_no)}</p>
+                <p><b>Date:</b> ${escapeHTML(sale.sale_date)}</p>
+                <p><b>Customer:</b> ${escapeHTML(sale.customer_name)}</p>
+                <p><b>Phone:</b> ${escapeHTML(sale.customer_phone)}</p>
+                <p><b>Address:</b> ${escapeHTML(sale.customer_address)}</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fish</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>${rows}</tbody>
+                </table>
+
+                <div class="right">
+
+                    <p>Subtotal: ${money(sale.subtotal)}</p>
+                    <p>Discount: ${money(sale.discount_amount)}</p>
+                    <h2>Total: ${money(sale.grand_total)}</h2>
+                    <p>Paid: ${money(sale.paid_amount)}</p>
+                    <p>Due: ${money(sale.due_amount)}</p>
+
+                </div>
+
+                <h3>Payment History</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${paymentRows || '<tr><td colspan="3">No payment recorded.</td></tr>'}
+                    </tbody>
+                </table>
+
+                <br>
+                <p>Thank you for your business.</p>
+
+                <button onclick="window.print()">Print Invoice</button>
+
+            </body>
+            </html>
+
+        `);
+
+        win.document.close();
+
+    } catch (error) {
+
+        alert("Invoice Error: " + error.message);
+
+        console.error(error);
+
+    }
+
+}
+
+
+// ===================================
+// HELPER FUNCTIONS
+// ===================================
+
+function money(value) {
+
+    return "৳" + Number(value || 0).toLocaleString(
+        "en-BD",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
 
 function escapeHTML(value) {
 
-    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+    return String(value ?? "").replace(/[&<>"']/g, char => {
+
         return {
             "&": "&amp;",
             "<": "&lt;",
@@ -552,9 +1604,22 @@ function escapeHTML(value) {
             '"': "&quot;",
             "'": "&#39;"
         }[char];
+
     });
 
 }
+
+
+function showMessage(id, message, type) {
+
+    const element = document.getElementById(id);
+
+    element.innerText = message;
+
+    element.className = "message " + type;
+
+}
+
 
 // ===================================
 // LOGOUT
@@ -562,7 +1627,8 @@ function escapeHTML(value) {
 
 async function logout() {
 
-    const { error } = await supabaseClient.auth.signOut();
+    const { error } =
+        await supabaseClient.auth.signOut();
 
     if (error) {
         alert(error.message);
@@ -573,14 +1639,14 @@ async function logout() {
 
 }
 
+
 // ===================================
 // START
 // ===================================
 
-loadDashboard();
+initializeSales();
 
 </script>
 
 </body>
-    
 </html>
