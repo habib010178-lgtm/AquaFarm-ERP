@@ -1690,8 +1690,7 @@ async function updateExistingSale(){
      quantity:item.quantity,
      unit_price:item.unit_price,
      discount_amount:item.discount_amount,
-     
-    })
+     })
     .eq("id",item.id)
     .eq("sale_id",editingSaleId)
     .eq("farm_id",currentFarm.id);
