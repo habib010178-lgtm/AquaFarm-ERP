@@ -381,6 +381,45 @@ td input,td select{min-width:95px;padding:9px}
     font-size: 15px;
     font-weight: bold;
 }
+
+/* ================= AUDIT HISTORY ================= */
+
+.audit-btn {
+    background: #334155 !important;
+    color: #ffffff !important;
+    border: 1px solid #334155 !important;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.audit-btn:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+}
+
+.audit-details {
+    max-width: 260px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.audit-details summary {
+    cursor: pointer;
+    color: #245786;
+    font-weight: 600;
+}
+
+.audit-details pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-width: 500px;
+    max-height: 300px;
+    overflow: auto;
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
  
 </style>
 </head>
@@ -646,103 +685,52 @@ td input,td select{min-width:95px;padding:9px}
  </button>
  </section>
 </div>
-
 <!-- HISTORY TAB -->
+
 <div class="tab-panel" id="tab-history">
  <section class="section sales-history-panel">
-  <div id="salesHistoryContent">
-   <h3 class="section-title">📋 Sales History</h3>
-   <div class="history-toolbar no-print">
-<div class="field">
- <label for="searchSales">Search Invoice / Customer</label>
- <input id="searchSales" type="text"
-  placeholder="Search invoice or customer..."
-  oninput="renderSalesHistory()">
-</div>
-<button class="btn whatsapp-btn" onclick="shareSalesHistoryWhatsApp()">
- <span class="whatsapp-icon">◉</span>
- WhatsApp Message
-</button>
-<button class="btn print-report-btn" onclick="printSalesHistory()">
- 🖨 Print Sales History
-</button>
-<button class="btn audit-btn" onclick="openSalesAuditHistory()">
- 📋 Audit History
-</button>
-   </div>
-   <div class="table-wrap">
-    <table>
-     <thead>
-      <tr>
-       <th>Invoice No</th>
-       <th>Date</th>
-       <th>Customer</th>
-       <th>Total</th>
-       <th>Paid</th>
-       <th>Due</th>
-       <th>Status</th>
-       <th>Voucher</th>
-       <th>Action</th>
-      </tr>
-     </thead>
- <tbody id="salesTable">
-  <tr>
-   <td colspan="9" class="empty">Loading...</td>
-  </tr>
- </tbody>
-</table>
-   </div>
+  <h3 class="section-title">📋 Sales History</h3>
+
+  <div class="history-toolbar no-print">
+   <div class="field">
+    <label for="searchSales">Search Invoice / Customer</label>
+    <input id="searchSales" type="text"
+     placeholder="Search invoice or customer..."
+     oninput="renderSalesHistory()">
+     </div>
+    <button class="btn whatsapp-btn" onclick="shareSalesHistoryWhatsApp()">
+    <span class="whatsapp-icon">◉</span>
+    WhatsApp Message
+    </button>
+  
+   <button class="btn print-report-btn" onclick="printSalesHistory()">
+    🖨 Print Sales History
+   </button>
   </div>
-  <!-- SEPARATE AUDIT HISTORY SECTION -->
-  <div id="salesAuditSection" style="display:none;">
-   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
-<h3 class="section-title" style="margin:0;">
- 📋 Sales Audit History
-</h3>
-<button class="btn btn-teal" onclick="closeSalesAuditHistory()">
- ← Back to Sales History
-</button>
-   </div>
-   <p style="color:#64748b;line-height:1.7;margin-bottom:18px;">
-    This section records important sales activities, including
-    invoice creation, editing, deletion and payment changes.
-    Audit records are protected from ordinary modification or deletion.
-   </p>
-   <div class="history-toolbar no-print">
-<div class="field">
- <label for="searchAudit">Search Audit Records</label>
- <input id="searchAudit" type="text"
-  placeholder="Search invoice, customer or action..."
-  oninput="renderSalesAuditHistory()">
-</div>
-<button class="btn btn-primary" onclick="loadSalesAuditHistory()">
- ↻ Refresh Audit
-</button>
-   </div>
-   <div class="table-wrap">
-<table>
- <thead>
-  <tr>
-   <th>Date & Time</th>
-   <th>Invoice No</th>
-   <th>Customer</th>
-   <th>Activity</th>
-   <th>Performed By</th>
-   <th>Role</th>
-   <th>Reason</th>
-   <th>Details</th>
-  </tr>
- </thead>
- <tbody id="salesAuditTable">
-  <tr>
-   <td colspan="8" class="empty">Click Audit History to load records.</td>
-  </tr>
- </tbody>
-</table>
-   </div>
+
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>Invoice No</th><th>Date</th><th>Customer</th>
+      <th>Total</th><th>Paid</th><th>Due</th>
+      <th>Status</th><th>Voucher</th><th>Action</th>
+     </tr>
+    </thead>
+    <tbody id="salesTable">
+     <tr><td colspan="9" class="empty">Loading...</td></tr>
+    </tbody>
+   </table>
   </div>
  </section>
 </div>
+
+</div>
+</main>
+</div>
+
+<script>
+
 /* ================= NAVIGATION ================= */
 
 function showSalesTab(tab,button){
@@ -1867,7 +1855,7 @@ async function updateExistingSale(){
 
 }
 
-/* ================= SALES AUDIT HISTORY ================= */
+ /* ================= SALES AUDIT HISTORY ================= */
 
 let salesAuditRecords = [];
 
@@ -2093,6 +2081,7 @@ async function deleteSale(saleId){
     }
 
 }
+
  
 /* ================= DASHBOARD ================= */
 
@@ -2257,46 +2246,7 @@ function printSalesHistory(){
   thead{display:table-header-group}
   tr{page-break-inside:avoid}
  }
-/* ================= AUDIT HISTORY ================= */
-
-.audit-btn {
-    background: #334155 !important;
-    color: #ffffff !important;
-    border: 1px solid #334155 !important;
-    font-weight: 600;
-    border-radius: 6px;
-}
-
-.audit-btn:hover {
-    background: #1e293b !important;
-    border-color: #1e293b !important;
-}
-
-.audit-details {
-    max-width: 260px;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-.audit-details summary {
-    cursor: pointer;
-    color: #245786;
-    font-weight: 600;
-}
-
-.audit-details pre {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    max-width: 500px;
-    max-height: 300px;
-    overflow: auto;
-    background: #f1f5f9;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-  
- Delete sale
+ </style>
  </head>
  <body>
  <div class="report-header">
@@ -2706,7 +2656,7 @@ async function printInvoice(saleId){
      }
     }
 
-   Delete sale
+   </style>
   </head>
 
   <body>
