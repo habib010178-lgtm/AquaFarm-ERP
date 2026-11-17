@@ -472,7 +472,7 @@ td input,td select{min-width:95px;padding:9px}
  <button class="sales-tab active" data-tab="overview" onclick="showSalesTab('overview',this)">
   <span>📊</span>Overview
  </button>
- <button class="sales-tab" data-tab="new-sale" onclick="showSalesTab('new-sale',this)">
+ <button class="sales-tab" data-tab="new-sale" onclick="resetForm();showSalesTab('new-sale',this)">
   <span>➕</span>New Sale
  </button>
  <button class="sales-tab" data-tab="history" onclick="showSalesTab('history',this)">
@@ -1345,6 +1345,7 @@ async function viewSaleVouchers(saleId){
  }
 
 }
+ 
 /* ================= SAVE SALE ================= */
 
 async function saveSale(){
