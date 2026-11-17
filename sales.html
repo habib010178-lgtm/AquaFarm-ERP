@@ -1230,7 +1230,7 @@ async function saveSale(){
 
   }
 
-  items.push({
+  line_total({
    farm_id:currentFarm.id,
    fish_species:species,
    unit,
@@ -1613,7 +1613,7 @@ async function updateExistingSale(){
 
   }
 
-  items.push({
+  line_total({
    id:itemId,
    fish_species:species,
    unit:unit,
@@ -1690,7 +1690,7 @@ async function updateExistingSale(){
      quantity:item.quantity,
      unit_price:item.unit_price,
      discount_amount:item.discount_amount,
-     line_total:item.line_total
+     
     })
     .eq("id",item.id)
     .eq("sale_id",editingSaleId)
