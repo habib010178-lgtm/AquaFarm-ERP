@@ -2245,7 +2245,9 @@ function updateDashboard(){
 function renderSalesHistory(){
 
  const body=document.getElementById("salesTable");
- const term=document.getElementById("searchSales").value.trim().toLowerCase();
+
+ const term=(document.getElementById("searchSales").value||"")
+  .trim().toLowerCase();
 
  const filtered=salesList.filter(s=>
   String(s.invoice_no||"").toLowerCase().includes(term)||
@@ -2262,6 +2264,7 @@ function renderSalesHistory(){
  const canEdit=["admin","manager","accountant"].includes(role);
  const canDelete=role==="admin";
  const canPostAccounting=["admin","accountant"].includes(role);
+ const canReceivePayment=["admin","accountant"].includes(role);
 
  body.innerHTML=filtered.map(s=>{
 
@@ -2301,15 +2304,35 @@ function renderSalesHistory(){
 
   }
 
+  const due=Number(s.due_amount||0);
+
+  const paymentButton=
+   canReceivePayment &&
+   accountingStatus==="posted" &&
+   due>0
+   ?`
+    <button class="btn btn-primary btn-small"
+     onclick="openCustomerPayment('${s.id}')">
+     💰 Receive Payment
+    </button>
+   `
+   :"";
+
   return `
    <tr>
+
     <td>${escapeHTML(s.invoice_no)}</td>
     <td>${escapeHTML(s.sale_date)}</td>
     <td>${escapeHTML(s.customer_name||"Walk-in Customer")}</td>
     <td>${money(s.grand_total)}</td>
     <td>${money(s.paid_amount)}</td>
     <td>${money(s.due_amount)}</td>
-    <td><span class="status ${escapeHTML(s.status)}">${escapeHTML(s.status)}</span></td>
+
+    <td>
+     <span class="status ${escapeHTML(s.status)}">
+      ${escapeHTML(s.status)}
+     </span>
+    </td>
 
     <td>
      <button class="btn btn-secondary btn-small"
@@ -2319,6 +2342,7 @@ function renderSalesHistory(){
     </td>
 
     <td>
+
      ${canEdit ? `
       <button class="btn btn-primary btn-small"
        onclick="editSale('${s.id}')">
@@ -2335,91 +2359,709 @@ function renderSalesHistory(){
 
      ${accountingButton}
 
+     ${paymentButton}
+
+     <button class="btn btn-secondary btn-small"
+      onclick="openPaymentHistory('${s.id}')">
+      Payment History
+     </button>
+
      <button class="btn btn-primary btn-small"
       onclick="printInvoice('${s.id}')">
       Print
      </button>
+
     </td>
+
    </tr>
   `;
 
  }).join("");
 
 }
+ /* ==========================================
+   CUSTOMER PAYMENT COLLECTION
+========================================== */
 
-/* ================= POST SALE TO ACCOUNTING ================= */
+let selectedPaymentSale=null;
+let paymentRecords=[];
 
-async function postSaleToAccounting(saleId,button){
+
+/* CREATE PAYMENT MODAL */
+
+function createPaymentModal(){
+
+ if(document.getElementById("customerPaymentModal"))return;
+
+ const modal=document.createElement("div");
+
+ modal.id="customerPaymentModal";
+
+ modal.style.cssText=`
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:99999;
+  overflow:auto;
+  padding:20px;
+ `;
+
+ modal.innerHTML=`
+
+ <div style="
+  max-width:520px;
+  background:white;
+  margin:30px auto;
+  border-radius:10px;
+  padding:22px;
+  color:#1e293b;
+ ">
+
+  <h2 style="color:#142d4e;margin-top:0">
+   Customer Payment Collection
+  </h2>
+
+  <div id="paymentInvoiceInfo"
+   style="
+    background:#f1f5f9;
+    padding:12px;
+    border-radius:6px;
+    margin-bottom:15px;
+    line-height:1.8;
+   ">
+  </div>
+
+  <label>Payment Amount</label>
+
+  <input id="paymentAmount"
+   type="number"
+   min="0.01"
+   step="0.01"
+   style="width:100%;padding:11px;margin:7px 0 14px">
+
+  <label>Payment Date</label>
+
+  <input id="paymentDate"
+   type="date"
+   style="width:100%;padding:11px;margin:7px 0 14px">
+
+  <label>Payment Method</label>
+
+  <select id="paymentMethod"
+   style="width:100%;padding:11px;margin:7px 0 14px">
+
+   <option value="cash">Cash</option>
+   <option value="bank">Bank</option>
+   <option value="transfer">Bank Transfer</option>
+   <option value="bkash">bKash</option>
+   <option value="nagad">Nagad</option>
+   <option value="rocket">Rocket</option>
+
+  </select>
+
+  <label>Transaction Reference</label>
+
+  <input id="paymentReference"
+   type="text"
+   placeholder="Optional transaction ID"
+   style="width:100%;padding:11px;margin:7px 0 14px">
+
+  <label>Notes</label>
+
+  <textarea id="paymentNotes"
+   rows="3"
+   style="width:100%;padding:11px;margin:7px 0 14px"></textarea>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+
+   <button id="saveCustomerPaymentBtn"
+    class="btn btn-primary"
+    onclick="saveCustomerPayment()">
+    Save Payment
+   </button>
+
+   <button class="btn btn-secondary"
+    onclick="closeCustomerPayment()">
+    Cancel
+   </button>
+
+  </div>
+
+ </div>
+ `;
+
+ document.body.appendChild(modal);
+
+}
+
+
+/* OPEN PAYMENT FORM */
+
+function openCustomerPayment(saleId){
 
  const role=String(currentFarmRole||"").toLowerCase();
 
  if(!["admin","accountant"].includes(role)){
-  alert("Only Admin or Accountant can post to Accounting.");
+  alert("Only Admin or Accountant can receive customer payments.");
   return;
  }
 
- if(!currentFarm||!saleId)return;
+ const sale=salesList.find(s=>
+  String(s.id)===String(saleId)
+ );
 
- const existingStatus=salesAccountingStatus.get(saleId);
-
- if(existingStatus==="posted"||existingStatus==="reversed"){
-  alert("This sale has already been processed in Accounting.");
+ if(!sale){
+  alert("Invoice not found.");
   return;
  }
 
- if(!confirm("Are you sure you want to post this sale to Accounting?")){
+ if(salesAccountingStatus.get(sale.id)!=="posted"){
+  alert("Please post this invoice to Accounting first.");
   return;
  }
 
- if(button){
-  button.disabled=true;
-  button.textContent="Posting...";
+ if(Number(sale.due_amount||0)<=0){
+  alert("This invoice has no outstanding due.");
+  return;
  }
+
+ createPaymentModal();
+
+ selectedPaymentSale=sale;
+
+ document.getElementById("paymentInvoiceInfo").innerHTML=`
+
+  <b>Invoice:</b> ${escapeHTML(sale.invoice_no)}<br>
+  <b>Customer:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}<br>
+  <b>Invoice Total:</b> ${money(sale.grand_total)}<br>
+  <b>Already Paid:</b> ${money(sale.paid_amount)}<br>
+  <b>Remaining Due:</b>
+  <strong style="color:#dc2626">
+   ${money(sale.due_amount)}
+  </strong>
+
+ `;
+
+ document.getElementById("paymentAmount").value="";
+ document.getElementById("paymentAmount").max=Number(sale.due_amount);
+
+ document.getElementById("paymentDate").value=localDateString();
+
+ document.getElementById("paymentMethod").value="cash";
+ document.getElementById("paymentReference").value="";
+ document.getElementById("paymentNotes").value="";
+
+ document.getElementById("customerPaymentModal").style.display="block";
+
+}
+
+
+function closeCustomerPayment(){
+
+ const modal=document.getElementById("customerPaymentModal");
+
+ if(modal)modal.style.display="none";
+
+ selectedPaymentSale=null;
+
+}
+
+
+/* SAVE CUSTOMER PAYMENT */
+
+async function saveCustomerPayment(){
+
+ if(!selectedPaymentSale)return;
+
+ const sale=selectedPaymentSale;
+
+ const amount=Number(
+  document.getElementById("paymentAmount").value
+ );
+
+ const paymentDate=document.getElementById("paymentDate").value;
+
+ const paymentMethod=document.getElementById("paymentMethod").value;
+
+ const reference=document.getElementById("paymentReference").value.trim();
+
+ const notes=document.getElementById("paymentNotes").value.trim();
+
+ if(!Number.isFinite(amount)||amount<=0){
+  alert("Please enter a valid payment amount.");
+  return;
+ }
+
+ if(amount>Number(sale.due_amount)+0.001){
+  alert("Payment amount cannot exceed the remaining due.");
+  return;
+ }
+
+ if(!paymentDate){
+  alert("Please select payment date.");
+  return;
+ }
+
+ if(!paymentMethod){
+  alert("Please select payment method.");
+  return;
+ }
+
+ const button=document.getElementById("saveCustomerPaymentBtn");
+
+ button.disabled=true;
+ button.textContent="Saving Payment...";
 
  try{
 
   const {data,error}=await supabaseClient.rpc(
-   "post_source_to_accounting",
+   "record_sale_payment",
    {
-    p_source_module:"sales",
-    p_source_id:saleId
+    p_sale_id:sale.id,
+    p_amount:amount,
+    p_payment_date:paymentDate,
+    p_payment_method:paymentMethod,
+    p_transaction_reference:reference||null,
+    p_notes:notes||null
    }
   );
 
   if(error)throw error;
 
   if(!data||data.success!==true){
-   throw new Error("Accounting posting was not confirmed.");
+   throw new Error("Payment was not confirmed by the server.");
   }
+
+  closeCustomerPayment();
 
   await loadSalesData();
 
   alert(
-   data.already_posted
-    ? "This sale was already posted to Accounting."
-    : "Sale successfully posted to Accounting."
+   "Payment received successfully!\n\n"+
+   "Invoice: "+(data.invoice_no||sale.invoice_no)+"\n"+
+   "Receipt Voucher: "+(data.voucher_no||"-")+"\n"+
+   "Received: "+money(data.payment_amount||amount)+"\n"+
+   "Total Paid: "+money(data.total_paid)+"\n"+
+   "Remaining Due: "+money(data.remaining_due)
   );
 
  }catch(e){
 
-  console.error("Sales Accounting Posting Error:",e);
+  console.error("Customer Payment Error:",e);
 
-  alert(
-   "Accounting Posting Failed!\n\n"+
-   (e.message||"Unknown error")+
-   "\n\nPlease check the Accounting status before retrying."
-  );
+  alert("Payment Failed!\n\n"+e.message);
+
+ }finally{
 
   if(button){
    button.disabled=false;
-   button.textContent="Post to Accounting";
+   button.textContent="Save Payment";
   }
 
  }
 
 }
 
- 
+
+/* ==========================================
+   CUSTOMER PAYMENT HISTORY
+========================================== */
+
+async function openPaymentHistory(saleId){
+
+ const sale=salesList.find(s=>
+  String(s.id)===String(saleId)
+ );
+
+ if(!sale){
+  alert("Invoice not found.");
+  return;
+ }
+
+ try{
+
+  const {data,error}=await supabaseClient
+   .from("sale_payments")
+   .select("*")
+   .eq("farm_id",currentFarm.id)
+   .eq("sale_id",saleId)
+   .order("payment_date",{ascending:false});
+
+  if(error)throw error;
+
+  paymentRecords=data||[];
+
+  showPaymentHistoryModal(sale,paymentRecords);
+
+ }catch(e){
+
+  console.error("Payment History Error:",e);
+
+  alert("Could not load payment history: "+e.message);
+
+ }
+
+}
+
+
+function showPaymentHistoryModal(sale,payments){
+
+ let modal=document.getElementById("paymentHistoryModal");
+
+ if(!modal){
+
+  modal=document.createElement("div");
+
+  modal.id="paymentHistoryModal";
+
+  modal.style.cssText=`
+   position:fixed;
+   inset:0;
+   background:rgba(0,0,0,.65);
+   z-index:99998;
+   overflow:auto;
+   padding:20px;
+  `;
+
+  document.body.appendChild(modal);
+
+ }
+
+ const rows=payments.map((p,i)=>`
+
+  <tr>
+
+   <td>${i+1}</td>
+   <td>${escapeHTML(p.payment_date||"-")}</td>
+   <td>${escapeHTML(p.payment_method||"-")}</td>
+   <td>${escapeHTML(p.transaction_reference||"-")}</td>
+   <td>${money(p.amount)}</td>
+
+   <td>
+    <button class="btn btn-primary btn-small"
+     onclick="printPaymentReceipt('${p.id}')">
+     Print Receipt
+    </button>
+   </td>
+
+  </tr>
+
+ `).join("");
+
+ modal.innerHTML=`
+
+  <div style="
+   max-width:850px;
+   background:white;
+   margin:25px auto;
+   padding:22px;
+   border-radius:10px;
+   color:#1e293b;
+  ">
+
+   <h2 style="color:#142d4e;margin-top:0">
+    Customer Payment History
+   </h2>
+
+   <p>
+    <b>Invoice:</b> ${escapeHTML(sale.invoice_no)}<br>
+    <b>Customer:</b> ${escapeHTML(sale.customer_name||"Walk-in Customer")}
+   </p>
+
+   <div style="overflow-x:auto">
+
+    <table style="width:100%;border-collapse:collapse">
+
+     <thead>
+      <tr style="background:#142d4e;color:white">
+       <th style="padding:10px">SL</th>
+       <th>Payment Date</th>
+       <th>Method</th>
+       <th>Reference</th>
+       <th>Amount</th>
+       <th>Receipt</th>
+      </tr>
+     </thead>
+
+     <tbody>
+      ${rows||`
+       <tr>
+        <td colspan="6" style="padding:15px;text-align:center">
+         No payment records found.
+        </td>
+       </tr>
+      `}
+     </tbody>
+
+    </table>
+
+   </div>
+
+   <div style="
+    background:#f1f5f9;
+    padding:13px;
+    margin-top:15px;
+    border-radius:6px;
+    line-height:1.8;
+   ">
+
+    <b>Invoice Total:</b> ${money(sale.grand_total)}<br>
+    <b>Total Received:</b> ${money(sale.paid_amount)}<br>
+    <b>Remaining Due:</b> ${money(sale.due_amount)}
+
+   </div>
+
+   <button class="btn btn-secondary"
+    style="margin-top:15px"
+    onclick="document.getElementById('paymentHistoryModal').style.display='none'">
+    Close
+   </button>
+
+  </div>
+
+ `;
+
+ modal.style.display="block";
+
+}
+
+
+/* ==========================================
+   PRINT PAYMENT RECEIPT
+========================================== */
+
+async function printPaymentReceipt(paymentId){
+
+ const payment=paymentRecords.find(p=>
+  String(p.id)===String(paymentId)
+ );
+
+ if(!payment){
+  alert("Payment record not found.");
+  return;
+ }
+
+ const sale=salesList.find(s=>
+  String(s.id)===String(payment.sale_id)
+ );
+
+ if(!sale){
+  alert("Related invoice not found.");
+  return;
+ }
+
+ const win=window.open("","_blank");
+
+ if(!win){
+  alert("Please allow pop-ups to print receipt.");
+  return;
+ }
+
+ try{
+
+  const {data:vouchers,error}=await supabaseClient
+   .from("journal_entries")
+   .select("voucher_no,status")
+   .eq("farm_id",currentFarm.id)
+   .eq("source_module","sale_payment")
+   .eq("source_id",payment.id);
+
+  if(error)throw error;
+
+  const voucher=(vouchers||[]).find(v=>v.status==="posted");
+
+  const receiptHTML=`
+
+   <!DOCTYPE html>
+   <html>
+   <head>
+
+    <meta charset="UTF-8">
+
+    <title>Payment Receipt</title>
+
+    <style>
+
+     @page{size:A5 portrait;margin:15mm}
+
+     body{
+      font-family:Arial,sans-serif;
+      color:#1e293b;
+      font-size:13px;
+     }
+
+     .receipt{
+      max-width:650px;
+      margin:auto;
+      border:2px solid #142d4e;
+      padding:25px;
+     }
+
+     .header{
+      text-align:center;
+      border-bottom:2px solid #142d4e;
+      padding-bottom:15px;
+     }
+
+     .header h1{
+      color:#142d4e;
+      margin:0 0 8px;
+     }
+
+     .title{
+      text-align:center;
+      margin:20px 0;
+      font-size:19px;
+      font-weight:bold;
+      color:#0d9488;
+     }
+
+     .row{
+      display:flex;
+      justify-content:space-between;
+      gap:15px;
+      padding:10px 0;
+      border-bottom:1px solid #e2e8f0;
+     }
+
+     .amount{
+      margin-top:20px;
+      padding:15px;
+      background:#f1f5f9;
+      text-align:center;
+      font-size:23px;
+      font-weight:bold;
+      color:#142d4e;
+     }
+
+     .footer{
+      text-align:center;
+      margin-top:35px;
+      color:#64748b;
+     }
+
+     .signature{
+      margin-top:55px;
+      text-align:right;
+     }
+
+     button{
+      display:block;
+      margin:20px auto;
+      padding:10px 25px;
+      background:#142d4e;
+      color:white;
+      border:0;
+      cursor:pointer;
+     }
+
+     @media print{
+      button{display:none}
+     }
+
+    </style>
+
+   </head>
+
+   <body>
+
+    <div class="receipt">
+
+     <div class="header">
+
+      <h1>AquaFarm ERP</h1>
+
+      <h2>${escapeHTML(currentFarm.farm_name)}</h2>
+
+      <p>Payment Collection Receipt</p>
+
+     </div>
+
+     <div class="title">MONEY RECEIPT</div>
+
+     <div class="row">
+      <b>Receipt Date</b>
+      <span>${escapeHTML(payment.payment_date)}</span>
+     </div>
+
+     <div class="row">
+      <b>Receipt Voucher</b>
+      <span>${escapeHTML(voucher?.voucher_no||"Not Available")}</span>
+     </div>
+
+     <div class="row">
+      <b>Invoice Number</b>
+      <span>${escapeHTML(sale.invoice_no)}</span>
+     </div>
+
+     <div class="row">
+      <b>Customer Name</b>
+      <span>${escapeHTML(sale.customer_name||"Walk-in Customer")}</span>
+     </div>
+
+     <div class="row">
+      <b>Payment Method</b>
+      <span>${escapeHTML(payment.payment_method)}</span>
+     </div>
+
+     <div class="row">
+      <b>Transaction Reference</b>
+      <span>${escapeHTML(payment.transaction_reference||"-")}</span>
+     </div>
+
+     <div class="amount">
+      ${money(payment.amount)}
+     </div>
+
+     <div class="row">
+      <b>Invoice Total</b>
+      <span>${money(sale.grand_total)}</span>
+     </div>
+
+     <div class="row">
+      <b>Total Received</b>
+      <span>${money(sale.paid_amount)}</span>
+     </div>
+
+     <div class="row">
+      <b>Remaining Due</b>
+      <span>${money(sale.due_amount)}</span>
+     </div>
+
+     <div class="signature">
+      ______________________<br>
+      Authorized Signature
+     </div>
+
+     <div class="footer">
+      Thank you for your payment.<br>
+      Generated by AquaFarm ERP
+     </div>
+
+    </div>
+
+    <button onclick="window.print()">Print Receipt</button>
+
+   </body>
+   </html>
+
+  `;
+
+  win.document.open();
+  win.document.write(receiptHTML);
+  win.document.close();
+
+ }catch(e){
+
+  console.error("Print Receipt Error:",e);
+
+  if(!win.closed)win.close();
+
+  alert("Could not prepare receipt: "+e.message);
+
+ }
+}
  
 /* ================= PRINT SALES HISTORY ================= */
 
