@@ -1867,92 +1867,232 @@ async function updateExistingSale(){
 
 }
 
+/* ================= SALES AUDIT HISTORY ================= */
+
+let salesAuditRecords = [];
+
+async function openSalesAuditHistory(){
+
+    document.getElementById("salesHistoryContent").style.display="none";
+    document.getElementById("salesAuditSection").style.display="block";
+
+    await loadSalesAuditHistory();
+
+}
+
+function closeSalesAuditHistory(){
+
+    document.getElementById("salesAuditSection").style.display="none";
+    document.getElementById("salesHistoryContent").style.display="block";
+
+}
+
+async function loadSalesAuditHistory(){
+
+    if(!currentFarm){
+        alert("Please select a farm.");
+        return;
+    }
+
+    const tbody=document.getElementById("salesAuditTable");
+
+    tbody.innerHTML=`
+      <tr>
+       <td colspan="8" class="empty">Loading audit records...</td>
+      </tr>
+    `;
+
+    try{
+
+        const {data,error}=await supabaseClient
+            .from("sales_audit_log")
+            .select("*")
+            .eq("farm_id",currentFarm.id)
+            .order("created_at",{ascending:false});
+
+        if(error)throw error;
+
+        salesAuditRecords=data||[];
+
+        renderSalesAuditHistory();
+
+    }catch(e){
+
+        console.error("Audit History Error:",e);
+
+        tbody.innerHTML=`
+          <tr>
+           <td colspan="8" class="empty">
+            Could not load audit records: ${escapeHTML(e.message)}
+           </td>
+          </tr>
+        `;
+
+    }
+
+}
+
+function renderSalesAuditHistory(){
+
+    const tbody=document.getElementById("salesAuditTable");
+
+    const search=(document.getElementById("searchAudit").value||"")
+        .trim().toLowerCase();
+
+    const filtered=salesAuditRecords.filter(record=>{
+
+        const text=[
+            record.invoice_no,
+            record.customer_name,
+            record.action_type,
+            record.entity_type,
+            record.actor_role,
+            record.reason
+        ].join(" ").toLowerCase();
+
+        return text.includes(search);
+
+    });
+
+    if(!filtered.length){
+
+        tbody.innerHTML=`
+          <tr>
+           <td colspan="8" class="empty">
+            No audit records found.
+           </td>
+          </tr>
+        `;
+
+        return;
+
+    }
+
+    tbody.innerHTML=filtered.map(record=>{
+
+        const date=record.created_at
+            ?new Date(record.created_at).toLocaleString()
+            :"";
+
+        const actionLabels={
+            created:"Created",
+            edited:"Edited",
+            deleted:"Deleted",
+            payment_added:"Payment Added",
+            payment_updated:"Payment Updated",
+            payment_deleted:"Payment Deleted"
+        };
+
+        const action=actionLabels[record.action_type]||record.action_type;
+
+        const details=JSON.stringify({
+            old_data:record.old_data,
+            new_data:record.new_data
+        },null,2);
+
+        return `
+          <tr>
+
+           <td>${escapeHTML(date)}</td>
+
+           <td>${escapeHTML(record.invoice_no||"-")}</td>
+
+           <td>${escapeHTML(record.customer_name||"-")}</td>
+
+           <td>${escapeHTML(action)}</td>
+
+           <td>${escapeHTML(record.actor_user_id||"Unknown")}</td>
+
+           <td>${escapeHTML(record.actor_role||"-")}</td>
+
+           <td>${escapeHTML(record.reason||"-")}</td>
+
+           <td>
+            <details class="audit-details">
+             <summary>View Details</summary>
+             <pre>${escapeHTML(details)}</pre>
+            </details>
+           </td>
+
+          </tr>
+        `;
+
+    }).join("");
+
+}
+
 /* ================= DELETE SALE ================= */
 
 async function deleteSale(saleId){
 
- if(currentFarmRole!=="admin"){
-  alert("Only Admin can delete sales.");
-  return;
- }
+    if(currentFarmRole!=="admin"){
+        alert("Only Admin can delete sales.");
+        return;
+    }
 
- const sale=salesList.find(s=>String(s.id)===String(saleId));
+    const sale=salesList.find(
+        s=>String(s.id)===String(saleId)
+    );
 
- if(!sale){
-  alert("Sale record not found.");
-  return;
- }
+    if(!sale){
+        alert("Sale record not found.");
+        return;
+    }
 
- const confirmed=confirm(
-  "Are you sure you want to permanently delete this sale?\n\n"+
-  "Invoice: "+sale.invoice_no+"\n"+
-  "Customer: "+sale.customer_name+"\n"+
-  "Amount: "+money(sale.grand_total)+"\n\n"+
-  "Its fish items, payment records and attached vouchers will also be deleted."
- );
+    const reason=prompt(
+        "Please enter the reason for deleting this invoice:\n\n"+
+        "Invoice: "+sale.invoice_no+"\n"+
+        "Customer: "+sale.customer_name+"\n"+
+        "Amount: "+money(sale.grand_total)
+    );
 
- if(!confirmed)return;
+    if(reason===null)return;
 
- try{
+    if(reason.trim().length<3){
+        alert("Please enter a valid deletion reason (at least 3 characters).");
+        return;
+    }
 
-  // Find attached vouchers
+    const confirmed=confirm(
+        "Confirm invoice deletion?\n\n"+
+        "Invoice: "+sale.invoice_no+"\n"+
+        "Customer: "+sale.customer_name+"\n"+
+        "Amount: "+money(sale.grand_total)+"\n\n"+
+        "The invoice will be removed from active Sales History.\n"+
+        "Its audit record and voucher files will be preserved."
+    );
 
-  const files=attachments.filter(a=>
-   String(a.transaction_id)===String(saleId)&&
-   a.module_name==="sales"
-  );
+    if(!confirmed)return;
 
-  // Remove storage files first
+    try{
 
-  if(files.length){
+        const {data,error}=await supabaseClient.rpc(
+            "delete_sale_with_audit",
+            {
+                p_sale_id:saleId,
+                p_reason:reason.trim()
+            }
+        );
 
-   const paths=files.map(f=>f.file_path);
+        if(error)throw error;
 
-   const {error:storageError}=await supabaseClient.storage
-    .from(BUCKET_NAME)
-    .remove(paths);
+        if(!data||data.success!==true){
+            throw new Error("Sale deletion was not confirmed by the server.");
+        }
 
-   if(storageError)throw storageError;
+        alert("Sale deleted successfully. Audit record has been preserved.");
 
-   // Remove voucher metadata
+        await loadSalesData();
 
-   const {error:metaError}=await supabaseClient
-    .from("transaction_attachments")
-    .delete()
-    .eq("farm_id",currentFarm.id)
-    .eq("module_name","sales")
-    .eq("transaction_id",saleId);
+    }catch(e){
 
-   if(metaError)throw metaError;
+        console.error("Delete Sale Error:",e);
 
-  }
+        alert("Could not delete sale: "+e.message);
 
-  // Delete the sale.
-  // Related sale_items and sale_payments are expected
-  // to be removed through the existing database cascade.
-
-  const {error:saleError}=await supabaseClient
-   .from("sales")
-   .delete()
-   .eq("id",saleId)
-   .eq("farm_id",currentFarm.id);
-
-  if(saleError)throw saleError;
-
-  alert("Sale deleted successfully.");
-
-  await loadSalesData();
-
- }catch(e){
-
-  console.error("Delete Sale Error:",e);
-
-  alert("Could not delete sale: "+e.message);
-
- }
+    }
 
 }
-
  
 /* ================= DASHBOARD ================= */
 
