@@ -856,7 +856,7 @@ function toggleAccordion(button){
 
 }
 
-/* ================= SUPABASE ================= */
+ /* ================= SUPABASE ================= */
 
 const SUPABASE_URL="https://qjutiprfupdgyvblzvlc.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
@@ -874,6 +874,10 @@ let salesList=[];
 let attachments=[];
 let savingSale=false;
 let previewUrls=[];
+
+// Accounting status
+let salesAccountingStatus = new Map();
+
 // Current user information
 let currentUserId=null;
 let currentFarmRole=null;
@@ -887,6 +891,7 @@ document.getElementById("saveButton").textContent="Save Sale";
 
 document.querySelector(".create-sale-panel .section-title").textContent="➕ Create New Sale";
 
+ 
 /* ================= INITIALIZATION ================= */
 
 async function initializeSales(){
@@ -987,7 +992,6 @@ resetForm();
 await loadSalesData();
 
 }
-
 /* ================= LOAD DATA ================= */
 
 async function loadSalesData(){
@@ -996,7 +1000,12 @@ async function loadSalesData(){
 
  try{
 
-  const [customerResult,salesResult,attachmentResult]=await Promise.all([
+  const [
+   customerResult,
+   salesResult,
+   attachmentResult,
+   accountingResult
+  ]=await Promise.all([
 
    supabaseClient.from("customers")
     .select("*")
@@ -1012,17 +1021,39 @@ async function loadSalesData(){
    supabaseClient.from("transaction_attachments")
     .select("*")
     .eq("farm_id",currentFarm.id)
-    .eq("module_name","sales")
+    .eq("module_name","sales"),
+
+   supabaseClient.from("journal_entries")
+    .select("source_id,source_module,status")
+    .eq("farm_id",currentFarm.id)
+    .eq("source_module","sales")
 
   ]);
 
   if(customerResult.error)throw customerResult.error;
   if(salesResult.error)throw salesResult.error;
   if(attachmentResult.error)throw attachmentResult.error;
+  if(accountingResult.error)throw accountingResult.error;
 
   customers=customerResult.data||[];
   salesList=salesResult.data||[];
   attachments=attachmentResult.data||[];
+
+  // Load Accounting Posting Status
+  salesAccountingStatus=new Map();
+
+  (accountingResult.data||[]).forEach(entry=>{
+
+   if(entry.status==="posted"||entry.status==="reversed"){
+
+    salesAccountingStatus.set(
+     entry.source_id,
+     entry.status
+    );
+
+   }
+
+  });
 
   const select=document.getElementById("customerSelect");
   const selected=select.value;
@@ -1030,13 +1061,19 @@ async function loadSalesData(){
   select.innerHTML='<option value="">Walk-in / New Customer</option>';
 
   customers.forEach(c=>{
+
    const o=document.createElement("option");
+
    o.value=c.id;
    o.textContent=c.customer_name+(c.phone?" - "+c.phone:"");
+
    select.appendChild(o);
+
   });
 
-  if(customers.some(c=>c.id===selected))select.value=selected;
+  if(customers.some(c=>c.id===selected)){
+   select.value=selected;
+  }
 
   updateDashboard();
   renderSalesHistory();
@@ -1044,12 +1081,16 @@ async function loadSalesData(){
  }catch(e){
 
   console.error(e);
-  showMessage("formMessage","Could not load sales data: "+e.message,"error");
+
+  showMessage(
+   "formMessage",
+   "Could not load sales data: "+e.message,
+   "error"
+  );
 
  }
 
 }
-
 /* ================= CUSTOMER ================= */
 
 function selectCustomer(){
@@ -1621,11 +1662,13 @@ editingSaleId=null;
 
 }
 
-/* ================= EDIT SALE ================= */
+ /* ================= EDIT SALE ================= */
 
 async function editSale(saleId){
 
- if(!["admin","manager","accountant"].includes(currentFarmRole)){
+ const role=String(currentFarmRole||"").toLowerCase();
+
+ if(!["admin","manager","accountant"].includes(role)){
   alert("You do not have permission to edit sales.");
   return;
  }
@@ -1638,12 +1681,26 @@ async function editSale(saleId){
    throw new Error("Sale record not found.");
   }
 
+  // Accounting Protection
+  const accountingStatus=salesAccountingStatus.get(sale.id);
+
+  if(accountingStatus==="posted"||accountingStatus==="reversed"){
+
+   alert(
+    accountingStatus==="posted"
+     ? "This invoice has already been posted to Accounting. Direct editing is not allowed. Please use the Accounting Reversal process."
+     : "This invoice has been reversed in Accounting. Direct editing is not allowed."
+   );
+
+   return;
+  }
+
   const {data:items,error}=await supabaseClient
    .from("sale_items")
    .select("*")
    .eq("sale_id",saleId)
-   .eq("farm_id",currentFarm.id)
-   
+   .eq("farm_id",currentFarm.id);
+
   if(error)throw error;
 
   if(!items||!items.length){
@@ -1742,7 +1799,7 @@ async function editSale(saleId){
 
 }
 
-
+ 
 /* ================= UPDATE EXISTING SALE ================= */
 
 async function updateExistingSale(){
@@ -2094,81 +2151,80 @@ function renderSalesAuditHistory(){
     }).join("");
 
 }
-
 /* ================= DELETE SALE ================= */
 
 async function deleteSale(saleId){
 
-    if(currentFarmRole!=="admin"){
-        alert("Only Admin can delete sales.");
-        return;
-    }
-
-    const sale=salesList.find(
-        s=>String(s.id)===String(saleId)
+const role=String(currentFarmRole||"").toLowerCase();
+if(role!=="admin"){
+    alert("Only Admin can delete sales.");
+    return;
+}
+const sale=salesList.find(
+    s=>String(s.id)===String(saleId)
+);
+if(!sale){
+    alert("Sale record not found.");
+    return;
+}
+/* ACCOUNTING PROTECTION */
+const accountingStatus=salesAccountingStatus.get(sale.id);
+if(accountingStatus==="posted"){
+    alert(
+        "This invoice has already been posted to Accounting.\n\n"+
+        "Please reverse the accounting entry before attempting any correction."
     );
-
-    if(!sale){
-        alert("Sale record not found.");
-        return;
-    }
-
-    const reason=prompt(
-        "Please enter the reason for deleting this invoice:\n\n"+
-        "Invoice: "+sale.invoice_no+"\n"+
-        "Customer: "+sale.customer_name+"\n"+
-        "Amount: "+money(sale.grand_total)
+    return;
+}
+if(accountingStatus==="reversed"){
+    alert(
+        "This invoice has an accounting reversal record.\n\n"+
+        "It cannot be deleted because its accounting audit history must be preserved."
     );
-
-    if(reason===null)return;
-
-    if(reason.trim().length<3){
-        alert("Please enter a valid deletion reason (at least 3 characters).");
-        return;
-    }
-
-    const confirmed=confirm(
-        "Confirm invoice deletion?\n\n"+
-        "Invoice: "+sale.invoice_no+"\n"+
-        "Customer: "+sale.customer_name+"\n"+
-        "Amount: "+money(sale.grand_total)+"\n\n"+
-        "The invoice will be removed from active Sales History.\n"+
-        "Its audit record and voucher files will be preserved."
-    );
-
-    if(!confirmed)return;
-
-    try{
-
-        const {data,error}=await supabaseClient.rpc(
-            "delete_sale_with_audit",
-            {
-                p_sale_id:saleId,
-                p_reason:reason.trim()
-            }
-        );
-
-        if(error)throw error;
-
-        if(!data||data.success!==true){
-            throw new Error("Sale deletion was not confirmed by the server.");
+    return;
+}
+/* DELETION REASON */
+const reason=prompt(
+    "Please enter the reason for deleting this invoice:\n\n"+
+    "Invoice: "+sale.invoice_no+"\n"+
+    "Customer: "+sale.customer_name+"\n"+
+    "Amount: "+money(sale.grand_total)
+);
+if(reason===null)return;
+if(reason.trim().length<3){
+    alert("Please enter a valid deletion reason (at least 3 characters).");
+    return;
+}
+/* CONFIRMATION */
+const confirmed=confirm(
+    "Confirm invoice deletion?\n\n"+
+    "Invoice: "+sale.invoice_no+"\n"+
+    "Customer: "+sale.customer_name+"\n"+
+    "Amount: "+money(sale.grand_total)+"\n\n"+
+    "The invoice will be removed from active Sales History.\n"+
+    "Its audit record and voucher files will be preserved."
+);
+if(!confirmed)return;
+try{
+    const {data,error}=await supabaseClient.rpc(
+        "delete_sale_with_audit",
+        {
+            p_sale_id:saleId,
+            p_reason:reason.trim()
         }
-
-        alert("Sale deleted successfully. Audit record has been preserved.");
-
-        await loadSalesData();
-
-    }catch(e){
-
-        console.error("Delete Sale Error:",e);
-
-        alert("Could not delete sale: "+e.message);
-
+    );
+    if(error)throw error;
+    if(!data||data.success!==true){
+        throw new Error("Sale deletion was not confirmed by the server.");
     }
-
+    alert("Sale deleted successfully. Audit record has been preserved.");
+    await loadSalesData();
+}catch(e){
+    console.error("Delete Sale Error:",e);
+    alert("Could not delete sale: "+e.message);
 }
 
- 
+} 
 /* ================= DASHBOARD ================= */
 
 function updateDashboard(){
@@ -2205,6 +2261,7 @@ function renderSalesHistory(){
 
  const canEdit=["admin","manager","accountant"].includes(role);
  const canDelete=role==="admin";
+ const canPostAccounting=["admin","accountant"].includes(role);
 
  body.innerHTML=filtered.map(s=>{
 
@@ -2212,6 +2269,37 @@ function renderSalesHistory(){
    String(a.transaction_id)===String(s.id)&&
    a.module_name==="sales"
   ).length;
+
+  const accountingStatus=salesAccountingStatus.get(s.id);
+
+  let accountingButton="";
+
+  if(accountingStatus==="posted"){
+
+   accountingButton=`
+    <button class="btn btn-secondary btn-small" disabled>
+     ✓ Posted to Accounting
+    </button>
+   `;
+
+  }else if(accountingStatus==="reversed"){
+
+   accountingButton=`
+    <button class="btn btn-danger btn-small" disabled>
+     Reversed
+    </button>
+   `;
+
+  }else if(canPostAccounting){
+
+   accountingButton=`
+    <button class="btn btn-primary btn-small"
+     onclick="postSaleToAccounting('${s.id}',this)">
+     Post to Accounting
+    </button>
+   `;
+
+  }
 
   return `
    <tr>
@@ -2245,6 +2333,8 @@ function renderSalesHistory(){
       </button>
      ` : ""}
 
+     ${accountingButton}
+
      <button class="btn btn-primary btn-small"
       onclick="printInvoice('${s.id}')">
       Print
@@ -2257,6 +2347,80 @@ function renderSalesHistory(){
 
 }
 
+/* ================= POST SALE TO ACCOUNTING ================= */
+
+async function postSaleToAccounting(saleId,button){
+
+ const role=String(currentFarmRole||"").toLowerCase();
+
+ if(!["admin","accountant"].includes(role)){
+  alert("Only Admin or Accountant can post to Accounting.");
+  return;
+ }
+
+ if(!currentFarm||!saleId)return;
+
+ const existingStatus=salesAccountingStatus.get(saleId);
+
+ if(existingStatus==="posted"||existingStatus==="reversed"){
+  alert("This sale has already been processed in Accounting.");
+  return;
+ }
+
+ if(!confirm("Are you sure you want to post this sale to Accounting?")){
+  return;
+ }
+
+ if(button){
+  button.disabled=true;
+  button.textContent="Posting...";
+ }
+
+ try{
+
+  const {data,error}=await supabaseClient.rpc(
+   "post_source_to_accounting",
+   {
+    p_source_module:"sales",
+    p_source_id:saleId
+   }
+  );
+
+  if(error)throw error;
+
+  if(!data||data.success!==true){
+   throw new Error("Accounting posting was not confirmed.");
+  }
+
+  await loadSalesData();
+
+  alert(
+   data.already_posted
+    ? "This sale was already posted to Accounting."
+    : "Sale successfully posted to Accounting."
+  );
+
+ }catch(e){
+
+  console.error("Sales Accounting Posting Error:",e);
+
+  alert(
+   "Accounting Posting Failed!\n\n"+
+   (e.message||"Unknown error")+
+   "\n\nPlease check the Accounting status before retrying."
+  );
+
+  if(button){
+   button.disabled=false;
+   button.textContent="Post to Accounting";
+  }
+
+ }
+
+}
+
+ 
+ 
 /* ================= PRINT SALES HISTORY ================= */
 
 function printSalesHistory(){
