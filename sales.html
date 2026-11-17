@@ -685,44 +685,130 @@ td input,td select{min-width:95px;padding:9px}
  </button>
  </section>
 </div>
+ 
 <!-- HISTORY TAB -->
 
 <div class="tab-panel" id="tab-history">
- <section class="section sales-history-panel">
-  <h3 class="section-title">📋 Sales History</h3>
+
+ <!-- SALES HISTORY CONTENT -->
+ <div id="salesHistoryContent">
+
+  <section class="section sales-history-panel">
+
+   <h3 class="section-title">📋 Sales History</h3>
+
+   <div class="history-toolbar no-print">
+
+    <div class="field">
+     <label for="searchSales">Search Invoice / Customer</label>
+     <input id="searchSales" type="text"
+      placeholder="Search invoice or customer..."
+      oninput="renderSalesHistory()">
+    </div>
+
+    <button class="btn whatsapp-btn"
+     onclick="shareSalesHistoryWhatsApp()">
+     <span class="whatsapp-icon">◉</span>
+     WhatsApp Message
+    </button>
+
+    <button class="btn print-report-btn"
+     onclick="printSalesHistory()">
+     🖨 Print Sales History
+    </button>
+
+    <!-- AUDIT HISTORY BUTTON -->
+    <button class="btn audit-btn"
+     onclick="openSalesAuditHistory()">
+     📋 Audit History
+    </button>
+
+   </div>
+
+   <div class="table-wrap">
+    <table>
+     <thead>
+      <tr>
+       <th>Invoice No</th>
+       <th>Date</th>
+       <th>Customer</th>
+       <th>Total</th>
+       <th>Paid</th>
+       <th>Due</th>
+       <th>Status</th>
+       <th>Voucher</th>
+       <th>Action</th>
+      </tr>
+     </thead>
+
+     <tbody id="salesTable">
+      <tr>
+       <td colspan="9" class="empty">Loading...</td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+
+  </section>
+
+ </div>
+
+
+ <!-- SALES AUDIT HISTORY PANEL -->
+ <section class="section"
+  id="salesAuditSection"
+  style="display:none;">
+
+  <h3 class="section-title">📋 Sales Audit History</h3>
 
   <div class="history-toolbar no-print">
+
    <div class="field">
-    <label for="searchSales">Search Invoice / Customer</label>
-    <input id="searchSales" type="text"
-     placeholder="Search invoice or customer..."
-     oninput="renderSalesHistory()">
-     </div>
-    <button class="btn whatsapp-btn" onclick="shareSalesHistoryWhatsApp()">
-    <span class="whatsapp-icon">◉</span>
-    WhatsApp Message
-    </button>
-  
-   <button class="btn print-report-btn" onclick="printSalesHistory()">
-    🖨 Print Sales History
+    <label for="searchAudit">Search Audit Records</label>
+    <input id="searchAudit" type="text"
+     placeholder="Search invoice / customer / activity..."
+     oninput="renderSalesAuditHistory()">
+   </div>
+
+   <button class="btn btn-secondary"
+    onclick="loadSalesAuditHistory()">
+    🔄 Refresh
    </button>
+
+   <button class="btn btn-primary"
+    onclick="closeSalesAuditHistory()">
+    ← Back to Sales History
+   </button>
+
   </div>
 
   <div class="table-wrap">
    <table>
     <thead>
      <tr>
-      <th>Invoice No</th><th>Date</th><th>Customer</th>
-      <th>Total</th><th>Paid</th><th>Due</th>
-      <th>Status</th><th>Voucher</th><th>Action</th>
+      <th>Date & Time</th>
+      <th>Invoice</th>
+      <th>Customer</th>
+      <th>Activity</th>
+      <th>Performed By</th>
+      <th>Role</th>
+      <th>Reason</th>
+      <th>Details</th>
      </tr>
     </thead>
-    <tbody id="salesTable">
-     <tr><td colspan="9" class="empty">Loading...</td></tr>
+
+    <tbody id="salesAuditTable">
+     <tr>
+      <td colspan="8" class="empty">
+       Loading audit records...
+      </td>
+     </tr>
     </tbody>
    </table>
   </div>
+
  </section>
+
 </div>
 
 </div>
@@ -730,7 +816,6 @@ td input,td select{min-width:95px;padding:9px}
 </div>
 
 <script>
-
 /* ================= NAVIGATION ================= */
 
 function showSalesTab(tab,button){
