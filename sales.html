@@ -459,6 +459,8 @@ td input,td select{min-width:95px;padding:9px}
  <section class="section create-sale-panel">
   <h3 class="section-title">➕ Create New Sale</h3>
 
+  <div id="formMessage" class="message"></div>
+
   <!-- 1 CUSTOMER -->
 
   <div class="form-group group-blue open">
@@ -719,7 +721,7 @@ let currentUserId=null;
 let currentFarmRole=null;
 let editingSaleId=null;
 
-document.getElementById("paidAmount").disabled=false;
+document.getElementById("paidAmount").disabled=true;
 document.getElementById("paymentMethod").disabled=false;
 document.getElementById("transactionReference").disabled=false;
 
