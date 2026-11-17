@@ -1243,16 +1243,25 @@ async function saveSale(){
 
  const totals=calculateTotal();
 
- if(!Number.isFinite(totals.invoiceDiscount)||
-  totals.invoiceDiscount>totals.subtotal||
-  !Number.isFinite(totals.paid)||
-  totals.paid>totals.grandTotal){
+ if(
+  !Number.isFinite(totals.invoiceDiscount) ||
+  totals.invoiceDiscount < 0 ||
+  totals.invoiceDiscount > totals.subtotal ||
+  !Number.isFinite(totals.paid) ||
+  totals.paid < 0 ||
+  totals.paid > totals.grandTotal
+){
 
-  alert("Please check invoice discount and paid amount.");
+  alert(
+    "Invalid Sale Amount!\n\n" +
+    "Subtotal: " + totals.subtotal + "\n" +
+    "Discount: " + totals.invoiceDiscount + "\n" +
+    "Grand Total: " + totals.grandTotal + "\n" +
+    "Paid Amount: " + totals.paid
+  );
+
   return;
-
- }
-
+}
  if(totals.grandTotal<=0){
   alert("Sale total must be greater than zero.");
   return;
