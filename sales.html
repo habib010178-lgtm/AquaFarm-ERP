@@ -2516,6 +2516,52 @@ function openCustomerPayment(saleId){
   return;
  }
 
+/* HISTORICAL PAYMENT BALANCE */
+
+const orderedPayments=paymentRecords
+ .filter(p=>String(p.sale_id)===String(payment.sale_id))
+ .slice()
+ .sort((a,b)=>{
+
+  const dateCompare=String(a.payment_date||"")
+   .localeCompare(String(b.payment_date||""));
+
+  if(dateCompare!==0)return dateCompare;
+
+  const timeCompare=String(a.created_at||"")
+   .localeCompare(String(b.created_at||""));
+
+  if(timeCompare!==0)return timeCompare;
+
+  return String(a.id).localeCompare(String(b.id));
+
+ });
+
+let historicalPaid=0;
+let paymentFound=false;
+
+for(const p of orderedPayments){
+
+ historicalPaid+=Number(p.amount||0);
+
+ if(String(p.id)===String(payment.id)){
+  paymentFound=true;
+  break;
+ }
+
+}
+
+if(!paymentFound){
+ alert("Payment history could not be verified.");
+ return;
+}
+
+const historicalDue=Math.max(
+ 0,
+ Number(sale.grand_total||0)-historicalPaid
+);
+
+ 
  if(salesAccountingStatus.get(sale.id)!=="posted"){
   alert("Please post this invoice to Accounting first.");
   return;
@@ -3020,14 +3066,14 @@ async function printPaymentReceipt(paymentId){
      </div>
 
      <div class="row">
-      <b>Total Received</b>
-      <span>${money(sale.paid_amount)}</span>
-     </div>
+ <b>Total Received Till This Receipt</b>
+ <span>${money(historicalPaid)}</span>
+</div>
 
-     <div class="row">
-      <b>Remaining Due</b>
-      <span>${money(sale.due_amount)}</span>
-     </div>
+<div class="row">
+ <b>Remaining Due After This Receipt</b>
+ <span>${money(historicalDue)}</span>
+</div>
 
      <div class="signature">
       ______________________<br>
@@ -3767,9 +3813,13 @@ function numberToWords(amount){
 
  const value=Math.max(0,Number(amount)||0);
 
- const taka=Math.floor(value);
- const paisa=Math.round((value-taka)*100);
+ let taka=Math.floor(value);
+let paisa=Math.round((value-taka)*100);
 
+if(paisa>=100){
+ taka+=1;
+ paisa=0;
+}
  let result=convert(taka)+" Taka";
 
  if(paisa>0){
