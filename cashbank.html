@@ -278,6 +278,189 @@ th {
         grid-column: auto;
     }
 }
+
+/* =================================
+   AQUAFARM CASH & BANK UI IMPROVEMENT
+================================= */
+
+body {
+    font-size: 15px;
+}
+
+/* Topbar */
+
+.topbar h2 {
+    font-size: 23px;
+    font-weight: 700;
+}
+
+/* Page Title */
+
+.page-title {
+    background: linear-gradient(120deg, #0f2747, #1e40af);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(15,39,71,.15);
+}
+
+.page-title h2 {
+    color: white;
+    font-size: 25px;
+    margin-bottom: 9px;
+}
+
+.page-title p {
+    color: #dbeafe;
+    font-size: 15px;
+}
+
+/* Summary Cards */
+
+.card {
+    padding: 25px;
+    border-left: 5px solid #1e40af;
+    border-radius: 13px;
+    box-shadow: 0 4px 15px rgba(15,39,71,.08);
+    transition: .2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card .label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.card .number {
+    color: #1e40af;
+    font-size: 31px;
+    margin-top: 14px;
+}
+
+/* Section */
+
+.section {
+    padding: 25px;
+    border-radius: 13px;
+    box-shadow: 0 4px 15px rgba(15,39,71,.07);
+}
+
+.section h3 {
+    background: #e8eef8;
+    color: #17365d;
+    padding: 15px 18px;
+    border-left: 5px solid #1e40af;
+    border-radius: 8px;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+/* Form Labels */
+
+.form-group label {
+    font-size: 15px;
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+/* Input Fields */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 13px;
+    font-size: 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #1e40af;
+    box-shadow: 0 0 0 3px rgba(30,64,175,.10);
+}
+
+/* Create Account Button */
+
+.btn-primary {
+    background: linear-gradient(120deg, #17365d, #2563eb);
+    color: white;
+    padding: 14px 25px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(30,64,175,.20);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(120deg, #102847, #1d4ed8);
+}
+
+/* Account Table */
+
+th {
+    background: #e8eef8;
+    color: #17365d;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 15px;
+}
+
+td {
+    font-size: 14px;
+    padding: 15px;
+    color: #334155;
+}
+
+tbody tr:hover {
+    background: #f1f5f9;
+}
+
+/* Status Badge */
+
+.badge {
+    padding: 6px 11px;
+    font-size: 12px;
+}
+
+/* Mobile */
+
+@media(max-width:600px) {
+
+    .page-title {
+        padding: 20px;
+    }
+
+    .page-title h2 {
+        font-size: 21px;
+    }
+
+    .card .number {
+        font-size: 24px;
+    }
+
+    .section {
+        padding: 16px;
+    }
+
+    .section h3 {
+        font-size: 17px;
+        padding: 13px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+}    
 </style>
 </head>
 <body>
