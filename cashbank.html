@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaFarm ERP - Cash & Bank Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #f0fdf4;
+    color: #1e293b;
+}
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 250px;
+    background: #064e3b;
+    color: white;
+    padding: 25px 15px;
+    flex-shrink: 0;
+}
+.brand {
+    text-align: center;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #166534;
+}
+.brand .icon {
+    font-size: 38px;
+}
+.brand h2 {
+    color: #6ee7b7;
+    margin-top: 8px;
+}
+.brand p {
+    font-size: 11px;
+    margin-top: 5px;
+    color: #d1fae5;
+}
+.menu {
+    margin-top: 25px;
+}
+.menu a {
+    display: block;
+    color: #d1fae5;
+    padding: 13px;
+    margin-bottom: 5px;
+    text-decoration: none;
+    border-radius: 7px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.menu a:hover,
+.menu a.active {
+    background: #059669;
+    color: white;
+}
+.main {
+    flex: 1;
+    min-width: 0;
+}
+.topbar {
+    background: white;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.topbar h2 {
+    color: #065f46;
+    font-size: 21px;
+}
+.logout {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+.content {
+    padding: 25px;
+}
+.page-title {
+    margin-bottom: 20px;
+}
+.page-title h2 {
+    color: #065f46;
+    margin-bottom: 7px;
+}
+.page-title p {
+    color: #64748b;
+    font-size: 14px;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+    border-left: 4px solid #059669;
+}
+.card .label {
+    color: #64748b;
+    font-size: 14px;
+}
+.card .number {
+    color: #047857;
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+.section {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.04);
+}
+.section h3 {
+    color: #065f46;
+    margin-bottom: 18px;
+}
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 16px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 7px;
+    color: #475569;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #059669;
+}
+.full {
+    grid-column: 1 / -1;
+}
+.btn {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+.btn-primary {
+    background: #059669;
+    color: white;
+}
+.btn-primary:hover {
+    background: #047857;
+}
+.btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+.table-wrap {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+th, td {
+    padding: 13px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+}
+th {
+    background: #ecfdf5;
+    color: #065f46;
+}
+.badge {
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.badge-active {
+    background: #d1fae5;
+    color: #047857;
+}
+.badge-inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.message {
+    padding: 12px;
+    border-radius: 7px;
+    margin-bottom: 15px;
+    display: none;
+    font-size: 14px;
+}
+.success {
+    background: #dcfce7;
+    color: #166534;
+    display: block;
+}
+.error {
+    background: #fee2e2;
+    color: #991b1b;
+    display: block;
+}
+.hidden {
+    display: none !important;
+}
+@media(max-width:900px) {
+    .cards {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+@media(max-width:600px) {
+    .layout {
+        display: block;
+    }
+    .sidebar {
+        width: 100%;
+    }
+    .menu {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        gap: 5px;
+    }
+    .topbar {
+        padding: 15px;
+    }
+    .content {
+        padding: 15px;
+    }
+    .cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .card {
+        padding: 15px;
+    }
+    .card .number {
+        font-size: 20px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .full {
+        grid-column: auto;
+    }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="brand">
+    <div class="icon">🐟</div>
+    <h2>AquaFarm ERP</h2>
+    <p>Fish Farming Management System</p>
+</div>
+<nav class="menu">
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="farmmanagement.html">🏞 Farm Management</a>
+    <a>💧 Pond Management</a>
+    <a>🐟 Fish Batch Management</a>
+    <a>📈 Production & Growth</a>
+    <a>🌾 Feed Management</a>
+    <a>📦 Inventory</a>
+    <a>🛒 Purchase Management</a>
+    <a href="sales.html">💰 Sales Management</a>
+    <a>💳 Income & Expense</a>
+    <a class="active" href="cashbank.html">🏦 Cash & Bank Management</a>
+    <a>📚 Accounting</a>
+    <a>📊 Reports</a>
+    <a>⚙️ Settings</a>
+</nav>
+</aside>
+<main class="main">
+<header class="topbar">
+    <h2>Cash & Bank Management</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+<div class="content">
+<div class="page-title">
+    <h2>Cash & Bank Accounts</h2>
+    <p>Manage your farm cash, bank and mobile banking accounts.</p>
+</div>
+<div id="message" class="message"></div>
+<div class="cards">
+    <div class="card">
+        <div class="label">Total Accounts</div>
+        <div class="number" id="totalAccounts">0</div>
+    </div>
+    <div class="card">
+        <div class="label">Cash Accounts</div>
+        <div class="number" id="cashAccounts">0</div>
+    </div>
+    <div class="card">
+        <div class="label">Bank / Mobile Accounts</div>
+        <div class="number" id="bankAccounts">0</div>
+    </div>
+</div>
+<div class="section">
+    <h3>➕ Create New Account</h3>
+    <form id="accountForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Account Name *</label>
+                <input
+                    type="text"
+                    id="accountName"
+                    placeholder="Example: Cash in Hand"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label>Account Type *</label>
+                <select id="accountType" required>
+                    <option value="">Select Account Type</option>
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="mobile_banking">Mobile Banking</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group hidden" id="bankNameGroup">
+                <label>Bank / Provider Name</label>
+                <input
+                    type="text"
+                    id="bankName"
+                    placeholder="Example: Islami Bank / bKash"
+                >
+            </div>
+            <div class="form-group hidden" id="accountNumberGroup">
+                <label>Account Number</label>
+                <input
+                    type="text"
+                    id="accountNumber"
+                    placeholder="Account number"
+                >
+            </div>
+            <div class="form-group hidden" id="branchGroup">
+                <label>Branch Name</label>
+                <input
+                    type="text"
+                    id="branchName"
+                    placeholder="Branch name"
+                >
+            </div>
+            <div class="form-group">
+                <label>Opening Balance *</label>
+                <input
+                    type="number"
+                    id="openingBalance"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                    required
+                >
+            </div>
+            <div class="form-group full">
+                <label>Notes</label>
+                <textarea
+                    id="notes"
+                    rows="3"
+                    placeholder="Optional notes"
+                ></textarea>
+            </div>
+            <div class="form-group full">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="saveButton"
+                >
+                    Save Account
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="section">
+    <h3>📋 Account List</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Account Name</th>
+                    <th>Type</th>
+                    <th>Bank / Provider</th>
+                    <th>Account Number</th>
+                    <th>Opening Balance</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="accountTable">
+                <tr>
+                    <td colspan="6">Loading accounts...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</main>
+</div>
+<script>
+// ===================================
+// SUPABASE CONFIGURATION
+// ===================================
+const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
+const SUPABASE_ANON_KEY =
+"sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+let currentFarmId = null;
+// ===================================
+// INITIALIZATION
+// ===================================
+async function initializePage() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabaseClient.auth.getSession();
+        if (sessionError) throw sessionError;
+        const session = sessionData.session;
+        if (!session) {
+            window.location.replace("index.html");
+            return;
+        }
+        const { data: farms, error: farmError } =
+            await supabaseClient
+            .from("farms")
+            .select("id")
+            .order("created_at", { ascending: true });
+        if (farmError) throw farmError;
+        if (!farms || farms.length === 0) {
+            throw new Error("No accessible farm found.");
+        }
+        currentFarmId = farms[0].id;
+        await loadAccounts();
+    } catch (error) {
+        console.error(error);
+        showMessage(error.message, "error");
+    }
+}
+// ===================================
+// ACCOUNT TYPE FIELDS
+// ===================================
+document.getElementById("accountType").addEventListener(
+    "change",
+    function() {
+        const type = this.value;
+        const showBankFields =
+            type === "bank" ||
+            type === "mobile_banking" ||
+            type === "other";
+        document.getElementById("bankNameGroup")
+            .classList.toggle("hidden", !showBankFields);
+        document.getElementById("accountNumberGroup")
+            .classList.toggle("hidden", !showBankFields);
+        document.getElementById("branchGroup")
+            .classList.toggle("hidden", type !== "bank");
+    }
+);
+// ===================================
+// CREATE ACCOUNT
+// ===================================
+document.getElementById("accountForm").addEventListener(
+    "submit",
+    async function(event) {
+        event.preventDefault();
+        const button = document.getElementById("saveButton");
+        button.disabled = true;
+        button.innerText = "Saving...";
+        try {
+            if (!currentFarmId) {
+                throw new Error("Farm information not loaded.");
+            }
+            const accountName =
+                document.getElementById("accountName").value.trim();
+            const accountType =
+                document.getElementById("accountType").value;
+            const openingBalance =
+                Number(document.getElementById("openingBalance").value);
+            if (!accountName) {
+                throw new Error("Account name is required.");
+            }
+            if (!accountType) {
+                throw new Error("Please select account type.");
+            }
+            if (!Number.isFinite(openingBalance) || openingBalance < 0) {
+                throw new Error("Invalid opening balance.");
+            }
+            const { data, error } =
+                await supabaseClient.rpc(
+                    "create_cash_bank_account",
+                    {
+                        p_farm_id: currentFarmId,
+                        p_account_name: accountName,
+                        p_account_type: accountType,
+                        p_opening_balance: openingBalance,
+                        p_bank_name:
+                            document.getElementById("bankName").value.trim() || null,
+                        p_account_number:
+                            document.getElementById("accountNumber").value.trim() || null,
+                        p_branch_name:
+                            document.getElementById("branchName").value.trim() || null,
+                        p_notes:
+                            document.getElementById("notes").value.trim() || null
+                    }
+                );
+            if (error) throw error;
+            if (!data || !data.success) {
+                throw new Error("Account creation failed.");
+            }
+            showMessage(
+                "Account created successfully. Account Code: " +
+                data.account_code,
+                "success"
+            );
+            this.reset();
+            document.getElementById("openingBalance").value = 0;
+            document.getElementById("bankNameGroup")
+                .classList.add("hidden");
+            document.getElementById("accountNumberGroup")
+                .classList.add("hidden");
+            document.getElementById("branchGroup")
+                .classList.add("hidden");
+            await loadAccounts();
+        } catch (error) {
+            console.error(error);
+            showMessage(error.message, "error");
+        } finally {
+            button.disabled = false;
+            button.innerText = "Save Account";
+        }
+    }
+);
+// ===================================
+// LOAD ACCOUNT LIST
+// ===================================
+async function loadAccounts() {
+    const table = document.getElementById("accountTable");
+    table.innerHTML =
+        '<tr><td colspan="6">Loading accounts...</td></tr>';
+    try {
+        const { data: accounts, error } =
+            await supabaseClient
+            .from("cash_bank_accounts")
+            .select(`
+                id,
+                account_name,
+                account_type,
+                bank_name,
+                account_number,
+                opening_balance,
+                is_active
+            `)
+            .eq("farm_id", currentFarmId)
+            .order("created_at", { ascending: false });
+        if (error) throw error;
+        const list = accounts || [];
+        document.getElementById("totalAccounts").innerText =
+            list.length;
+        document.getElementById("cashAccounts").innerText =
+            list.filter(a => a.account_type === "cash").length;
+        document.getElementById("bankAccounts").innerText =
+            list.filter(a => a.account_type !== "cash").length;
+        if (list.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="6">No accounts found. Create your first account.</td></tr>';
+            return;
+        }
+        table.innerHTML = list.map(account => `
+            <tr>
+                <td>${escapeHTML(account.account_name)}</td>
+                <td>${formatAccountType(account.account_type)}</td>
+                <td>${escapeHTML(account.bank_name || "-")}</td>
+                <td>${escapeHTML(account.account_number || "-")}</td>
+                <td>৳ ${Number(account.opening_balance || 0).toLocaleString(
+                    "en-BD",
+                    {minimumFractionDigits: 2, maximumFractionDigits: 2}
+                )}</td>
+                <td>
+                    <span class="badge ${
+                        account.is_active
+                        ? "badge-active"
+                        : "badge-inactive"
+                    }">
+                        ${account.is_active ? "Active" : "Inactive"}
+                    </span>
+                </td>
+            </tr>
+        `).join("");
+    } catch (error) {
+        console.error(error);
+        table.innerHTML =
+            '<tr><td colspan="6">Unable to load accounts.</td></tr>';
+        showMessage(error.message, "error");
+    }
+}
+// ===================================
+// HELPERS
+// ===================================
+function formatAccountType(type) {
+    const types = {
+        cash: "Cash",
+        bank: "Bank",
+        mobile_banking: "Mobile Banking",
+        other: "Other"
+    };
+    return types[type] || type;
+}
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+function showMessage(message, type) {
+    const element = document.getElementById("message");
+    element.className = "message " + type;
+    element.innerText = message;
+    element.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+    setTimeout(function() {
+        element.className = "message";
+    }, 6000);
+}
+// ===================================
+// LOGOUT
+// ===================================
+async function logout() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        alert(error.message);
+        return;
+    }
+    window.location.replace("index.html");
+}
+// ===================================
+// START
+// ===================================
+initializePage();
+</script>
+</body>
+</html>
