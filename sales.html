@@ -2681,47 +2681,6 @@ async function openPaymentHistory(saleId){
   return;
  }
 
- /* HISTORICAL PAYMENT BALANCE */
-
-let historicalPaid=0;
-let paymentFound=false;
-
-const orderedPayments=paymentRecords
- .filter(p=>String(p.sale_id)===String(payment.sale_id))
- .slice()
- .sort((a,b)=>{
-
-  const dateCompare=String(a.payment_date||"")
-   .localeCompare(String(b.payment_date||""));
-
-  if(dateCompare!==0)return dateCompare;
-
-  return String(a.created_at||"")
-   .localeCompare(String(b.created_at||""));
-
- });
-
-for(const p of orderedPayments){
-
- historicalPaid+=Number(p.amount||0);
-
- if(String(p.id)===String(payment.id)){
-  paymentFound=true;
-  break;
- }
-
-}
-
-if(!paymentFound){
- alert("Payment history could not be verified.");
- return;
-}
-
-const historicalDue=Math.max(
- 0,
- Number(sale.grand_total||0)-historicalPaid
-);
-
  
  try{
 
@@ -2895,6 +2854,52 @@ async function printPaymentReceipt(paymentId){
   return;
  }
 
+/* HISTORICAL PAYMENT BALANCE */
+
+ const orderedPayments=paymentRecords
+  .filter(p=>
+   String(p.sale_id)===String(payment.sale_id)
+  )
+  .slice()
+  .sort((a,b)=>{
+
+   const dateCompare=String(a.payment_date||"")
+    .localeCompare(String(b.payment_date||""));
+
+   if(dateCompare!==0)return dateCompare;
+
+   const timeCompare=String(a.created_at||"")
+    .localeCompare(String(b.created_at||""));
+
+   if(timeCompare!==0)return timeCompare;
+
+   return String(a.id).localeCompare(String(b.id));
+  });
+
+ let historicalPaid=0;
+ let paymentFound=false;
+
+ for(const p of orderedPayments){
+
+  historicalPaid+=Number(p.amount||0);
+
+  if(String(p.id)===String(payment.id)){
+   paymentFound=true;
+   break;
+  }
+ }
+
+ if(!paymentFound){
+  alert("This payment could not be matched with its history.");
+  return;
+ }
+
+ const historicalDue=Math.max(
+  0,
+  Number(sale.grand_total||0)-historicalPaid
+ );
+
+ 
  const win=window.open("","_blank");
 
  if(!win){
