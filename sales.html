@@ -2707,6 +2707,17 @@ async function openCustomerPayment(saleId){
 
 }
 
+function closeCustomerPayment(){
+    const modal = document.getElementById("customerPaymentModal");
+
+    if(modal){
+        modal.style.display = "none";
+    }
+
+    selectedPaymentSale = null;
+}
+
+ 
 /* SAVE CUSTOMER PAYMENT */
 
 async function saveCustomerPayment(){
