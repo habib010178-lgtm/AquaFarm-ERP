@@ -2448,7 +2448,7 @@ function createPaymentModal(){
 
   <label>Payment Method</label>
 
-  <select id="paymentMethod"
+  <select id="customerPaymentMethod"
    style="width:100%;padding:11px;margin:7px 0 14px">
 
    <option value="cash">Cash</option>
@@ -2550,7 +2550,7 @@ function openCustomerPayment(saleId){
 
  document.getElementById("paymentDate").value=localDateString();
 
- document.getElementById("paymentMethod").value="cash";
+ document.getElementById("customerPaymentMethod").value="cash";
  document.getElementById("paymentReference").value="";
  document.getElementById("paymentNotes").value="";
 
