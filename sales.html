@@ -2452,6 +2452,8 @@ function renderSalesHistory(){
  }).join("");
 
 }
+
+ 
  /* ==========================================
    CUSTOMER PAYMENT COLLECTION
 ========================================== */
@@ -2533,6 +2535,15 @@ function createPaymentModal(){
 
   </select>
 
+  <label>Deposit Account</label>
+
+  <select id="paymentDepositAccount"
+   style="width:100%;padding:11px;margin:7px 0 14px">
+
+   <option value="">Loading Accounts...</option>
+
+  </select>
+
   <label>Transaction Reference</label>
 
   <input id="paymentReference"
@@ -2568,10 +2579,10 @@ function createPaymentModal(){
 
 }
 
-
+ 
 /* OPEN PAYMENT FORM */
 
-function openCustomerPayment(saleId){
+async function openCustomerPayment(saleId){
 
  const role=String(currentFarmRole||"").toLowerCase();
 
@@ -2589,8 +2600,6 @@ function openCustomerPayment(saleId){
   return;
  }
 
-
- 
  if(salesAccountingStatus.get(sale.id)!=="posted"){
   alert("Please post this invoice to Accounting first.");
   return;
@@ -2598,6 +2607,11 @@ function openCustomerPayment(saleId){
 
  if(Number(sale.due_amount||0)<=0){
   alert("This invoice has no outstanding due.");
+  return;
+ }
+
+ if(!currentFarm || !currentFarm.id){
+  alert("Farm information not found.");
   return;
  }
 
@@ -2627,21 +2641,71 @@ function openCustomerPayment(saleId){
  document.getElementById("paymentReference").value="";
  document.getElementById("paymentNotes").value="";
 
+ const accountSelect=document.getElementById("paymentDepositAccount");
+
+ accountSelect.innerHTML=`
+  <option value="">Loading Accounts...</option>
+ `;
+
  document.getElementById("customerPaymentModal").style.display="block";
 
+ try{
+
+  const {data:accounts,error}=await supabaseClient
+   .from("cash_bank_accounts")
+   .select("id,account_name,account_type,bank_name,account_number")
+   .eq("farm_id",currentFarm.id)
+   .eq("is_active",true)
+   .order("created_at",{ascending:true});
+
+  if(error)throw error;
+
+  if(!accounts || accounts.length===0){
+
+   accountSelect.innerHTML=`
+    <option value="">No Active Deposit Account Found</option>
+   `;
+
+   alert("No active Cash or Bank Account found. Please create an account first.");
+
+   return;
+  }
+
+  accountSelect.innerHTML=`
+   <option value="">Select Deposit Account</option>
+  `;
+
+  accounts.forEach(account=>{
+
+   const option=document.createElement("option");
+
+   option.value=account.id;
+
+   let label=account.account_name+" ("+account.account_type+")";
+
+   if(account.bank_name){
+    label+=" - "+account.bank_name;
+   }
+
+   option.textContent=label;
+
+   accountSelect.appendChild(option);
+
+  });
+
+ }catch(e){
+
+  console.error("Deposit Account Loading Error:",e);
+
+  accountSelect.innerHTML=`
+   <option value="">Failed to Load Accounts</option>
+  `;
+
+  alert("Unable to load Deposit Accounts!\n\n"+e.message);
+
+ }
+
 }
-
-
-function closeCustomerPayment(){
-
- const modal=document.getElementById("customerPaymentModal");
-
- if(modal)modal.style.display="none";
-
- selectedPaymentSale=null;
-
-}
-
 
 /* SAVE CUSTOMER PAYMENT */
 
@@ -2658,6 +2722,8 @@ async function saveCustomerPayment(){
  const paymentDate=document.getElementById("paymentDate").value;
 
  const paymentMethod=document.getElementById("customerPaymentMethod").value;
+
+ const depositAccountId=document.getElementById("paymentDepositAccount").value;
 
  const reference=document.getElementById("paymentReference").value.trim();
 
@@ -2683,6 +2749,11 @@ async function saveCustomerPayment(){
   return;
  }
 
+ if(!depositAccountId){
+  alert("Please select a Deposit Account.");
+  return;
+ }
+
  const button=document.getElementById("saveCustomerPaymentBtn");
 
  button.disabled=true;
@@ -2698,7 +2769,8 @@ async function saveCustomerPayment(){
     p_payment_date:paymentDate,
     p_payment_method:paymentMethod,
     p_transaction_reference:reference||null,
-    p_notes:notes||null
+    p_notes:notes||null,
+    p_deposit_account_id:depositAccountId
    }
   );
 
@@ -2714,11 +2786,11 @@ async function saveCustomerPayment(){
 
   alert(
    "Payment received successfully!\n\n"+
-   "Invoice: "+(data.invoice_no||sale.invoice_no)+"\n"+
+   "Invoice: "+sale.invoice_no+"\n"+
    "Receipt Voucher: "+(data.voucher_no||"-")+"\n"+
-   "Received: "+money(data.payment_amount||amount)+"\n"+
-   "Total Paid: "+money(data.total_paid)+"\n"+
-   "Remaining Due: "+money(data.remaining_due)
+   "Received: "+money(amount)+"\n"+
+   "Total Paid: "+money(data.paid_amount)+"\n"+
+   "Remaining Due: "+money(data.due_amount)
   );
 
  }catch(e){
@@ -2737,7 +2809,6 @@ async function saveCustomerPayment(){
  }
 
 }
-
 
 /* ==========================================
    CUSTOMER PAYMENT HISTORY
