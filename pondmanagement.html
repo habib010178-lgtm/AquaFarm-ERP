@@ -37,8 +37,6 @@ body{
     min-height:100vh;
 }
 
-/* SIDEBAR */
-
 .sidebar{
     width:245px;
     flex-shrink:0;
@@ -105,14 +103,10 @@ body{
     font-size:16px;
 }
 
-/* MAIN */
-
 .main{
     flex:1;
     min-width:0;
 }
-
-/* TOPBAR */
 
 .topbar{
     background:white;
@@ -166,15 +160,11 @@ body{
     color:#c03939;
 }
 
-/* CONTENT */
-
 .content{
     padding:25px;
     max-width:1600px;
     margin:auto;
 }
-
-/* PAGE HERO */
 
 .page-hero{
     position:relative;
@@ -251,8 +241,6 @@ body{
     box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
-/* STATISTICS */
-
 .stats{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -311,8 +299,6 @@ body{
 .icon-red{background:#fff0ef}
 .icon-purple{background:#f1ebff}
 
-/* FORM SECTION */
-
 .form-section{
     display:none;
     background:white;
@@ -329,14 +315,8 @@ body{
 }
 
 @keyframes slideDown{
-    from{
-        opacity:0;
-        transform:translateY(-8px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+    from{opacity:0;transform:translateY(-8px)}
+    to{opacity:1;transform:translateY(0)}
 }
 
 .form-header{
@@ -512,8 +492,6 @@ body{
     cursor:not-allowed;
 }
 
-/* POND LIST */
-
 .panel{
     background:white;
     border:1px solid var(--border);
@@ -569,7 +547,7 @@ body{
 table{
     width:100%;
     border-collapse:collapse;
-    min-width:850px;
+    min-width:900px;
 }
 
 th{
@@ -659,8 +637,6 @@ tbody tr:hover{
     font-size:13px;
 }
 
-/* MESSAGE */
-
 .message{
     display:none;
     padding:13px 16px;
@@ -684,7 +660,23 @@ tbody tr:hover{
     border:1px solid #f6d3d1;
 }
 
-/* FOOTER */
+/* DIAGNOSTIC INFORMATION */
+
+.diagnostic{
+    background:#eef4f8;
+    border:1px solid #dce6ee;
+    border-radius:9px;
+    padding:12px 15px;
+    margin-bottom:18px;
+    font-size:11px;
+    line-height:1.7;
+    color:#526579;
+    overflow-wrap:anywhere;
+}
+
+.diagnostic strong{
+    color:#24435e;
+}
 
 .footer{
     text-align:center;
@@ -692,8 +684,6 @@ tbody tr:hover{
     font-size:10px;
     padding:25px 10px 8px;
 }
-
-/* RESPONSIVE */
 
 @media(max-width:1100px){
     .stats{
@@ -703,9 +693,7 @@ tbody tr:hover{
 
 @media(max-width:700px){
 
-    .layout{
-        display:block;
-    }
+    .layout{display:block}
 
     .sidebar{
         width:100%;
@@ -738,13 +726,9 @@ tbody tr:hover{
         flex-wrap:wrap;
     }
 
-    .topbar h2{
-        font-size:16px;
-    }
+    .topbar h2{font-size:16px}
 
-    .top-actions{
-        gap:6px;
-    }
+    .top-actions{gap:6px}
 
     .farm-badge{
         font-size:10px;
@@ -756,47 +740,31 @@ tbody tr:hover{
         font-size:10px;
     }
 
-    .content{
-        padding:14px;
-    }
+    .content{padding:14px}
 
     .page-hero{
         padding:22px 19px;
         border-radius:13px;
     }
 
-    .page-hero h1{
-        font-size:22px;
-    }
+    .page-hero h1{font-size:22px}
 
-    .page-hero p{
-        font-size:11px;
-    }
+    .page-hero p{font-size:11px}
 
     .hero-bottom{
         align-items:flex-start;
         flex-direction:column;
     }
 
-    .hero-add-btn{
-        width:100%;
-    }
+    .hero-add-btn{width:100%}
 
-    .stats{
-        gap:10px;
-    }
+    .stats{gap:10px}
 
-    .stat-card{
-        padding:14px;
-    }
+    .stat-card{padding:14px}
 
-    .stat-number{
-        font-size:24px;
-    }
+    .stat-number{font-size:24px}
 
-    .stat-label{
-        font-size:10px;
-    }
+    .stat-label{font-size:10px}
 
     .stat-icon{
         width:32px;
@@ -804,39 +772,27 @@ tbody tr:hover{
         font-size:15px;
     }
 
-    .form-header{
-        padding:15px;
-    }
+    .form-header{padding:15px}
 
-    .form-body{
-        padding:17px;
-    }
+    .form-body{padding:17px}
 
     .form-grid{
         grid-template-columns:1fr;
         gap:15px;
     }
 
-    .full{
-        grid-column:auto;
-    }
+    .full{grid-column:auto}
 
     .form-footer{
         align-items:stretch;
         flex-direction:column;
     }
 
-    .form-buttons{
-        width:100%;
-    }
+    .form-buttons{width:100%}
 
-    .form-buttons button{
-        flex:1;
-    }
+    .form-buttons button{flex:1}
 
-    .panel{
-        padding:15px;
-    }
+    .panel{padding:15px}
 
     .panel-heading{
         align-items:flex-start;
@@ -849,9 +805,7 @@ tbody tr:hover{
     }
 
     .search-box,
-    .filter-select{
-        width:100%;
-    }
+    .filter-select{width:100%}
 }
 
 @media(max-width:380px){
@@ -860,13 +814,9 @@ tbody tr:hover{
         grid-template-columns:1fr 1fr;
     }
 
-    .stat-card{
-        padding:11px;
-    }
+    .stat-card{padding:11px}
 
-    .stat-number{
-        font-size:21px;
-    }
+    .stat-number{font-size:21px}
 }
 </style>
 </head>
@@ -874,8 +824,6 @@ tbody tr:hover{
 <body>
 
 <div class="layout">
-
-<!-- SIDEBAR -->
 
 <aside class="sidebar">
 
@@ -949,11 +897,7 @@ tbody tr:hover{
 </aside>
 
 
-<!-- MAIN CONTENT -->
-
 <main class="main">
-
-    <!-- TOPBAR -->
 
     <header class="topbar">
 
@@ -979,8 +923,6 @@ tbody tr:hover{
 
 
     <section class="content">
-
-        <!-- HERO -->
 
         <div class="page-hero">
 
@@ -1015,68 +957,51 @@ tbody tr:hover{
         </div>
 
 
-        <!-- MESSAGE -->
-
         <div id="message" class="message"></div>
 
+        <!-- DIAGNOSTIC INFORMATION -->
+        <div class="diagnostic" id="diagnostic">
+            <strong>Connection Information:</strong>
+            Waiting for farm information...
+        </div>
 
-        <!-- STATISTICS -->
 
         <div class="stats">
 
             <div class="stat-card">
-
                 <div class="stat-top">
                     <span class="stat-label">TOTAL PONDS</span>
                     <span class="stat-icon icon-blue">💧</span>
                 </div>
-
                 <div class="stat-number" id="totalPonds">0</div>
-
                 <div class="stat-note">All registered ponds</div>
-
             </div>
 
-
             <div class="stat-card">
-
                 <div class="stat-top">
                     <span class="stat-label">ACTIVE PONDS</span>
                     <span class="stat-icon icon-green">✓</span>
                 </div>
-
                 <div class="stat-number" id="activePonds">0</div>
-
                 <div class="stat-note">Currently active ponds</div>
-
             </div>
 
-
             <div class="stat-card">
-
                 <div class="stat-top">
                     <span class="stat-label">INACTIVE PONDS</span>
                     <span class="stat-icon icon-red">Ⅱ</span>
                 </div>
-
                 <div class="stat-number" id="inactivePonds">0</div>
-
                 <div class="stat-note">Inactive pond records</div>
-
             </div>
 
-
             <div class="stat-card">
-
                 <div class="stat-top">
                     <span class="stat-label">AREA RECORDED</span>
                     <span class="stat-icon icon-purple">📐</span>
                 </div>
-
                 <div class="stat-number" id="areaRecorded">0</div>
-
                 <div class="stat-note">Ponds with area information</div>
-
             </div>
 
         </div>
@@ -1099,9 +1024,7 @@ tbody tr:hover{
 
                 </div>
 
-                <button class="form-close" onclick="closeForm()">
-                    ×
-                </button>
+                <button class="form-close" onclick="closeForm()">×</button>
 
             </div>
 
@@ -1112,52 +1035,40 @@ tbody tr:hover{
 
                     <input type="hidden" id="pondId">
 
-
                     <div class="form-section-title">
                         Pond Basic Information
                     </div>
 
-
                     <div class="form-grid">
 
                         <div class="form-group">
-
                             <label>
                                 Pond Code <span class="required">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 id="pondCode"
                                 placeholder="Example: POND-005"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>
                                 Pond Name <span class="required">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 id="pondName"
                                 placeholder="Example: Pond 5"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>
                                 Pond Area <span class="required">*</span>
                             </label>
-
                             <input
                                 type="number"
                                 id="pondArea"
@@ -1166,31 +1077,21 @@ tbody tr:hover{
                                 placeholder="Enter pond area"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>
                                 Area Unit <span class="required">*</span>
                             </label>
-
                             <select id="areaUnit" required>
-
                                 <option value="Decimal">Decimal</option>
                                 <option value="Acre">Acre</option>
                                 <option value="Hectare">Hectare</option>
-
                             </select>
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>Average Depth</label>
-
                             <input
                                 type="number"
                                 id="averageDepth"
@@ -1198,52 +1099,37 @@ tbody tr:hover{
                                 step="any"
                                 placeholder="Enter average depth"
                             >
-
                             <div class="form-hint">
                                 Enter the numerical depth value.
                             </div>
-
                         </div>
 
-
                         <div class="form-group">
-
-                            <label>Water Square</label>
-
+                            <label>Water Source</label>
                             <input
-                                type="number"
-                                id="waterSquare"
-                                min="0"
-                                step="any"
-                                placeholder="Enter water square"
+                                type="text"
+                                id="waterSource"
+                                placeholder="Example: Tube Well, River, Rain Water"
                             >
-
+                            <div class="form-hint">
+                                Enter the pond's water source.
+                            </div>
                         </div>
 
-
                         <div class="form-group">
-
                             <label>Pond Status</label>
-
                             <select id="pondStatus">
-
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
-
                             </select>
-
                         </div>
 
-
                         <div class="form-group full">
-
                             <label>Notes / Description</label>
-
                             <textarea
                                 id="pondNotes"
                                 placeholder="Write additional information about this pond..."
                             ></textarea>
-
                         </div>
 
                     </div>
@@ -1310,11 +1196,9 @@ tbody tr:hover{
                         id="statusFilter"
                         onchange="renderPonds()"
                     >
-
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
-
                     </select>
 
                 </div>
@@ -1327,18 +1211,16 @@ tbody tr:hover{
                 <table>
 
                     <thead>
-
                         <tr>
                             <th>SL</th>
                             <th>Pond Code</th>
                             <th>Pond Name</th>
                             <th>Area</th>
                             <th>Average Depth</th>
-                            <th>Water Square</th>
+                            <th>Water Source</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
-
                     </thead>
 
                     <tbody id="pondTable">
@@ -1412,6 +1294,63 @@ function escapeHTML(value){
 }
 
 
+/* ================= DIAGNOSTIC ================= */
+
+function updateDiagnostic(recordCount=null,error=null){
+
+    const box = document.getElementById("diagnostic");
+
+    let html = `
+        <strong>Connection Information:</strong><br>
+        Selected Farm:
+        ${escapeHTML(currentFarm?.farm_name || "Not available")}<br>
+        Farm ID:
+        ${escapeHTML(currentFarm?.id || "Not available")}<br>
+    `;
+
+    if(recordCount !== null){
+
+        html += `
+            Records returned by Supabase:
+            <strong>${recordCount}</strong><br>
+        `;
+
+    }
+
+    if(error){
+
+        html += `
+            <span style="color:#b83d3d">
+                Error:
+                ${escapeHTML(error.message || error)}
+            </span>
+        `;
+
+    }else if(recordCount === 0){
+
+        html += `
+            <span style="color:#976700">
+                Supabase returned zero visible pond records.
+                This may be due to the SELECT permission/RLS policy
+                or because no matching records exist for this Farm ID.
+            </span>
+        `;
+
+    }else if(recordCount !== null){
+
+        html += `
+            <span style="color:#087653">
+                Pond data loaded successfully.
+            </span>
+        `;
+
+    }
+
+    box.innerHTML = html;
+
+}
+
+
 /* ================= MESSAGE ================= */
 
 function showMessage(message,type="success"){
@@ -1444,8 +1383,10 @@ async function initializePage(){
 
     try{
 
-        const {data:{session},error:sessionError} =
-            await supabaseClient.auth.getSession();
+        const {
+            data:{session},
+            error:sessionError
+        } = await supabaseClient.auth.getSession();
 
         if(sessionError || !session){
 
@@ -1469,16 +1410,20 @@ async function initializePage(){
 
         // Verify Farm Membership
 
-        const {data:membership,error:membershipError} =
-            await supabaseClient
-                .from("farm_members")
-                .select("farm_id,role")
-                .eq("farm_id",selectedFarmId)
-                .eq("user_id",currentUser.id)
-                .eq("status","active")
-                .maybeSingle();
+        const {
+            data:membership,
+            error:membershipError
+        } = await supabaseClient
+            .from("farm_members")
+            .select("farm_id,role")
+            .eq("farm_id",selectedFarmId)
+            .eq("user_id",currentUser.id)
+            .eq("status","active")
+            .maybeSingle();
 
         if(membershipError || !membership){
+
+            console.error("Membership error:",membershipError);
 
             localStorage.removeItem("aquafarm_active_farm_id");
             localStorage.removeItem("aquafarm_active_farm_name");
@@ -1492,20 +1437,27 @@ async function initializePage(){
 
         // Load Selected Farm
 
-        const {data:farm,error:farmError} =
-            await supabaseClient
-                .from("farms")
-                .select("id,farm_code,farm_name,status")
-                .eq("id",selectedFarmId)
-                .eq("status","active")
-                .maybeSingle();
+        const {
+            data:farm,
+            error:farmError
+        } = await supabaseClient
+            .from("farms")
+            .select("id,farm_code,farm_name,status")
+            .eq("id",selectedFarmId)
+            .eq("status","active")
+            .maybeSingle();
 
         if(farmError || !farm){
 
+            console.error("Farm error:",farmError);
+
             showMessage(
-                "Selected farm could not be found.",
+                "Selected farm could not be found: "+
+                (farmError?.message || "No matching farm found."),
                 "error"
             );
+
+            updateDiagnostic(null,farmError || "Farm not found");
 
             return;
 
@@ -1532,6 +1484,8 @@ async function initializePage(){
             farm.farm_name;
 
 
+        updateDiagnostic();
+
         await loadPonds();
 
     }catch(error){
@@ -1543,6 +1497,8 @@ async function initializePage(){
             "error"
         );
 
+        updateDiagnostic(null,error);
+
     }
 
 }
@@ -1551,6 +1507,13 @@ async function initializePage(){
 /* ================= LOAD PONDS ================= */
 
 async function loadPonds(){
+
+    if(!currentFarm){
+
+        showMessage("Selected farm is not available.","error");
+        return;
+
+    }
 
     const {data,error} = await supabaseClient
         .from("ponds")
@@ -1562,7 +1525,7 @@ async function loadPonds(){
             area,
             area_unit,
             average_depth,
-            water_square,
+            water_source,
             status,
             notes,
             created_at
@@ -1573,7 +1536,13 @@ async function loadPonds(){
 
     if(error){
 
-        console.error(error);
+        console.error("Pond loading error:",error);
+
+        pondList = [];
+
+        updateStatistics();
+
+        updateDiagnostic(null,error);
 
         document.getElementById("pondTable").innerHTML =
             `<tr>
@@ -1588,6 +1557,8 @@ async function loadPonds(){
     }
 
     pondList = data || [];
+
+    updateDiagnostic(pondList.length);
 
     updateStatistics();
 
@@ -1653,6 +1624,7 @@ function renderPonds(){
             pond.pond_code,
             pond.pond_name,
             pond.area_unit,
+            pond.water_source,
             pond.status
 
         ].some(value=>
@@ -1715,7 +1687,7 @@ function renderPonds(){
                 </td>
 
                 <td>
-                    ${escapeHTML(pond.water_square ?? "-")}
+                    ${escapeHTML(pond.water_source ?? "-")}
                 </td>
 
                 <td>
@@ -1838,8 +1810,8 @@ function editPond(id){
     document.getElementById("averageDepth").value =
         pond.average_depth ?? "";
 
-    document.getElementById("waterSquare").value =
-        pond.water_square ?? "";
+    document.getElementById("waterSource").value =
+        pond.water_source ?? "";
 
     document.getElementById("pondStatus").value =
         String(pond.status).toLowerCase() === "inactive"
@@ -1927,12 +1899,9 @@ document.getElementById("pondForm").addEventListener(
                     )
                     : null,
 
-                water_square:
-                    document.getElementById("waterSquare").value
-                    ? Number(
-                        document.getElementById("waterSquare").value
-                    )
-                    : null,
+                water_source:
+                    document.getElementById("waterSource")
+                    .value.trim() || null,
 
                 status:
                     document.getElementById("pondStatus").value,
@@ -2005,7 +1974,7 @@ document.getElementById("pondForm").addEventListener(
             saveBtn.disabled = false;
 
             saveBtn.textContent =
-                "Save Pond";
+                editingPond ? "Update Pond" : "Save Pond";
 
         }
 
