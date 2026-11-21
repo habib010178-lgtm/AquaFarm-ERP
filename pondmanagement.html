@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaFarm ERP - Pond Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f3f6fb;
+    color:#243247;
+}
+
+.layout{display:flex;min-height:100vh}
+
+.sidebar{
+    width:245px;
+    background:#102b46;
+    color:white;
+    padding:22px 15px;
+    flex-shrink:0;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:bold;
+    padding:10px 8px 25px;
+}
+
+.menu a{
+    display:block;
+    color:#dce8f3;
+    text-decoration:none;
+    padding:12px 13px;
+    border-radius:7px;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+.menu a:hover,.menu a.active{
+    background:#1d496e;
+    color:white;
+}
+
+.main{flex:1;min-width:0}
+
+.topbar{
+    background:white;
+    padding:15px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+.topbar h2{font-size:19px}
+
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.farm-badge{
+    background:#e8f5ee;
+    color:#147443;
+    padding:9px 13px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+button{
+    border:0;
+    cursor:pointer;
+    border-radius:6px;
+    padding:10px 15px;
+    font-weight:bold;
+}
+
+.change-btn{background:#e7edf5;color:#24435e}
+.logout-btn{background:#dc3545;color:white}
+
+.content{padding:25px}
+
+.page-heading{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+}
+
+.page-heading h1{font-size:25px}
+.page-heading p{color:#718096;font-size:14px;margin-top:6px}
+
+.primary-btn{background:#087c58;color:white}
+.primary-btn:hover{background:#066849}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-bottom:22px;
+}
+
+.stat-card{
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 2px 9px rgba(0,0,0,.04);
+}
+
+.stat-card p{color:#718096;font-size:13px}
+.stat-card h2{font-size:27px;margin-top:10px;color:#123d5a}
+
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 9px rgba(0,0,0,.04);
+    margin-bottom:22px;
+}
+
+.panel-heading{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+.panel-heading h3{font-size:17px}
+
+.search{
+    padding:10px 12px;
+    border:1px solid #d8e0e9;
+    border-radius:6px;
+    width:230px;
+    max-width:100%;
+}
+
+.table-wrap{overflow-x:auto}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:850px;
+}
+
+th,td{
+    text-align:left;
+    padding:13px 12px;
+    border-bottom:1px solid #edf0f4;
+    font-size:13px;
+}
+
+th{background:#f7f9fc;color:#506176}
+
+.badge{
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.active-badge{background:#d9f4e5;color:#147443}
+.inactive-badge{background:#fde3e3;color:#b42323}
+
+.action-btn{
+    padding:7px 10px;
+    font-size:12px;
+    margin:2px;
+}
+
+.edit-btn{background:#e5efff;color:#1456a0}
+.status-btn{background:#fff0d9;color:#925700}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    z-index:100;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+}
+
+.modal-box{
+    background:white;
+    width:100%;
+    max-width:570px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-radius:12px;
+    padding:24px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.close-btn{
+    background:#f0f2f5;
+    font-size:20px;
+    padding:5px 11px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    padding:11px;
+    border:1px solid #d8e0e9;
+    border-radius:6px;
+    font-size:14px;
+}
+
+.form-group textarea{
+    min-height:75px;
+    resize:vertical;
+}
+
+.full{grid-column:1/-1}
+
+.form-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+.cancel-btn{background:#e8edf3;color:#334155}
+.save-btn{background:#087c58;color:white}
+
+.message{
+    padding:12px;
+    border-radius:6px;
+    margin-bottom:15px;
+    display:none;
+    font-size:13px;
+}
+
+.error{background:#fee2e2;color:#991b1b}
+.success{background:#dcfce7;color:#166534}
+
+.empty{
+    text-align:center;
+    color:#718096;
+    padding:30px;
+}
+
+@media(max-width:900px){
+    .sidebar{width:210px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:650px){
+    .layout{display:block}
+    .sidebar{width:100%;padding:12px}
+    .logo{padding:5px 5px 12px}
+    .menu{
+        display:grid;
+        grid-template-columns:repeat(2,1fr);
+        gap:3px;
+    }
+    .menu a{font-size:12px;padding:10px}
+    .topbar{padding:13px;align-items:flex-start;flex-direction:column}
+    .content{padding:15px}
+    .stats{grid-template-columns:1fr 1fr;gap:10px}
+    .stat-card{padding:15px}
+    .stat-card h2{font-size:23px}
+    .page-heading h1{font-size:21px}
+    .form-grid{grid-template-columns:1fr}
+    .full{grid-column:auto}
+    .search{width:100%}
+}
+
+@media(max-width:360px){
+    .stats{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+    <div class="logo">🐟 AquaFarm ERP</div>
+
+    <nav class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="farmmanagement.html">Farm Management</a>
+        <a href="pondmanagement.html" class="active">Pond Management</a>
+        <a href="fishbatchmanagement.html">Fish Batch Management</a>
+        <a href="production.html">Production & Growth</a>
+        <a href="feedmanagement.html">Feed Management</a>
+        <a href="inventorymanagement.html">Inventory Management</a>
+        <a href="purchasemanagement.html">Purchase Management</a>
+        <a href="sales.html">Sales Management</a>
+        <a href="incomeexpense.html">Income & Expense</a>
+        <a href="cashbank.html">Cash & Bank</a>
+        <a href="accounting.html">Accounting</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+        <h2>Pond Management</h2>
+
+        <div class="top-actions">
+            <span class="farm-badge" id="topFarmName">Loading Farm...</span>
+            <button class="change-btn" onclick="changeFarm()">Change Farm</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <section class="content">
+
+        <div class="page-heading">
+            <div>
+                <h1>Pond Management</h1>
+                <p>Manage your farm ponds and pond information.</p>
+            </div>
+
+            <button class="primary-btn" onclick="openModal()">
+                + Add New Pond
+            </button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <p>Total Ponds</p>
+                <h2 id="totalPonds">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Active Ponds</p>
+                <h2 id="activePonds">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Inactive Ponds</p>
+                <h2 id="inactivePonds">0</h2>
+            </div>
+        </div>
+
+        <div class="panel">
+
+            <div class="panel-heading">
+                <h3>Pond List</h3>
+                <input
+                    type="search"
+                    id="searchInput"
+                    class="search"
+                    placeholder="Search pond..."
+                    oninput="renderPonds()"
+                >
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Pond Code</th>
+                            <th>Pond Name</th>
+                            <th>Area</th>
+                            <th>Average Depth</th>
+                            <th>Water Square</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="pondTable">
+                        <tr>
+                            <td colspan="8" class="empty">Loading ponds...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+</div>
+
+
+<!-- ADD / EDIT POND MODAL -->
+
+<div class="modal" id="pondModal">
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h3 id="modalTitle">Add New Pond</h3>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+
+        <form id="pondForm">
+
+            <input type="hidden" id="pondId">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Pond Code *</label>
+                    <input
+                        type="text"
+                        id="pondCode"
+                        placeholder="Example: POND-005"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Pond Name *</label>
+                    <input
+                        type="text"
+                        id="pondName"
+                        placeholder="Example: Pond 5"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Area *</label>
+                    <input
+                        type="number"
+                        id="pondArea"
+                        min="0"
+                        step="any"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Area Unit *</label>
+                    <select id="areaUnit" required>
+                        <option value="Decimal">Decimal</option>
+                        <option value="Acre">Acre</option>
+                        <option value="Hectare">Hectare</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Average Depth</label>
+                    <input
+                        type="number"
+                        id="averageDepth"
+                        min="0"
+                        step="any"
+                        placeholder="Enter depth"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Water Square</label>
+                    <input
+                        type="number"
+                        id="waterSquare"
+                        min="0"
+                        step="any"
+                        placeholder="Enter water square"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="pondStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label>Notes</label>
+                    <textarea id="pondNotes" placeholder="Additional information..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-buttons">
+                <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="save-btn" id="saveBtn">Save Pond</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+<script>
+
+/* ================= SUPABASE CONFIGURATION ================= */
+
+const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
+
+const SUPABASE_ANON_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+
+/* ================= GLOBAL VARIABLES ================= */
+
+let currentUser = null;
+let currentFarm = null;
+let pondList = [];
+let editingPond = false;
+
+
+/* ================= HTML ESCAPE ================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "").replace(/[&<>"']/g,function(char){
+
+        return {
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[char];
+
+    });
+
+}
+
+
+/* ================= MESSAGE ================= */
+
+function showMessage(message,type="success"){
+
+    const box = document.getElementById("message");
+
+    box.textContent = message;
+    box.className = "message " + type;
+    box.style.display = "block";
+
+    setTimeout(()=>{
+        box.style.display = "none";
+    },4000);
+
+}
+
+
+/* ================= INITIALIZE PAGE ================= */
+
+async function initializePage(){
+
+    try{
+
+        const {data:{session},error:sessionError} =
+            await supabaseClient.auth.getSession();
+
+        if(sessionError || !session){
+
+            window.location.replace("index.html");
+            return;
+
+        }
+
+        currentUser = session.user;
+
+        const selectedFarmId =
+            localStorage.getItem("aquafarm_active_farm_id");
+
+        if(!selectedFarmId){
+
+            window.location.replace("farmselection.html");
+            return;
+
+        }
+
+
+        // Verify active farm membership
+
+        const {data:membership,error:membershipError} =
+            await supabaseClient
+                .from("farm_members")
+                .select("farm_id,role")
+                .eq("farm_id",selectedFarmId)
+                .eq("user_id",currentUser.id)
+                .eq("status","active")
+                .maybeSingle();
+
+        if(membershipError || !membership){
+
+            localStorage.removeItem("aquafarm_active_farm_id");
+            localStorage.removeItem("aquafarm_active_farm_name");
+            localStorage.removeItem("aquafarm_active_farm_role");
+
+            window.location.replace("farmselection.html");
+            return;
+
+        }
+
+
+        // Verify selected farm
+
+        const {data:farm,error:farmError} =
+            await supabaseClient
+                .from("farms")
+                .select("id,farm_code,farm_name,status")
+                .eq("id",selectedFarmId)
+                .eq("status","active")
+                .maybeSingle();
+
+        if(farmError || !farm){
+
+            showMessage("Selected farm could not be found.","error");
+            return;
+
+        }
+
+        currentFarm = farm;
+
+        localStorage.setItem(
+            "aquafarm_active_farm_name",
+            farm.farm_name
+        );
+
+        localStorage.setItem(
+            "aquafarm_active_farm_role",
+            membership.role
+        );
+
+        document.getElementById("topFarmName").textContent =
+            farm.farm_name;
+
+        await loadPonds();
+
+    }catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Unable to initialize Pond Management.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ================= LOAD PONDS ================= */
+
+async function loadPonds(){
+
+    const {data,error} = await supabaseClient
+        .from("ponds")
+        .select(`
+            id,
+            farm_id,
+            pond_code,
+            pond_name,
+            area,
+            area_unit,
+            average_depth,
+            water_square,
+            status,
+            notes,
+            created_at
+        `)
+        .eq("farm_id",currentFarm.id)
+        .order("created_at",{ascending:true});
+
+    if(error){
+
+        console.error(error);
+
+        document.getElementById("pondTable").innerHTML =
+            `<tr><td colspan="8" class="empty">
+                Unable to load ponds: ${escapeHTML(error.message)}
+            </td></tr>`;
+
+        return;
+
+    }
+
+    pondList = data || [];
+
+    updateStatistics();
+    renderPonds();
+
+}
+
+
+/* ================= UPDATE STATISTICS ================= */
+
+function updateStatistics(){
+
+    const total = pondList.length;
+
+    const active = pondList.filter(
+        pond => String(pond.status).toLowerCase() === "active"
+    ).length;
+
+    document.getElementById("totalPonds").textContent = total;
+
+    document.getElementById("activePonds").textContent = active;
+
+    document.getElementById("inactivePonds").textContent =
+        total-active;
+
+}
+
+
+/* ================= RENDER POND TABLE ================= */
+
+function renderPonds(){
+
+    const tbody = document.getElementById("pondTable");
+
+    const search =
+        document.getElementById("searchInput").value.toLowerCase();
+
+    const filtered = pondList.filter(pond=>{
+
+        return [
+            pond.pond_code,
+            pond.pond_name,
+            pond.status
+        ].some(value=>
+            String(value ?? "").toLowerCase().includes(search)
+        );
+
+    });
+
+    if(filtered.length === 0){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    No ponds found.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    tbody.innerHTML = filtered.map((pond,index)=>{
+
+        const isActive =
+            String(pond.status).toLowerCase() === "active";
+
+        return `
+            <tr>
+
+                <td>${index+1}</td>
+
+                <td>${escapeHTML(pond.pond_code)}</td>
+
+                <td>${escapeHTML(pond.pond_name)}</td>
+
+                <td>
+                    ${escapeHTML(pond.area ?? "-")}
+                    ${escapeHTML(pond.area_unit ?? "")}
+                </td>
+
+                <td>${escapeHTML(pond.average_depth ?? "-")}</td>
+
+                <td>${escapeHTML(pond.water_square ?? "-")}</td>
+
+                <td>
+                    <span class="badge ${
+                        isActive ? "active-badge":"inactive-badge"
+                    }">
+                        ${isActive ? "Active":"Inactive"}
+                    </span>
+                </td>
+
+                <td>
+                    <button
+                        class="action-btn edit-btn"
+                        onclick="editPond('${pond.id}')">
+                        Edit
+                    </button>
+
+                    <button
+                        class="action-btn status-btn"
+                        onclick="toggleStatus('${pond.id}')">
+                        ${isActive ? "Deactivate":"Activate"}
+                    </button>
+                </td>
+
+            </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+/* ================= OPEN MODAL ================= */
+
+function openModal(){
+
+    editingPond = false;
+
+    document.getElementById("pondForm").reset();
+
+    document.getElementById("pondId").value = "";
+
+    document.getElementById("modalTitle").textContent =
+        "Add New Pond";
+
+    document.getElementById("saveBtn").textContent =
+        "Save Pond";
+
+    document.getElementById("pondModal").style.display =
+        "flex";
+
+}
+
+
+/* ================= CLOSE MODAL ================= */
+
+function closeModal(){
+
+    document.getElementById("pondModal").style.display =
+        "none";
+
+}
+
+
+/* ================= EDIT POND ================= */
+
+function editPond(id){
+
+    const pond = pondList.find(item=>item.id===id);
+
+    if(!pond)return;
+
+    editingPond = true;
+
+    document.getElementById("pondId").value = pond.id;
+
+    document.getElementById("pondCode").value =
+        pond.pond_code ?? "";
+
+    document.getElementById("pondName").value =
+        pond.pond_name ?? "";
+
+    document.getElementById("pondArea").value =
+        pond.area ?? "";
+
+    document.getElementById("areaUnit").value =
+        pond.area_unit ?? "Decimal";
+
+    document.getElementById("averageDepth").value =
+        pond.average_depth ?? "";
+
+    document.getElementById("waterSquare").value =
+        pond.water_square ?? "";
+
+    document.getElementById("pondStatus").value =
+        String(pond.status).toLowerCase() === "inactive"
+        ? "inactive":"active";
+
+    document.getElementById("pondNotes").value =
+        pond.notes ?? "";
+
+    document.getElementById("modalTitle").textContent =
+        "Edit Pond";
+
+    document.getElementById("saveBtn").textContent =
+        "Update Pond";
+
+    document.getElementById("pondModal").style.display =
+        "flex";
+
+}
+
+
+/* ================= SAVE POND ================= */
+
+document.getElementById("pondForm").addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+        if(!currentFarm || !currentUser){
+
+            showMessage("Farm information is not available.","error");
+            return;
+
+        }
+
+        const saveBtn = document.getElementById("saveBtn");
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+
+        try{
+
+            const pondData = {
+
+                farm_id:currentFarm.id,
+
+                pond_code:
+                    document.getElementById("pondCode").value.trim(),
+
+                pond_name:
+                    document.getElementById("pondName").value.trim(),
+
+                area:
+                    Number(document.getElementById("pondArea").value),
+
+                area_unit:
+                    document.getElementById("areaUnit").value,
+
+                average_depth:
+                    document.getElementById("averageDepth").value
+                    ? Number(document.getElementById("averageDepth").value)
+                    : null,
+
+                water_square:
+                    document.getElementById("waterSquare").value
+                    ? Number(document.getElementById("waterSquare").value)
+                    : null,
+
+                status:
+                    document.getElementById("pondStatus").value,
+
+                notes:
+                    document.getElementById("pondNotes").value.trim()
+
+            };
+
+
+            let result;
+
+            if(editingPond){
+
+                const pondId =
+                    document.getElementById("pondId").value;
+
+                result = await supabaseClient
+                    .from("ponds")
+                    .update(pondData)
+                    .eq("id",pondId)
+                    .eq("farm_id",currentFarm.id);
+
+            }else{
+
+                result = await supabaseClient
+                    .from("ponds")
+                    .insert(pondData);
+
+            }
+
+
+            if(result.error){
+
+                throw result.error;
+
+            }
+
+            closeModal();
+
+            showMessage(
+                editingPond
+                ? "Pond updated successfully."
+                : "New pond added successfully."
+            );
+
+            await loadPonds();
+
+        }catch(error){
+
+            console.error(error);
+
+            showMessage(
+                "Save failed: "+error.message,
+                "error"
+            );
+
+        }finally{
+
+            saveBtn.disabled = false;
+
+            saveBtn.textContent =
+                editingPond ? "Update Pond":"Save Pond";
+
+        }
+
+    }
+);
+
+
+/* ================= CHANGE POND STATUS ================= */
+
+async function toggleStatus(id){
+
+    const pond = pondList.find(item=>item.id===id);
+
+    if(!pond)return;
+
+    const isActive =
+        String(pond.status).toLowerCase() === "active";
+
+    const newStatus = isActive ? "inactive":"active";
+
+    const confirmAction = confirm(
+        `Are you sure you want to ${
+            isActive ? "deactivate":"activate"
+        } this pond?`
+    );
+
+    if(!confirmAction)return;
+
+    const {error} = await supabaseClient
+        .from("ponds")
+        .update({status:newStatus})
+        .eq("id",id)
+        .eq("farm_id",currentFarm.id);
+
+    if(error){
+
+        console.error(error);
+
+        showMessage(
+            "Status update failed: "+error.message,
+            "error"
+        );
+
+        return;
+
+    }
+
+    showMessage("Pond status updated successfully.");
+
+    await loadPonds();
+
+}
+
+
+/* ================= CHANGE FARM ================= */
+
+function changeFarm(){
+
+    window.location.href = "farmselection.html";
+
+}
+
+
+/* ================= LOGOUT ================= */
+
+async function logout(){
+
+    const {error} = await supabaseClient.auth.signOut();
+
+    localStorage.removeItem("aquafarm_active_farm_id");
+    localStorage.removeItem("aquafarm_active_farm_name");
+    localStorage.removeItem("aquafarm_active_farm_role");
+
+    window.location.replace("index.html");
+
+}
+
+
+/* ================= START ================= */
+
+initializePage();
+
+</script>
+
+</body>
+</html>
