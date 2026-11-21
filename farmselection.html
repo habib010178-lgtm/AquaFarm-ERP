@@ -1,128 +1,147 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AquaFarm ERP - Login</title>
+<title>AquaFarm ERP - Select Farm</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
 }
 
-body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #064e3b, #059669, #34d399);
-    padding: 20px;
+body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#064e3b,#059669,#34d399);
+    padding:20px;
 }
 
-.login-container {
-    width: 100%;
-    max-width: 420px;
-    background: white;
-    padding: 35px 30px;
-    border-radius: 18px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.2);
+.container{
+    width:100%;
+    max-width:430px;
+    background:white;
+    padding:35px 30px;
+    border-radius:18px;
+    box-shadow:0 15px 45px rgba(0,0,0,.2);
 }
 
-.logo {
-    text-align: center;
-    margin-bottom: 25px;
+.logo{
+    text-align:center;
+    margin-bottom:25px;
 }
 
-.logo-icon {
-    font-size: 48px;
+.logo-icon{
+    font-size:45px;
 }
 
-.logo h1 {
-    color: #047857;
-    font-size: 28px;
-    margin-top: 8px;
+.logo h1{
+    color:#047857;
+    font-size:27px;
+    margin-top:8px;
 }
 
-.logo p {
-    color: #64748b;
-    font-size: 13px;
-    margin-top: 7px;
+.logo p{
+    color:#64748b;
+    font-size:12px;
+    margin-top:7px;
 }
 
-h2 {
-    text-align: center;
-    color: #1e293b;
-    margin-bottom: 25px;
-    font-size: 21px;
+h2{
+    text-align:center;
+    color:#1e293b;
+    font-size:21px;
+    margin-bottom:12px;
 }
 
-label {
-    display: block;
-    color: #334155;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 8px;
+.description{
+    text-align:center;
+    color:#64748b;
+    font-size:14px;
+    line-height:1.6;
+    margin-bottom:25px;
 }
 
-input {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    margin-bottom: 18px;
-    font-size: 15px;
-    outline: none;
+label{
+    display:block;
+    color:#334155;
+    font-size:14px;
+    font-weight:bold;
+    margin-bottom:9px;
 }
 
-input:focus {
-    border-color: #059669;
+select{
+    width:100%;
+    padding:14px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    background:white;
+    font-size:15px;
+    margin-bottom:20px;
+    outline:none;
 }
 
-button {
-    width: 100%;
-    padding: 14px;
-    background: #059669;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
+select:focus{
+    border-color:#059669;
 }
 
-button:hover {
-    background: #047857;
+button{
+    width:100%;
+    padding:14px;
+    background:#059669;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+button:hover{
+    background:#047857;
 }
 
-#message {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 14px;
-    line-height: 1.6;
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
 }
 
-.footer {
-    text-align: center;
-    color: #94a3b8;
-    font-size: 12px;
-    margin-top: 25px;
+#message{
+    margin-top:17px;
+    text-align:center;
+    font-size:14px;
+    line-height:1.6;
+}
+
+.logout{
+    margin-top:12px;
+    background:#e2e8f0;
+    color:#334155;
+}
+
+.logout:hover{
+    background:#cbd5e1;
+}
+
+.footer{
+    text-align:center;
+    color:#94a3b8;
+    font-size:12px;
+    margin-top:25px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="login-container">
+<div class="container">
 
     <div class="logo">
         <div class="logo-icon">🐟</div>
@@ -130,33 +149,32 @@ button:disabled {
         <p>Fish Farming Management & Accounting System</p>
     </div>
 
-    <h2>Admin Login</h2>
+    <h2>Select Your Farm</h2>
 
-    <form id="loginForm">
+    <p class="description">
+        Please select the farm you want to manage.
+        All dashboard modules will operate under your selected farm.
+    </p>
 
-        <label>Email Address</label>
-        <input
-            type="email"
-            id="email"
-            placeholder="Enter your email"
-            required
-        >
+    <form id="farmForm">
 
-        <label>Password</label>
-        <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-            required
-        >
+        <label for="farmSelect">Choose Your Farm</label>
 
-        <button type="submit" id="loginBtn">
-            Login to AquaFarm
+        <select id="farmSelect" required disabled>
+            <option value="">Loading your farms...</option>
+        </select>
+
+        <button type="submit" id="continueBtn" disabled>
+            Continue to Dashboard
         </button>
 
     </form>
 
     <div id="message"></div>
+
+    <button type="button" class="logout" id="logoutBtn">
+        Logout
+    </button>
 
     <div class="footer">
         © 2026 AquaFarm ERP. All Rights Reserved.
@@ -166,72 +184,273 @@ button:disabled {
 
 <script>
 
-// =================================
 // SUPABASE CONFIGURATION
-// =================================
 
-const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const SUPABASE_URL =
+"https://qjutiprfupdgyvblzvlc.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
-// =================================
-// LOGIN SYSTEM
-// =================================
 
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
+// GLOBAL VARIABLES
+
+let farmList = [];
+let membershipsList = [];
+let currentUserId = null;
+
+
+// MESSAGE
+
+function showMessage(message,color="#64748b"){
+
+    const box = document.getElementById("message");
+
+    box.style.color = color;
+    box.textContent = message;
+
+}
+
+
+// LOAD AUTHORIZED FARMS
+
+async function initializeFarmSelection(){
+
+    const farmSelect = document.getElementById("farmSelect");
+    const continueBtn = document.getElementById("continueBtn");
+
+    try{
+
+        showMessage("Checking your login...");
+
+        const {data,error} =
+            await supabaseClient.auth.getSession();
+
+        if(error) throw error;
+
+        if(!data.session){
+
+            window.location.replace("index.html");
+            return;
+
+        }
+
+        currentUserId = data.session.user.id;
+
+
+        // Load active memberships
+
+        const {data:memberships,error:memberError} =
+            await supabaseClient
+
+            .from("farm_members")
+
+            .select("farm_id,role")
+
+            .eq("user_id",currentUserId)
+
+            .eq("status","active");
+
+        if(memberError) throw memberError;
+
+        membershipsList = memberships || [];
+
+        const farmIds = membershipsList.map(
+            item => item.farm_id
+        );
+
+        if(!farmIds.length){
+
+            throw new Error(
+                "No active farm membership found."
+            );
+
+        }
+
+
+        // Load active farms
+
+        const {data:farms,error:farmError} =
+            await supabaseClient
+
+            .from("farms")
+
+            .select("id,farm_code,farm_name,status")
+
+            .in("id",farmIds)
+
+            .eq("status","active")
+
+            .order("created_at",{ascending:true});
+
+        if(farmError) throw farmError;
+
+        farmList = farms || [];
+
+        if(!farmList.length){
+
+            throw new Error("No active farm found.");
+
+        }
+
+
+        // Populate dropdown
+
+        farmSelect.innerHTML =
+            '<option value="">-- Select Your Farm --</option>';
+
+        farmList.forEach(farm => {
+
+            const option = document.createElement("option");
+
+            option.value = farm.id;
+            option.textContent = farm.farm_name;
+
+            farmSelect.appendChild(option);
+
+        });
+
+        farmSelect.disabled = false;
+        continueBtn.disabled = false;
+
+        showMessage(
+            farmList.length + " authorized farm(s) found.",
+            "#059669"
+        );
+
+    }catch(error){
+
+        console.error("Farm Selection Error:",error);
+
+        farmSelect.innerHTML =
+            '<option value="">Unable to load farms</option>';
+
+        farmSelect.disabled = true;
+        continueBtn.disabled = true;
+
+        showMessage(error.message,"#dc2626");
+
+    }
+
+}
+
+
+// SELECT FARM
+
+document.getElementById("farmForm")
+.addEventListener("submit",function(e){
 
     e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+    const selectedFarmId =
+        document.getElementById("farmSelect").value;
 
-    const button = document.getElementById("loginBtn");
-    const message = document.getElementById("message");
+    if(!selectedFarmId){
+
+        showMessage(
+            "Please select a farm first.",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+    const selectedFarm = farmList.find(
+        farm => farm.id === selectedFarmId
+    );
+
+    if(!selectedFarm){
+
+        showMessage(
+            "Invalid farm selection.",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+    const membership = membershipsList.find(
+        item => item.farm_id === selectedFarmId
+    );
+
+    if(!membership){
+
+        showMessage(
+            "Farm membership verification failed.",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+    // Save selected farm
+
+    localStorage.setItem(
+        "aquafarm_active_farm_id",
+        selectedFarm.id
+    );
+
+    localStorage.setItem(
+        "aquafarm_active_farm_name",
+        selectedFarm.farm_name
+    );
+
+    localStorage.setItem(
+        "aquafarm_active_farm_role",
+        membership.role
+    );
+
+    const button = document.getElementById("continueBtn");
 
     button.disabled = true;
-    button.innerText = "Logging in...";
-    message.style.color = "#64748b";
-    message.innerText = "Please wait...";
+    button.textContent = "Opening Dashboard...";
 
-    try {
+    window.location.replace("dashboard.html");
 
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+});
 
-        if (error) {
-            throw error;
-        }
 
-        message.style.color = "#059669";
-        message.innerHTML = `
-            <strong>Login Successful!</strong><br>
-            Welcome to AquaFarm ERP.
-        `;
+// LOGOUT
 
-        button.innerText = "Login Successful";
+document.getElementById("logoutBtn")
+.addEventListener("click",async function(){
 
-console.log("Logged in user:", data.user);
+    this.disabled = true;
+    this.textContent = "Logging out...";
 
-// Redirect to Dashboard
-window.location.replace(
-    new URL("./farmselection.html", window.location.href).href
-);    } catch (error) {
+    try{
 
-        message.style.color = "#dc2626";
-        message.innerText = error.message;
+        await supabaseClient.auth.signOut();
 
-        button.disabled = false;
-        button.innerText = "Login to AquaFarm";
+        localStorage.removeItem("aquafarm_active_farm_id");
+        localStorage.removeItem("aquafarm_active_farm_name");
+        localStorage.removeItem("aquafarm_active_farm_role");
+
+        window.location.replace("index.html");
+
+    }catch(error){
+
+        showMessage(error.message,"#dc2626");
+
+        this.disabled = false;
+        this.textContent = "Logout";
 
     }
 
 });
+
+
+// START
+
+initializeFarmSelection();
 
 </script>
 
