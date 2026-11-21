@@ -218,10 +218,10 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
 console.log("Logged in user:", data.user);
 
-// Redirect to Dashboard
+// Redirect to Farm Selection Page
 window.location.replace(
-    new URL("./dashboard.html", window.location.href).href
-);    } catch (error) {
+    new URL("./farmselection.html", window.location.href).href
+);   } catch (error) {
 
         message.style.color = "#dc2626";
         message.innerText = error.message;
