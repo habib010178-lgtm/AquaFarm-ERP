@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaFarm ERP - Fish Batch Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+    --navy:#102b46;
+    --navy2:#173d5c;
+    --green:#07966b;
+    --bg:#f3f6fa;
+    --white:#ffffff;
+    --text:#263648;
+    --muted:#718096;
+    --border:#e1e8ef;
+    --red:#dc3545;
+    --orange:#e69b27;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+header{
+    background:var(--navy);
+    color:white;
+    padding:15px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+}
+.brand h2{margin:0;font-size:21px}
+.brand small{color:#c8d7e5}
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+}
+.farm-badge{
+    background:#244b6b;
+    padding:9px 13px;
+    border-radius:7px;
+    font-size:13px;
+}
+button{
+    border:0;
+    border-radius:6px;
+    padding:10px 15px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13px;
+}
+.btn-light{background:white;color:var(--navy)}
+.btn-green{background:var(--green);color:white}
+.btn-blue{background:#24628e;color:white}
+.btn-red{background:var(--red);color:white}
+.btn-orange{background:var(--orange);color:white}
+.btn-gray{background:#e8edf2;color:#334155}
+.container{
+    max-width:1250px;
+    margin:22px auto;
+    padding:0 16px;
+}
+.page-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:20px;
+}
+.page-title h2{margin:0;color:var(--navy)}
+.page-title p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:20px;
+}
+.stat-card{
+    background:white;
+    padding:19px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 7px #102b4608;
+}
+.stat-card small{color:var(--muted);font-size:12px}
+.stat-card h2{margin:9px 0 0;color:var(--navy);font-size:27px}
+.card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+}
+.card h3{
+    margin:0 0 17px;
+    color:var(--navy);
+    font-size:17px;
+}
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+.form-group label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:7px;
+    color:#46576a;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    border:1px solid #d6dfe8;
+    border-radius:6px;
+    padding:11px;
+    font-size:13px;
+    background:white;
+    color:#263648;
+}
+.form-group textarea{min-height:75px;resize:vertical}
+.form-actions{
+    display:flex;
+    gap:9px;
+    margin-top:17px;
+    flex-wrap:wrap;
+}
+.table-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:14px;
+}
+.table-top input{
+    padding:10px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    width:260px;
+    max-width:100%;
+}
+.table-wrap{overflow-x:auto}
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:900px;
+}
+th,td{
+    padding:12px 10px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:12px;
+    white-space:nowrap;
+}
+th{
+    background:#f4f7fa;
+    color:#536579;
+    font-size:11px;
+    text-transform:uppercase;
+}
+.status{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+.status-active{background:#d9f5e9;color:#08784e}
+.status-inactive{background:#ffe1e3;color:#bd2634}
+.action-buttons{display:flex;gap:5px}
+.action-buttons button{padding:7px 9px;font-size:11px}
+.message{
+    padding:12px 14px;
+    border-radius:7px;
+    margin-bottom:15px;
+    font-size:13px;
+    display:none;
+}
+.message.success{display:block;background:#dcfce7;color:#166534}
+.message.error{display:block;background:#fee2e2;color:#991b1b}
+.message.info{display:block;background:#e0f2fe;color:#075985}
+.empty{
+    text-align:center;
+    color:var(--muted);
+    padding:30px;
+}
+.hidden{display:none!important}
+.footer{
+    text-align:center;
+    color:#8190a0;
+    font-size:11px;
+    padding:20px;
+}
+@media(max-width:800px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .form-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){
+    header{padding:13px}
+    .brand h2{font-size:18px}
+    .container{padding:0 11px;margin:15px auto}
+    .stats{gap:9px}
+    .stat-card{padding:13px}
+    .stat-card h2{font-size:22px}
+    .form-grid{grid-template-columns:1fr}
+    .card{padding:15px}
+    .page-title h2{font-size:20px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <h2>🐟 AquaFarm ERP</h2>
+        <small>Fish Farming Management System</small>
+    </div>
+
+    <div class="header-right">
+        <span class="farm-badge" id="farmBadge">Loading Farm...</span>
+        <button class="btn-light" onclick="changeFarm()">Change Farm</button>
+        <button class="btn-light" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="page-title">
+        <div>
+            <h2>Fish Batch Management</h2>
+            <p>Manage fish stocking, batches and fingerlings.</p>
+        </div>
+        <button class="btn-green" onclick="showForm()">+ Add New Fish Batch</button>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <small>Total Fish Batches</small>
+            <h2 id="totalBatches">0</h2>
+        </div>
+        <div class="stat-card">
+            <small>Active Batches</small>
+            <h2 id="activeBatches">0</h2>
+        </div>
+        <div class="stat-card">
+            <small>Inactive Batches</small>
+            <h2 id="inactiveBatches">0</h2>
+        </div>
+        <div class="stat-card">
+            <small>Total Fingerlings</small>
+            <h2 id="totalFingerlings">0</h2>
+        </div>
+    </div>
+
+    <section class="card hidden" id="batchFormSection">
+        <h3 id="formTitle">Add New Fish Batch</h3>
+
+        <form id="batchForm">
+            <input type="hidden" id="editId">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Batch Code</label>
+                    <input type="text" id="batchCode" readonly required>
+                </div>
+
+                <div class="form-group">
+                    <label>Batch Name *</label>
+                    <input type="text" id="batchName" placeholder="Example: Carp Batch 01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Pond *</label>
+                    <select id="pondId" required>
+                        <option value="">Select Pond</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fish Species *</label>
+                    <input type="text" id="fishSpecies" placeholder="Example: Rui, Catla, Tilapia" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Stocking Date *</label>
+                    <input type="date" id="stockingDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Fingerling Count *</label>
+                    <input type="number" id="fingerlingCount" min="1" step="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Average Weight (Gram)</label>
+                    <input type="number" id="averageWeight" min="0" step="0.001" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Purchase Cost</label>
+                    <input type="number" id="purchaseCost" min="0" step="0.01" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Supplier Name</label>
+                    <input type="text" id="supplierName" placeholder="Supplier name">
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="batchStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="grid-column:span 2">
+                    <label>Notes</label>
+                    <textarea id="notes" placeholder="Additional information"></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-green" id="saveButton">Save Fish Batch</button>
+                <button type="button" class="btn-gray" onclick="hideForm()">Cancel</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-top">
+            <h3 style="margin:0">Fish Batch Directory</h3>
+            <input type="search" id="searchInput" placeholder="Search batch, pond or species...">
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>SL</th>
+                        <th>Batch Code</th>
+                        <th>Batch Name</th>
+                        <th>Pond</th>
+                        <th>Fish Species</th>
+                        <th>Stocking Date</th>
+                        <th>Fingerlings</th>
+                        <th>Avg. Weight (g)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="batchTableBody">
+                    <tr><td colspan="10" class="empty">Loading batches...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+<div class="footer">AquaFarm ERP | Fish Batch Management</div>
+
+<script>
+/* =========================================
+   SUPABASE CONFIGURATION
+========================================= */
+
+const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let currentUser = null;
+let currentFarm = null;
+let currentFarmRole = null;
+let batches = [];
+let ponds = [];
+
+/* =========================================
+   PAGE INITIALIZATION
+========================================= */
+
+document.addEventListener("DOMContentLoaded", initializePage);
+
+async function initializePage(){
+
+    try{
+
+        const {data:{session},error:sessionError} =
+            await db.auth.getSession();
+
+        if(sessionError) throw sessionError;
+
+        if(!session){
+            window.location.replace("./index.html");
+            return;
+        }
+
+        currentUser = session.user;
+
+        const farmId = localStorage.getItem("aquafarm_active_farm_id");
+
+        if(!farmId){
+            window.location.replace("./farmselection.html");
+            return;
+        }
+
+        const {data:membership,error:membershipError} = await db
+            .from("farm_members")
+            .select("farm_id,role,status")
+            .eq("farm_id",farmId)
+            .eq("user_id",currentUser.id)
+            .eq("status","active")
+            .maybeSingle();
+
+        if(membershipError) throw membershipError;
+
+        if(!membership){
+            clearFarmSelection();
+            showMessage("You do not have access to this farm.","error");
+            setTimeout(()=>window.location.replace("./farmselection.html"),1500);
+            return;
+        }
+
+        currentFarmRole = membership.role;
+
+        const {data:farm,error:farmError} = await db
+            .from("farms")
+            .select("id,farm_name,farm_code,status")
+            .eq("id",farmId)
+            .eq("status","active")
+            .maybeSingle();
+
+        if(farmError) throw farmError;
+
+        if(!farm){
+            clearFarmSelection();
+            window.location.replace("./farmselection.html");
+            return;
+        }
+
+        currentFarm = farm;
+
+        document.getElementById("farmBadge").textContent =
+            "Farm: " + farm.farm_name;
+
+        await loadPonds();
+        await loadBatches();
+
+    }catch(error){
+        console.error(error);
+        showMessage("Initialization Error: "+error.message,"error");
+    }
+}
+
+/* =========================================
+   POND LIST
+========================================= */
+
+async function loadPonds(){
+
+    const {data,error} = await db
+        .from("ponds")
+        .select("id,pond_code,pond_name,status")
+        .eq("farm_id",currentFarm.id)
+        .order("pond_code",{ascending:true});
+
+    if(error) throw error;
+
+    ponds = data || [];
+
+    const select = document.getElementById("pondId");
+    select.innerHTML = '<option value="">Select Pond</option>';
+
+    ponds.forEach(pond=>{
+
+        const option = document.createElement("option");
+        option.value = pond.id;
+
+        option.textContent =
+            (pond.pond_code || "")+" - "+
+            (pond.pond_name || "")+
+            (pond.status === "inactive" ? " (Inactive)" : "");
+
+        select.appendChild(option);
+    });
+}
+
+/* =========================================
+   LOAD FISH BATCHES
+========================================= */
+
+async function loadBatches(){
+
+    const {data,error} = await db
+        .from("fish_batches")
+        .select(`
+            id,
+            farm_id,
+            pond_id,
+            batch_code,
+            batch_name,
+            fish_species,
+            stocking_date,
+            fingerling_count,
+            average_weight,
+            purchase_cost,
+            supplier_name,
+            status,
+            notes,
+            created_at,
+            updated_at
+        `)
+        .eq("farm_id",currentFarm.id)
+        .order("created_at",{ascending:true});
+
+    if(error) throw error;
+
+    batches = data || [];
+
+    renderBatches();
+    updateStatistics();
+}
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+function updateStatistics(){
+
+    const total = batches.length;
+
+    const active = batches.filter(
+        b=>String(b.status).toLowerCase()==="active"
+    ).length;
+
+    const inactive = batches.filter(
+        b=>String(b.status).toLowerCase()==="inactive"
+    ).length;
+
+    const fingerlings = batches.reduce(
+        (sum,b)=>sum+(Number(b.fingerling_count)||0),0
+    );
+
+    document.getElementById("totalBatches").textContent=total;
+    document.getElementById("activeBatches").textContent=active;
+    document.getElementById("inactiveBatches").textContent=inactive;
+
+    document.getElementById("totalFingerlings").textContent=
+        fingerlings.toLocaleString();
+}
+
+/* =========================================
+   RENDER TABLE
+========================================= */
+
+function renderBatches(){
+
+    const tbody = document.getElementById("batchTableBody");
+
+    const search = document.getElementById("searchInput")
+        .value.trim().toLowerCase();
+
+    const filtered = batches.filter(batch=>{
+
+        const pond = ponds.find(p=>p.id===batch.pond_id);
+
+        const text = [
+            batch.batch_code,
+            batch.batch_name,
+            batch.fish_species,
+            pond ? pond.pond_name : "",
+            pond ? pond.pond_code : ""
+        ].join(" ").toLowerCase();
+
+        return text.includes(search);
+    });
+
+    if(filtered.length===0){
+        tbody.innerHTML =
+            '<tr><td colspan="10" class="empty">No fish batch information found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML="";
+
+    filtered.forEach((batch,index)=>{
+
+        const pond = ponds.find(p=>p.id===batch.pond_id);
+
+        const isActive =
+            String(batch.status).toLowerCase()==="active";
+
+        const row=document.createElement("tr");
+
+        row.innerHTML=`
+            <td>${index+1}</td>
+            <td><strong>${escapeHTML(batch.batch_code)}</strong></td>
+            <td>${escapeHTML(batch.batch_name)}</td>
+            <td>${pond ? escapeHTML(pond.pond_name) : "Unknown Pond"}</td>
+            <td>${escapeHTML(batch.fish_species)}</td>
+            <td>${formatDate(batch.stocking_date)}</td>
+            <td>${Number(batch.fingerling_count||0).toLocaleString()}</td>
+            <td>${Number(batch.average_weight||0).toLocaleString()}</td>
+            <td>
+                <span class="status ${isActive?"status-active":"status-inactive"}">
+                    ${isActive?"Active":"Inactive"}
+                </span>
+            </td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-blue" onclick="editBatch('${batch.id}')">Edit</button>
+                    <button class="${isActive?"btn-red":"btn-green"}"
+                        onclick="toggleBatchStatus('${batch.id}')">
+                        ${isActive?"Deactivate":"Activate"}
+                    </button>
+                </div>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+/* =========================================
+   GENERATE BATCH CODE
+========================================= */
+
+function generateBatchCode(){
+
+    let maxNumber=0;
+
+    batches.forEach(batch=>{
+
+        const code=String(batch.batch_code||"");
+        const match=code.match(/(\d+)$/);
+
+        if(match){
+            maxNumber=Math.max(maxNumber,Number(match[1]));
+        }
+    });
+
+    return "BATCH-"+String(maxNumber+1).padStart(3,"0");
+}
+
+/* =========================================
+   ADD FORM
+========================================= */
+
+async function showForm(){
+
+    document.getElementById("batchForm").reset();
+
+    document.getElementById("editId").value="";
+    document.getElementById("formTitle").textContent="Add New Fish Batch";
+    document.getElementById("saveButton").textContent="Save Fish Batch";
+
+    document.getElementById("batchCode").value=generateBatchCode();
+
+    document.getElementById("batchStatus").value="active";
+    document.getElementById("averageWeight").value="0";
+    document.getElementById("purchaseCost").value="0";
+
+    document.getElementById("stockingDate").value=
+        new Date().toISOString().slice(0,10);
+
+    document.getElementById("batchFormSection").classList.remove("hidden");
+
+    document.getElementById("batchFormSection")
+        .scrollIntoView({behavior:"smooth"});
+}
+
+function hideForm(){
+    document.getElementById("batchFormSection").classList.add("hidden");
+}
+
+/* =========================================
+   SAVE / UPDATE
+========================================= */
+
+document.getElementById("batchForm").addEventListener(
+    "submit",async function(event){
+
+    event.preventDefault();
+
+    if(!currentFarm || !currentUser){
+        showMessage("Farm session not found. Please login again.","error");
+        return;
+    }
+
+    const editId=document.getElementById("editId").value;
+
+    const fingerlingCount=Number(
+        document.getElementById("fingerlingCount").value
+    );
+
+    const averageWeight=Number(
+        document.getElementById("averageWeight").value||0
+    );
+
+    const purchaseCost=Number(
+        document.getElementById("purchaseCost").value||0
+    );
+
+    if(fingerlingCount<=0 || !Number.isInteger(fingerlingCount)){
+        showMessage("Please enter a valid fingerling count.","error");
+        return;
+    }
+
+    if(averageWeight<0 || purchaseCost<0){
+        showMessage("Weight and purchase cost cannot be negative.","error");
+        return;
+    }
+
+    const payload={
+
+        farm_id:currentFarm.id,
+
+        pond_id:document.getElementById("pondId").value,
+
+        batch_code:document.getElementById("batchCode").value.trim(),
+
+        batch_name:document.getElementById("batchName").value.trim(),
+
+        fish_species:document.getElementById("fishSpecies").value.trim(),
+
+        stocking_date:document.getElementById("stockingDate").value,
+
+        fingerling_count:fingerlingCount,
+
+        average_weight:averageWeight,
+
+        purchase_cost:purchaseCost,
+
+        supplier_name:document.getElementById("supplierName").value.trim() || null,
+
+        status:document.getElementById("batchStatus").value,
+
+        notes:document.getElementById("notes").value.trim() || null,
+
+        updated_at:new Date().toISOString()
+    };
+
+    if(!payload.pond_id || !payload.batch_name || !payload.fish_species){
+        showMessage("Please complete all required fields.","error");
+        return;
+    }
+
+    const saveButton=document.getElementById("saveButton");
+    saveButton.disabled=true;
+    saveButton.textContent="Saving...";
+
+    try{
+
+        let result;
+
+        if(editId){
+
+            result=await db
+                .from("fish_batches")
+                .update(payload)
+                .eq("id",editId)
+                .eq("farm_id",currentFarm.id)
+                .select();
+
+        }else{
+
+            result=await db
+                .from("fish_batches")
+                .insert([payload])
+                .select();
+        }
+
+        if(result.error) throw result.error;
+
+        if(!result.data || result.data.length===0){
+            throw new Error("No record was returned. Check your farm permissions.");
+        }
+
+        hideForm();
+
+        showMessage(
+            editId
+                ? "Fish batch updated successfully."
+                : "New fish batch saved successfully.",
+            "success"
+        );
+
+        await loadBatches();
+
+    }catch(error){
+
+        console.error(error);
+        showMessage("Save Error: "+error.message,"error");
+
+    }finally{
+
+        saveButton.disabled=false;
+        saveButton.textContent="Save Fish Batch";
+    }
+
+});
+
+/* =========================================
+   EDIT BATCH
+========================================= */
+
+function editBatch(id){
+
+    const batch=batches.find(b=>b.id===id);
+
+    if(!batch){
+        showMessage("Fish batch not found.","error");
+        return;
+    }
+
+    document.getElementById("editId").value=batch.id;
+    document.getElementById("batchCode").value=batch.batch_code||"";
+    document.getElementById("batchName").value=batch.batch_name||"";
+    document.getElementById("pondId").value=batch.pond_id||"";
+    document.getElementById("fishSpecies").value=batch.fish_species||"";
+    document.getElementById("stockingDate").value=batch.stocking_date||"";
+    document.getElementById("fingerlingCount").value=batch.fingerling_count||0;
+    document.getElementById("averageWeight").value=batch.average_weight||0;
+    document.getElementById("purchaseCost").value=batch.purchase_cost||0;
+    document.getElementById("supplierName").value=batch.supplier_name||"";
+    document.getElementById("batchStatus").value=batch.status||"active";
+    document.getElementById("notes").value=batch.notes||"";
+
+    document.getElementById("formTitle").textContent="Edit Fish Batch";
+    document.getElementById("saveButton").textContent="Update Fish Batch";
+
+    document.getElementById("batchFormSection").classList.remove("hidden");
+
+    document.getElementById("batchFormSection")
+        .scrollIntoView({behavior:"smooth"});
+}
+
+/* =========================================
+   ACTIVATE / DEACTIVATE
+========================================= */
+
+async function toggleBatchStatus(id){
+
+    const batch=batches.find(b=>b.id===id);
+
+    if(!batch) return;
+
+    const isActive=String(batch.status).toLowerCase()==="active";
+
+    const newStatus=isActive?"inactive":"active";
+
+    const action=isActive?"Deactivate":"Activate";
+
+    if(!confirm("Are you sure you want to "+action.toLowerCase()+" this fish batch?")){
+        return;
+    }
+
+    try{
+
+        const {data,error}=await db
+            .from("fish_batches")
+            .update({
+                status:newStatus,
+                updated_at:new Date().toISOString()
+            })
+            .eq("id",id)
+            .eq("farm_id",currentFarm.id)
+            .select();
+
+        if(error) throw error;
+
+        if(!data || data.length===0){
+            throw new Error("Status update was not confirmed.");
+        }
+
+        showMessage(
+            "Fish batch "+newStatus+" successfully.",
+            "success"
+        );
+
+        await loadBatches();
+
+    }catch(error){
+
+        console.error(error);
+        showMessage("Status Error: "+error.message,"error");
+    }
+}
+
+/* =========================================
+   UTILITIES
+========================================= */
+
+function formatDate(date){
+
+    if(!date) return "-";
+
+    const parts=String(date).split("-");
+
+    if(parts.length!==3) return date;
+
+    return parts[2]+"/"+parts[1]+"/"+parts[0];
+}
+
+function escapeHTML(value){
+
+    return String(value??"").replace(/[&<>"']/g,char=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+    }[char]));
+}
+
+function showMessage(message,type){
+
+    const box=document.getElementById("message");
+
+    box.textContent=message;
+    box.className="message "+type;
+
+    window.scrollTo({top:0,behavior:"smooth"});
+
+    setTimeout(()=>{
+        box.className="message";
+    },6000);
+}
+
+document.getElementById("searchInput").addEventListener(
+    "input",renderBatches
+);
+
+/* =========================================
+   FARM CHANGE / LOGOUT
+========================================= */
+
+function clearFarmSelection(){
+
+    localStorage.removeItem("aquafarm_active_farm_id");
+    localStorage.removeItem("aquafarm_active_farm_name");
+    localStorage.removeItem("aquafarm_active_farm_role");
+}
+
+function changeFarm(){
+
+    window.location.href="./farmselection.html";
+}
+
+async function logout(){
+
+    if(!confirm("Are you sure you want to logout?")) return;
+
+    try{
+
+        await db.auth.signOut();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    clearFarmSelection();
+
+    window.location.replace("./index.html");
+}
+</script>
+
+</body>
+</html>
