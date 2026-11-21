@@ -21,6 +21,8 @@ body{
     min-height:100vh;
     background:#f1f5f9;
     color:#1e293b;
+    display:flex;
+    flex-direction:column;
 }
 
 /* HEADER */
@@ -28,7 +30,7 @@ body{
 .header{
     background:#0f172a;
     color:white;
-    padding:18px 5%;
+    padding:13px 5%;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -38,52 +40,74 @@ body{
 .brand{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:10px;
 }
 
 .brand-icon{
-    font-size:36px;
+    font-size:31px;
 }
 
 .brand h2{
-    font-size:23px;
-    letter-spacing:.5px;
+    font-size:21px;
+    letter-spacing:.4px;
 }
 
 .brand p{
-    font-size:11px;
+    font-size:10px;
     color:#cbd5e1;
-    margin-top:4px;
+    margin-top:3px;
+}
+
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
 
 .login-status{
     background:#064e3b;
     color:#a7f3d0;
-    padding:9px 16px;
+    padding:8px 13px;
     border-radius:25px;
-    font-size:13px;
+    font-size:12px;
     font-weight:bold;
+}
+
+.logout-btn{
+    background:transparent;
+    border:1px solid #64748b;
+    color:white;
+    padding:8px 13px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.logout-btn:hover{
+    background:#334155;
 }
 
 /* MAIN */
 
 .main{
+    width:100%;
     max-width:1200px;
-    margin:auto;
-    padding:55px 20px;
+    margin:0 auto;
+    padding:23px 20px 10px;
+    flex:1;
 }
 
 /* WELCOME */
 
 .welcome{
     text-align:center;
-    margin-bottom:45px;
+    margin-bottom:19px;
 }
 
 .welcome h1{
     color:#0f172a;
-    font-size:34px;
-    margin-bottom:12px;
+    font-size:27px;
+    margin-bottom:6px;
 }
 
 .welcome h1 span{
@@ -92,64 +116,66 @@ body{
 
 .welcome p{
     color:#64748b;
-    font-size:16px;
-    line-height:1.7;
+    font-size:13px;
+    line-height:1.5;
 }
 
 /* FARM SELECTION */
 
 .selection-wrapper{
-    max-width:720px;
+    max-width:650px;
     margin:0 auto;
     background:white;
-    border-radius:15px;
-    padding:40px;
+    border-radius:14px;
+    padding:22px 32px;
     box-shadow:0 5px 25px rgba(15,23,42,.08);
     border:1px solid #e2e8f0;
 }
 
 .selection-heading{
     text-align:center;
-    margin-bottom:30px;
-}
-
-.selection-heading .icon{
-    font-size:48px;
     margin-bottom:15px;
 }
 
+.selection-heading .icon{
+    font-size:34px;
+    margin-bottom:5px;
+}
+
 .selection-heading h2{
-    font-size:25px;
+    font-size:22px;
     color:#0f172a;
-    margin-bottom:10px;
+    margin-bottom:6px;
 }
 
 .selection-heading p{
     color:#64748b;
-    font-size:14px;
-    line-height:1.7;
+    font-size:12px;
+    line-height:1.5;
 }
 
+/* FORM */
+
 .form-group{
-    margin-bottom:25px;
+    margin-bottom:15px;
 }
 
 .form-group label{
     display:block;
-    font-size:15px;
+    font-size:14px;
     font-weight:bold;
-    margin-bottom:12px;
+    margin-bottom:8px;
     color:#334155;
 }
 
 select{
     width:100%;
-    padding:16px;
+    padding:13px;
     border:1px solid #cbd5e1;
     border-radius:8px;
     background:#f8fafc;
     color:#1e293b;
-    font-size:16px;
+    font-size:15px;
     outline:none;
     cursor:pointer;
 }
@@ -160,16 +186,16 @@ select:focus{
     box-shadow:0 0 0 3px rgba(5,150,105,.1);
 }
 
-/* BUTTON */
+/* CONTINUE BUTTON */
 
 .continue-btn{
     width:100%;
-    padding:16px;
+    padding:14px;
     background:#059669;
     color:white;
     border:none;
     border-radius:8px;
-    font-size:16px;
+    font-size:15px;
     font-weight:bold;
     cursor:pointer;
     transition:.2s;
@@ -188,89 +214,180 @@ select:focus{
 
 #message{
     text-align:center;
-    margin-top:20px;
-    font-size:14px;
-    line-height:1.6;
+    margin-top:12px;
+    font-size:12px;
+    line-height:1.5;
 }
 
-/* INFO */
+/* INFORMATION */
 
 .info-box{
-    max-width:720px;
-    margin:30px auto 0;
+    max-width:650px;
+    margin:13px auto 0;
     background:#ecfdf5;
     border:1px solid #a7f3d0;
-    border-radius:10px;
-    padding:18px 22px;
+    border-radius:9px;
+    padding:11px 16px;
     color:#065f46;
-    font-size:13px;
-    line-height:1.7;
+    font-size:11px;
+    line-height:1.5;
 }
 
 /* FOOTER */
 
 .footer{
-    margin-top:60px;
-    padding:22px;
+    margin-top:20px;
+    padding:13px;
     text-align:center;
     background:#0f172a;
     color:#94a3b8;
-    font-size:13px;
+    font-size:11px;
 }
 
-/* LOGOUT */
-
-.logout-btn{
-    background:transparent;
-    border:1px solid #64748b;
-    color:white;
-    padding:9px 15px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:13px;
-}
-
-.logout-btn:hover{
-    background:#334155;
-}
+/* MOBILE RESPONSIVE */
 
 @media(max-width:600px){
 
     .header{
-        padding:15px;
+        padding:11px 12px;
     }
 
-    .brand h2{
-        font-size:18px;
+    .brand{
+        gap:7px;
     }
 
     .brand-icon{
-        font-size:28px;
+        font-size:25px;
+    }
+
+    .brand h2{
+        font-size:16px;
+    }
+
+    .brand p{
+        font-size:8px;
+    }
+
+    .header-actions{
+        gap:6px;
     }
 
     .login-status{
-        font-size:11px;
-        padding:7px 10px;
+        font-size:9px;
+        padding:6px 8px;
     }
 
-    .welcome h1{
-        font-size:26px;
+    .logout-btn{
+        font-size:10px;
+        padding:6px 8px;
     }
 
     .main{
-        padding:35px 15px;
+        padding:17px 12px 8px;
+    }
+
+    .welcome{
+        margin-bottom:14px;
+    }
+
+    .welcome h1{
+        font-size:22px;
+        margin-bottom:5px;
+    }
+
+    .welcome p{
+        font-size:11px;
     }
 
     .selection-wrapper{
-        padding:28px 20px;
+        padding:18px 16px;
+        border-radius:12px;
+    }
+
+    .selection-heading{
+        margin-bottom:12px;
+    }
+
+    .selection-heading .icon{
+        font-size:29px;
+        margin-bottom:4px;
     }
 
     .selection-heading h2{
-        font-size:22px;
+        font-size:20px;
+        margin-bottom:5px;
+    }
+
+    .selection-heading p{
+        font-size:11px;
+    }
+
+    .form-group{
+        margin-bottom:12px;
+    }
+
+    .form-group label{
+        font-size:13px;
+        margin-bottom:7px;
+    }
+
+    select{
+        padding:11px;
+        font-size:14px;
+    }
+
+    .continue-btn{
+        padding:12px;
+        font-size:14px;
+    }
+
+    #message{
+        margin-top:9px;
+        font-size:11px;
+    }
+
+    .info-box{
+        margin-top:10px;
+        padding:9px 11px;
+        font-size:10px;
     }
 
     .footer{
-        margin-top:35px;
+        margin-top:13px;
+        padding:11px;
+        font-size:10px;
+    }
+
+}
+
+/* SHORT SCREEN */
+
+@media(max-height:700px){
+
+    .main{
+        padding-top:12px;
+    }
+
+    .welcome{
+        margin-bottom:11px;
+    }
+
+    .selection-wrapper{
+        padding-top:15px;
+        padding-bottom:15px;
+    }
+
+    .selection-heading{
+        margin-bottom:9px;
+    }
+
+    .info-box{
+        margin-top:9px;
+        padding:8px 12px;
+    }
+
+    .footer{
+        margin-top:10px;
     }
 
 }
@@ -295,7 +412,7 @@ select:focus{
 
     </div>
 
-    <div style="display:flex;align-items:center;gap:12px;">
+    <div class="header-actions">
 
         <div class="login-status">
             ✓ Login Successful
@@ -324,7 +441,7 @@ select:focus{
 
         <p>
             Manage your fish farming business efficiently
-            with our integrated management and accounting system.
+            with our integrated management system.
         </p>
 
     </section>
@@ -341,9 +458,9 @@ select:focus{
             <h2>Select Your Farm</h2>
 
             <p>
-                Please select the farm you want to manage.
-                Your dashboard and all management modules
-                will be opened for the selected farm.
+                Choose the farm you want to manage.
+                Your dashboard and all modules will operate
+                under the selected farm.
             </p>
 
         </div>
@@ -393,10 +510,8 @@ select:focus{
 
         <strong>Important:</strong>
 
-        Please select the correct farm before entering
-        the dashboard. All information, transactions,
-        inventory and reports will be displayed according
-        to your selected farm.
+        All information, transactions, inventory and reports
+        will be displayed according to your selected farm.
 
     </div>
 
