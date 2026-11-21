@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 * {
     margin: 0;
     padding: 0;
@@ -83,16 +84,46 @@ body {
 
 .topbar {
     background: white;
-    padding: 20px 25px;
+    padding: 17px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,.05);
 }
 
 .topbar h2 {
     color: #065f46;
     font-size: 21px;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selected-farm {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    padding: 9px 13px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.change-farm {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.change-farm:hover {
+    background: #1d4ed8;
 }
 
 .logout {
@@ -102,6 +133,10 @@ body {
     padding: 10px 18px;
     border-radius: 7px;
     cursor: pointer;
+}
+
+.logout:hover {
+    background: #b91c1c;
 }
 
 .content {
@@ -118,6 +153,10 @@ body {
 
 .welcome h2 {
     margin-bottom: 10px;
+}
+
+.welcome p {
+    font-size: 15px;
 }
 
 .cards {
@@ -183,35 +222,86 @@ th {
 #message {
     margin-top: 15px;
     color: #dc2626;
+    line-height: 1.6;
 }
 
+/* MOBILE */
+
 @media(max-width:900px) {
+
     .cards {
         grid-template-columns: repeat(2,1fr);
     }
+
 }
 
 @media(max-width:600px) {
+
     .layout {
         display: block;
     }
 
     .sidebar {
         width: 100%;
+        padding: 18px 12px;
+    }
+
+    .brand {
+        padding-bottom: 15px;
     }
 
     .menu {
         display: grid;
         grid-template-columns: repeat(2,1fr);
         gap: 5px;
+        margin-top: 15px;
+    }
+
+    .menu a {
+        padding: 10px;
+        font-size: 12px;
+        margin-bottom: 0;
     }
 
     .topbar {
-        padding: 15px;
+        padding: 13px;
+        flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+        font-size: 18px;
+    }
+
+    .topbar-actions {
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .selected-farm {
+        font-size: 11px;
+        padding: 7px 9px;
+    }
+
+    .change-farm,
+    .logout {
+        padding: 8px 11px;
+        font-size: 12px;
     }
 
     .content {
         padding: 15px;
+    }
+
+    .welcome {
+        padding: 20px;
+    }
+
+    .welcome h2 {
+        font-size: 19px;
+    }
+
+    .welcome p {
+        font-size: 13px;
     }
 
     .cards {
@@ -223,16 +313,33 @@ th {
         padding: 15px;
     }
 
+    .card .label {
+        font-size: 12px;
+    }
+
     .card .number {
         font-size: 23px;
     }
+
+    .section {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 450px;
+    }
+
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="layout">
+
+    <!-- SIDEBAR -->
 
     <aside class="sidebar">
 
@@ -243,37 +350,89 @@ th {
         </div>
 
         <nav class="menu">
+
             <a class="active">🏠 Dashboard</a>
+
             <a href="farmmanagement.html">🏞 Farm Management</a>
+
             <a>💧 Pond Management</a>
+
             <a>🐟 Fish Batch Management</a>
+
             <a>📈 Production & Growth</a>
+
             <a>🌾 Feed Management</a>
-            <a href="inventorymanagement.html">📦Inventory Management</a>
+
+            <a href="inventorymanagement.html">📦 Inventory Management</a>
+
             <a>🛒 Purchase Management</a>
+
             <a href="sales.html">💰 Sales Management</a>
+
             <a>💳 Income & Expense</a>
+
             <a href="cashbank.html">🏦 Cash & Bank Management</a>
+
             <a>📚 Accounting</a>
+
             <a>📊 Reports</a>
+
             <a>⚙️ Settings</a>
+
         </nav>
 
     </aside>
 
+
+    <!-- MAIN -->
+
     <main class="main">
 
+        <!-- TOPBAR -->
+
         <header class="topbar">
+
             <h2>Admin Dashboard</h2>
-            <button class="logout" onclick="logout()">Logout</button>
+
+            <div class="topbar-actions">
+
+                <div class="selected-farm" id="topFarmName">
+                    Loading Farm...
+                </div>
+
+                <button class="change-farm" onclick="changeFarm()">
+                    Change Farm
+                </button>
+
+                <button class="logout" onclick="logout()">
+                    Logout
+                </button>
+
+            </div>
+
         </header>
+
+
+        <!-- CONTENT -->
 
         <div class="content">
 
+            <!-- WELCOME -->
+
             <div class="welcome">
-                <h2 id="welcomeTitle">Welcome to AquaFarm ERP</h2>
-                <p id="farmName">Loading farm information...</p>
+
+                <h2 id="welcomeTitle">
+                    Welcome to AquaFarm ERP
+                </h2>
+
+                <p id="farmName">
+                    Loading farm information...
+                </p>
+
             </div>
+
+
+            <!-- DASHBOARD CARDS -->
 
             <div class="cards">
 
@@ -309,37 +468,54 @@ th {
 
             </div>
 
+
+            <!-- FARM INFORMATION -->
+
             <div class="section">
+
                 <h3>Farm Information</h3>
 
                 <table>
+
                     <tbody>
+
                         <tr>
                             <th>Farm Name</th>
                             <td id="infoName">-</td>
                         </tr>
+
                         <tr>
                             <th>Farm Code</th>
                             <td id="infoCode">-</td>
                         </tr>
+
                         <tr>
                             <th>Farm Status</th>
                             <td id="infoStatus">-</td>
                         </tr>
+
                         <tr>
                             <th>Login Email</th>
                             <td id="infoEmail">-</td>
                         </tr>
+
                     </tbody>
+
                 </table>
 
                 <p id="message"></p>
+
             </div>
 
+
+            <!-- FISH BATCH OVERVIEW -->
+
             <div class="section">
+
                 <h3>Fish Batch Overview</h3>
 
                 <table>
+
                     <thead>
                         <tr>
                             <th>Batch Code</th>
@@ -350,11 +526,15 @@ th {
                     </thead>
 
                     <tbody id="batchTable">
+
                         <tr>
                             <td colspan="4">Loading...</td>
                         </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
 
         </div>
@@ -363,19 +543,31 @@ th {
 
 </div>
 
+
 <script>
 
 // ===================================
 // SUPABASE CONFIGURATION
 // ===================================
 
-const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+const SUPABASE_URL =
+"https://qjutiprfupdgyvblzvlc.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
+
+
+// ===================================
+// FARM SELECTION
+// ===================================
+
+let currentFarm = null;
+
 
 // ===================================
 // DASHBOARD INITIALIZATION
@@ -387,6 +579,8 @@ async function loadDashboard() {
 
     try {
 
+        // CHECK LOGIN SESSION
+
         const { data: sessionData, error: sessionError } =
             await supabaseClient.auth.getSession();
 
@@ -395,75 +589,185 @@ async function loadDashboard() {
         const session = sessionData.session;
 
         if (!session) {
+
             window.location.replace("index.html");
             return;
+
         }
+
+
+        // LOGIN EMAIL
 
         document.getElementById("infoEmail").innerText =
             session.user.email || "-";
 
-        document.getElementById("welcomeTitle").innerText =
-            "Welcome to AquaFarm ERP";
 
-        // Load user's accessible farms
+        // GET SELECTED FARM ID
 
-        const { data: farms, error: farmError } =
+        const selectedFarmId =
+            localStorage.getItem("aquafarm_active_farm_id");
+
+        if (!selectedFarmId) {
+
+            window.location.replace("farmselection.html");
+            return;
+
+        }
+
+
+        // VERIFY FARM MEMBERSHIP
+
+        const { data: membership, error: membershipError } =
             await supabaseClient
+
+            .from("farm_members")
+
+            .select("farm_id, role")
+
+            .eq("farm_id", selectedFarmId)
+
+            .eq("user_id", session.user.id)
+
+            .eq("status", "active")
+
+            .maybeSingle();
+
+        if (membershipError) throw membershipError;
+
+        if (!membership) {
+
+            localStorage.removeItem("aquafarm_active_farm_id");
+
+            localStorage.removeItem("aquafarm_active_farm_name");
+
+            localStorage.removeItem("aquafarm_active_farm_role");
+
+            window.location.replace("farmselection.html");
+
+            return;
+
+        }
+
+
+        // LOAD SELECTED FARM
+
+        const { data: farm, error: farmError } =
+            await supabaseClient
+
             .from("farms")
+
             .select("id, farm_code, farm_name, status")
-            .order("created_at", { ascending: true });
+
+            .eq("id", selectedFarmId)
+
+            .eq("status", "active")
+
+            .maybeSingle();
 
         if (farmError) throw farmError;
 
-        if (!farms || farms.length === 0) {
-            throw new Error("No accessible farm found for this account.");
+        if (!farm) {
+
+            throw new Error(
+                "Selected farm is unavailable or inactive."
+            );
+
         }
 
-        const farm = farms[0];
-        const farmId = farm.id;
+        currentFarm = farm;
+
+
+        // DISPLAY SELECTED FARM
+
+        document.getElementById("welcomeTitle").innerText =
+            "Welcome to AquaFarm ERP";
 
         document.getElementById("farmName").innerText =
+            farm.farm_name;
+
+        document.getElementById("topFarmName").innerText =
             farm.farm_name;
 
         document.getElementById("infoName").innerText =
             farm.farm_name;
 
         document.getElementById("infoCode").innerText =
-            farm.farm_code;
+            farm.farm_code || "-";
 
         document.getElementById("infoStatus").innerText =
-            farm.status;
+            farm.status || "-";
 
-        // Load pond count
+
+        // SAVE VERIFIED FARM INFORMATION
+
+        localStorage.setItem(
+            "aquafarm_active_farm_name",
+            farm.farm_name
+        );
+
+        localStorage.setItem(
+            "aquafarm_active_farm_role",
+            membership.role
+        );
+
+
+        // ===================================
+        // LOAD POND COUNT
+        // ===================================
 
         const { count: ponds, error: pondError } =
             await supabaseClient
+
             .from("ponds")
-            .select("*", { count: "exact", head: true })
-            .eq("farm_id", farmId);
+
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+
+            .eq("farm_id", farm.id);
 
         if (pondError) throw pondError;
 
         document.getElementById("pondCount").innerText =
             ponds ?? 0;
 
-        // Load fish batches
 
-        const { data: batches, error: batchError } =
+        // ===================================
+        // LOAD FISH BATCHES
+        // ===================================
+
+        const { data: batchData, error: batchError } =
             await supabaseClient
+
             .from("fish_batches")
-            .select("batch_code, fish_species, fingerling_count, status")
-            .eq("farm_id", farmId);
+
+            .select(
+                "batch_code, fish_species, fingerling_count, status"
+            )
+
+            .eq("farm_id", farm.id);
 
         if (batchError) throw batchError;
 
+        const batches = batchData || [];
+
+
+        // ACTIVE BATCHES
+
         const activeBatches = batches.filter(
-            b => b.status === "active"
+            b => String(b.status || "").toLowerCase() === "active"
         );
 
+
+        // TOTAL FINGERLINGS
+
         const totalFish = activeBatches.reduce(
-            (sum, b) => sum + Number(b.fingerling_count || 0), 0
+            (sum, b) =>
+                sum + Number(b.fingerling_count || 0),
+            0
         );
+
 
         document.getElementById("batchCount").innerText =
             activeBatches.length;
@@ -471,7 +775,11 @@ async function loadDashboard() {
         document.getElementById("fishCount").innerText =
             totalFish.toLocaleString();
 
-        const batchTable = document.getElementById("batchTable");
+
+        // BATCH TABLE
+
+        const batchTable =
+            document.getElementById("batchTable");
 
         if (batches.length === 0) {
 
@@ -481,33 +789,57 @@ async function loadDashboard() {
         } else {
 
             batchTable.innerHTML = batches.map(b => `
+
                 <tr>
+
                     <td>${escapeHTML(b.batch_code)}</td>
+
                     <td>${escapeHTML(b.fish_species)}</td>
-                    <td>${Number(b.fingerling_count || 0).toLocaleString()}</td>
-                    <td class="status">${escapeHTML(b.status)}</td>
+
+                    <td>
+                        ${Number(b.fingerling_count || 0).toLocaleString()}
+                    </td>
+
+                    <td class="status">
+                        ${escapeHTML(b.status)}
+                    </td>
+
                 </tr>
+
             `).join("");
 
         }
 
-        // Load feed stock
 
-        const { data: stocks, error: stockError } =
+        // ===================================
+        // LOAD FEED STOCK
+        // ===================================
+
+        const { data: stockData, error: stockError } =
             await supabaseClient
+
             .from("feed_stock_balances")
+
             .select("quantity_on_hand")
-            .eq("farm_id", farmId);
+
+            .eq("farm_id", farm.id);
 
         if (stockError) throw stockError;
+
+        const stocks = stockData || [];
+
 
         const availableStocks = stocks.filter(
             s => Number(s.quantity_on_hand) > 0
         );
 
+
         const totalFeed = stocks.reduce(
-            (sum, s) => sum + Number(s.quantity_on_hand || 0), 0
+            (sum, s) =>
+                sum + Number(s.quantity_on_hand || 0),
+            0
         );
+
 
         document.getElementById("feedCount").innerText =
             availableStocks.length;
@@ -515,13 +847,23 @@ async function loadDashboard() {
         document.getElementById("feedQuantity").innerText =
             totalFeed.toLocaleString() + " KG";
 
-        // Load received purchases
+
+        // ===================================
+        // LOAD RECEIVED PURCHASES
+        // ===================================
 
         const { count: purchases, error: purchaseError } =
             await supabaseClient
+
             .from("feed_purchases")
-            .select("*", { count: "exact", head: true })
-            .eq("farm_id", farmId)
+
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+
+            .eq("farm_id", farm.id)
+
             .eq("status", "received");
 
         if (purchaseError) throw purchaseError;
@@ -529,15 +871,28 @@ async function loadDashboard() {
         document.getElementById("purchaseCount").innerText =
             purchases ?? 0;
 
+
+        // DASHBOARD SUCCESS
+
+        message.style.color = "#047857";
+
+        message.innerText =
+            "Dashboard loaded successfully for " + farm.farm_name;
+
+
     } catch (error) {
 
-        console.error(error);
+        console.error("Dashboard Error:", error);
 
-        message.innerText = "Dashboard Error: " + error.message;
+        message.style.color = "#dc2626";
+
+        message.innerText =
+            "Dashboard Error: " + error.message;
 
     }
 
 }
+
 
 // ===================================
 // HTML SAFE DISPLAY
@@ -546,16 +901,32 @@ async function loadDashboard() {
 function escapeHTML(value) {
 
     return String(value ?? "").replace(/[&<>"']/g, function(char) {
+
         return {
+
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
             '"': "&quot;",
             "'": "&#39;"
+
         }[char];
+
     });
 
 }
+
+
+// ===================================
+// CHANGE FARM
+// ===================================
+
+function changeFarm() {
+
+    window.location.href = "farmselection.html";
+
+}
+
 
 // ===================================
 // LOGOUT
@@ -563,16 +934,28 @@ function escapeHTML(value) {
 
 async function logout() {
 
-    const { error } = await supabaseClient.auth.signOut();
+    const { error } =
+        await supabaseClient.auth.signOut();
 
     if (error) {
+
         alert(error.message);
         return;
+
     }
+
+
+    localStorage.removeItem("aquafarm_active_farm_id");
+
+    localStorage.removeItem("aquafarm_active_farm_name");
+
+    localStorage.removeItem("aquafarm_active_farm_role");
+
 
     window.location.replace("index.html");
 
 }
+
 
 // ===================================
 // START
@@ -583,5 +966,4 @@ loadDashboard();
 </script>
 
 </body>
-    
 </html>
