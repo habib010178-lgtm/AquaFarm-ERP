@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaFarm ERP - Production & Growth</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --navy:#142b4a;
+    --navy2:#1d3b60;
+    --green:#15966b;
+    --bg:#f3f6fa;
+    --white:#fff;
+    --text:#243449;
+    --muted:#718096;
+    --border:#e2e8f0;
+    --red:#dc3545;
+    --orange:#e99a28;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+    width:245px;
+    background:var(--navy);
+    color:white;
+    padding:22px 14px;
+    flex-shrink:0;
+}
+.brand{
+    font-size:21px;
+    font-weight:bold;
+    padding:5px 12px 25px;
+}
+.brand small{
+    display:block;
+    font-size:11px;
+    color:#b9c9dc;
+    margin-top:5px;
+    font-weight:normal;
+}
+.nav-title{
+    font-size:10px;
+    color:#91a8c2;
+    margin:18px 12px 8px;
+    letter-spacing:1px;
+}
+.sidebar a{
+    display:block;
+    color:#dce7f4;
+    text-decoration:none;
+    padding:12px;
+    border-radius:7px;
+    margin:3px 0;
+    font-size:13px;
+}
+.sidebar a:hover,.sidebar a.active{
+    background:#29496d;
+    color:white;
+}
+.main{flex:1;min-width:0}
+.topbar{
+    background:white;
+    padding:15px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+}
+.topbar h2{margin:0;font-size:19px;color:var(--navy)}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.farm-badge{
+    background:#e8f7f1;
+    color:#08764f;
+    padding:9px 13px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+.btn{
+    border:0;
+    padding:10px 14px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:bold;
+}
+.btn-primary{background:var(--green);color:white}
+.btn-secondary{background:#e9eef5;color:var(--navy)}
+.btn-danger{background:#fde8e8;color:#b42332}
+.btn-warning{background:#fff2d9;color:#925d00}
+.content{padding:24px;max-width:1500px;margin:auto}
+.hero{
+    background:linear-gradient(120deg,#142b4a,#24577a);
+    color:white;
+    border-radius:12px;
+    padding:23px;
+    margin-bottom:20px;
+}
+.hero h1{margin:0 0 8px;font-size:24px}
+.hero p{margin:0;color:#d5e3ef;font-size:13px}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:22px;
+}
+.stat{
+    background:white;
+    padding:18px;
+    border-radius:10px;
+    border:1px solid var(--border);
+}
+.stat small{color:var(--muted);font-size:12px}
+.stat h2{margin:9px 0 0;color:var(--navy);font-size:25px}
+.tabs{
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+.tab{
+    border:1px solid var(--border);
+    background:white;
+    padding:11px 16px;
+    border-radius:7px;
+    color:var(--navy);
+    font-size:12px;
+    font-weight:bold;
+}
+.tab.active{background:var(--navy);color:white}
+.panel{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:18px;
+}
+.panel h3{margin:0 0 17px;color:var(--navy);font-size:16px}
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+.field label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:7px;
+    color:#42546a;
+}
+.field input,.field select,.field textarea{
+    width:100%;
+    padding:11px;
+    border:1px solid #d8e0e9;
+    border-radius:6px;
+    background:white;
+    outline:none;
+    font-size:13px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+    border-color:var(--green);
+}
+.field textarea{min-height:75px;resize:vertical}
+.full{grid-column:1/-1}
+.form-actions{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{
+    padding:12px 10px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:12px;
+}
+th{background:#f5f8fb;color:#52647a;white-space:nowrap}
+td{color:#334155}
+.action-btn{
+    border:0;
+    border-radius:5px;
+    padding:7px 9px;
+    font-size:11px;
+    margin:2px;
+}
+.edit-btn{background:#e8f1ff;color:#2057a0}
+.delete-btn{background:#fde8e8;color:#b42332}
+.badge{
+    display:inline-block;
+    border-radius:20px;
+    padding:5px 9px;
+    font-size:10px;
+    font-weight:bold;
+}
+.badge-green{background:#e3f7ed;color:#08764f}
+.badge-red{background:#fde8e8;color:#b42332}
+.badge-orange{background:#fff2d9;color:#925d00}
+.toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+}
+.toolbar input,.toolbar select{
+    padding:10px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    font-size:12px;
+}
+.empty{text-align:center;padding:30px;color:var(--muted)}
+.hidden{display:none!important}
+.message{
+    padding:12px;
+    border-radius:7px;
+    margin-bottom:15px;
+    font-size:12px;
+    display:none;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+.message.error{background:#fde8e8;color:#a51f2d;display:block}
+.message.success{background:#e4f7ed;color:#08764f;display:block}
+.message.info{background:#eaf2ff;color:#24539a;display:block}
+.report-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+.report-card{
+    border:1px solid var(--border);
+    padding:15px;
+    border-radius:8px;
+}
+.report-card small{color:var(--muted)}
+.report-card h3{margin:8px 0 0;font-size:22px}
+.diagnostic{
+    background:#fff8e8;
+    border:1px solid #f1dfb5;
+    color:#74551c;
+    padding:12px;
+    border-radius:7px;
+    font-size:11px;
+    line-height:1.7;
+    overflow-wrap:anywhere;
+}
+#loading{
+    padding:35px;
+    text-align:center;
+    color:var(--muted);
+}
+@media(max-width:950px){
+    .sidebar{width:205px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .form-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:650px){
+    .layout{display:block}
+    .sidebar{width:100%;padding:10px}
+    .brand{padding:8px;font-size:18px}
+    .sidebar nav{
+        display:flex;
+        overflow-x:auto;
+        gap:5px;
+    }
+    .nav-title{display:none}
+    .sidebar a{white-space:nowrap;padding:10px;font-size:11px}
+    .topbar{padding:13px}
+    .topbar h2{font-size:16px}
+    .content{padding:13px}
+    .hero{padding:18px}
+    .hero h1{font-size:20px}
+    .stats{gap:9px}
+    .stat{padding:13px}
+    .stat h2{font-size:21px}
+    .form-grid{grid-template-columns:1fr}
+    .report-grid{grid-template-columns:repeat(2,1fr)}
+    .panel{padding:14px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">Loading AquaFarm ERP...</div>
+
+<div class="layout hidden" id="app">
+
+<aside class="sidebar">
+    <div class="brand">
+        AquaFarm ERP
+        <small>Fish Farming Management</small>
+    </div>
+
+    <div class="nav-title">MAIN MENU</div>
+    <nav>
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="farmmanagement.html">🏞 Farm Management</a>
+        <a href="pondmanagement.html">🐟 Pond Management</a>
+        <a href="fishbatchmanagement.html">🐠 Fish Batch Management</a>
+        <a href="productiongrowth.html" class="active">📈 Production & Growth</a>
+    </nav>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+    <h2>Production & Growth</h2>
+    <div class="top-actions">
+        <span class="farm-badge" id="farmName">Loading Farm...</span>
+        <button class="btn btn-secondary" onclick="changeFarm()">Change Farm</button>
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="content">
+
+    <div class="hero">
+        <h1>Production & Growth Management</h1>
+        <p>Monitor fish growth, mortality, harvesting and production reports.</p>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="stats">
+        <div class="stat">
+            <small>Active Fish Batches</small>
+            <h2 id="statBatches">0</h2>
+        </div>
+        <div class="stat">
+            <small>Total Stocked Fish</small>
+            <h2 id="statStocked">0</h2>
+        </div>
+        <div class="stat">
+            <small>Total Mortality</small>
+            <h2 id="statMortality">0</h2>
+        </div>
+        <div class="stat">
+            <small>Remaining Fish</small>
+            <h2 id="statRemaining">0</h2>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="growth" onclick="showTab('growth')">📈 Growth Monitoring</button>
+        <button class="tab" data-tab="mortality" onclick="showTab('mortality')">🐟 Fish Mortality</button>
+        <button class="tab" data-tab="harvest" onclick="showTab('harvest')">🧺 Harvest Management</button>
+        <button class="tab" data-tab="reports" onclick="showTab('reports')">📊 Production Reports</button>
+    </div>
+
+    <!-- GROWTH -->
+
+    <section id="tab-growth">
+
+        <div class="panel">
+            <h3 id="growthFormTitle">Add Growth Record</h3>
+
+            <form id="growthForm">
+                <input type="hidden" id="growthId">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Fish Batch *</label>
+                        <select id="growthBatch" required></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Record Date *</label>
+                        <input type="date" id="growthDate" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Sample Size (Fish) *</label>
+                        <input type="number" id="growthSample" min="1" step="1" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Average Weight (Gram) *</label>
+                        <input type="number" id="growthWeight" min="0.01" step="0.01" required>
+                    </div>
+
+                    <div class="field full">
+                        <label>Notes</label>
+                        <textarea id="growthNotes" placeholder="Additional information..."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="growthSave">Save Growth Record</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetGrowthForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h3>Growth History</h3>
+            <div class="toolbar">
+                <input id="growthSearch" placeholder="Search batch..." oninput="renderGrowth()">
+                <select id="growthFilter" onchange="renderGrowth()">
+                    <option value="">All Batches</option>
+                </select>
+            </div>
+            <div class="table-wrap" id="growthTable"></div>
+        </div>
+
+    </section>
+
+    <!-- MORTALITY -->
+
+    <section id="tab-mortality" class="hidden">
+
+        <div class="panel">
+            <h3 id="mortalityFormTitle">Add Mortality Record</h3>
+
+            <form id="mortalityForm">
+                <input type="hidden" id="mortalityId">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Fish Batch *</label>
+                        <select id="mortalityBatch" required></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Mortality Date *</label>
+                        <input type="date" id="mortalityDate" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Number of Dead Fish *</label>
+                        <input type="number" id="mortalityQuantity" min="1" step="1" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Cause</label>
+                        <select id="mortalityCause">
+                            <option value="">Select Cause</option>
+                            <option>Disease</option>
+                            <option>Low Oxygen</option>
+                            <option>Water Quality</option>
+                            <option>Weather</option>
+                            <option>Predator</option>
+                            <option>Handling Stress</option>
+                            <option>Unknown</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Remaining Fish Before Entry</label>
+                        <input id="mortalityAvailable" readonly>
+                    </div>
+
+                    <div class="field full">
+                        <label>Notes</label>
+                        <textarea id="mortalityNotes"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="mortalitySave">Save Mortality</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetMortalityForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h3>Mortality History</h3>
+            <div class="toolbar">
+                <input id="mortalitySearch" placeholder="Search batch..." oninput="renderMortality()">
+            </div>
+            <div class="table-wrap" id="mortalityTable"></div>
+        </div>
+
+    </section>
+
+    <!-- HARVEST -->
+
+    <section id="tab-harvest" class="hidden">
+
+        <div class="panel">
+            <h3 id="harvestFormTitle">Add Harvest Record</h3>
+
+            <form id="harvestForm">
+                <input type="hidden" id="harvestId">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Fish Batch *</label>
+                        <select id="harvestBatch" required></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Harvest Date *</label>
+                        <input type="date" id="harvestDate" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Harvest Type *</label>
+                        <select id="harvestType" required>
+                            <option value="partial">Partial Harvest</option>
+                            <option value="final">Final Harvest</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Number of Fish *</label>
+                        <input type="number" id="harvestCount" min="1" step="1" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Total Weight (KG) *</label>
+                        <input type="number" id="harvestWeight" min="0.01" step="0.01" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Price Per KG</label>
+                        <input type="number" id="harvestPrice" min="0" step="0.01">
+                    </div>
+
+                    <div class="field">
+                        <label>Remaining Fish Before Harvest</label>
+                        <input id="harvestAvailable" readonly>
+                    </div>
+
+                    <div class="field full">
+                        <label>Notes</label>
+                        <textarea id="harvestNotes"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="harvestSave">Save Harvest</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetHarvestForm()">Reset</button>
+                </div>
+
+                <p style="font-size:11px;color:#718096;margin-top:12px">
+                    Final Harvest must include all remaining fish. After Final Harvest,
+                    further Mortality or Harvest entries are not allowed for that batch.
+                </p>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h3>Harvest History</h3>
+            <div class="toolbar">
+                <input id="harvestSearch" placeholder="Search batch..." oninput="renderHarvest()">
+            </div>
+            <div class="table-wrap" id="harvestTable"></div>
+        </div>
+
+    </section>
+
+    <!-- REPORTS -->
+
+    <section id="tab-reports" class="hidden">
+
+        <div class="panel">
+            <h3>Overall Production Summary</h3>
+            <div class="report-grid">
+                <div class="report-card">
+                    <small>Total Stocked Fish</small>
+                    <h3 id="reportStocked">0</h3>
+                </div>
+                <div class="report-card">
+                    <small>Total Mortality</small>
+                    <h3 id="reportMortality">0</h3>
+                </div>
+                <div class="report-card">
+                    <small>Total Harvested Fish</small>
+                    <h3 id="reportHarvested">0</h3>
+                </div>
+                <div class="report-card">
+                    <small>Remaining Live Fish</small>
+                    <h3 id="reportRemaining">0</h3>
+                </div>
+                <div class="report-card">
+                    <small>Total Harvest Weight (KG)</small>
+                    <h3 id="reportWeight">0.00</h3>
+                </div>
+                <div class="report-card">
+                    <small>Total Harvest Sales (৳)</small>
+                    <h3 id="reportSales">0.00</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Batch-wise Production Report</h3>
+            <div class="table-wrap" id="reportTable"></div>
+        </div>
+
+    </section>
+
+    <div class="panel">
+        <h3>System Information</h3>
+        <div class="diagnostic" id="diagnostic">
+            Waiting for database initialization...
+        </div>
+    </div>
+
+</div>
+</main>
+</div>
+
+<script>
+/* =====================================================
+   SUPABASE CONFIGURATION
+===================================================== */
+
+const SUPABASE_URL = "https://qjutiprfupdgyvblzvlc.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_1l7snNDxYv9llPiiaSPEuw_pRerlZv1";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
+let currentUser = null;
+let currentFarm = null;
+let currentRole = "";
+
+let batches = [];
+let growthRecords = [];
+let mortalityRecords = [];
+let harvestRecords = [];
+
+const $ = id => document.getElementById(id);
+
+const today = new Date().toLocaleDateString("en-CA", {
+    timeZone:"Asia/Dhaka"
+});
+
+function number(value){
+    return Number(value || 0);
+}
+
+function escapeHTML(value){
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+    })[ch]);
+}
+
+function formatNumber(value){
+    return number(value).toLocaleString("en-US", {
+        maximumFractionDigits:2
+    });
+}
+
+function showMessage(text,type="success"){
+    const box=$("message");
+    box.className="message "+type;
+    box.textContent=text;
+    box.style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function clearMessage(){
+    $("message").style.display="none";
+}
+
+function setDiagnostic(text){
+    $("diagnostic").textContent=text;
+}
+
+function showError(context,error){
+    const details = error?.message || String(error);
+    const full = context + ": " + details;
+
+    console.error(full,error);
+    setDiagnostic(full);
+    showMessage(full,"error");
+}
+
+function getBatchName(id){
+    const batch=batches.find(b=>b.id===id);
+    return batch ? batch.batch_code+" - "+batch.batch_name : "Unknown Batch";
+}
+
+function canWrite(){
+    return ["admin","manager","technician"].includes(currentRole);
+}
+
+function canDelete(){
+    return currentRole==="admin";
+}
+
+/* =====================================================
+   AUTHENTICATION & FARM VALIDATION
+===================================================== */
+
+async function initialize(){
+
+    try{
+
+        const {data:{session},error:sessionError} =
+            await supabaseClient.auth.getSession();
+
+        if(sessionError) throw sessionError;
+
+        if(!session){
+            window.location.replace("index.html");
+            return;
+        }
+
+        currentUser=session.user;
+
+        const farmId=localStorage.getItem("aquafarm_active_farm_id");
+
+        if(!farmId){
+            window.location.replace("farmselection.html");
+            return;
+        }
+
+        const {data:membership,error:memberError} =
+            await supabaseClient
+            .from("farm_members")
+            .select("farm_id,user_id,role,status")
+            .eq("farm_id",farmId)
+            .eq("user_id",currentUser.id)
+            .eq("status","active")
+            .maybeSingle();
+
+        if(memberError) throw memberError;
+
+        if(!membership){
+            localStorage.removeItem("aquafarm_active_farm_id");
+            localStorage.removeItem("aquafarm_active_farm_name");
+            localStorage.removeItem("aquafarm_active_farm_role");
+
+            window.location.replace("farmselection.html");
+            return;
+        }
+
+        currentRole=String(membership.role || "").toLowerCase();
+
+        const {data:farm,error:farmError} =
+            await supabaseClient
+            .from("farms")
+            .select("id,farm_code,farm_name,status")
+            .eq("id",farmId)
+            .eq("status","active")
+            .maybeSingle();
+
+        if(farmError) throw farmError;
+
+        if(!farm){
+            throw new Error("Selected Farm is not active or does not exist.");
+        }
+
+        currentFarm=farm;
+
+        $("farmName").textContent=farm.farm_name;
+
+        if(!canWrite()){
+            $("growthForm").classList.add("hidden");
+            $("mortalityForm").classList.add("hidden");
+            $("harvestForm").classList.add("hidden");
+        }
+
+        $("loading").classList.add("hidden");
+        $("app").classList.remove("hidden");
+
+        await loadAllData();
+
+    }catch(error){
+
+        console.error(error);
+
+        $("loading").textContent=
+            "Initialization Error: "+(error.message || error);
+
+    }
+}
+
+/* =====================================================
+   LOAD DATABASE DATA
+===================================================== */
+
+async function loadAllData(){
+
+    clearMessage();
+
+    try{
+
+        setDiagnostic("Loading Fish Batches...");
+
+        const {data:batchData,error:batchError} =
+            await supabaseClient
+            .from("fish_batches")
+            .select(`
+                id,
+                farm_id,
+                pond_id,
+                batch_code,
+                batch_name,
+                fish_species,
+                stocking_date,
+                fingerling_count,
+                average_weight_g,
+                purchase_cost,
+                supplier_name,
+                status
+            `)
+            .eq("farm_id",currentFarm.id)
+            .order("created_at",{ascending:false});
+
+        if(batchError) throw batchError;
+
+        batches=batchData || [];
+
+        const {data:growthData,error:growthError} =
+            await supabaseClient
+            .from("fish_growth_records")
+            .select("*")
+            .eq("farm_id",currentFarm.id)
+            .order("record_date",{ascending:false});
+
+        if(growthError) throw growthError;
+
+        growthRecords=growthData || [];
+
+        const {data:mortalityData,error:mortalityError} =
+            await supabaseClient
+            .from("fish_mortality_records")
+            .select("*")
+            .eq("farm_id",currentFarm.id)
+            .order("mortality_date",{ascending:false});
+
+        if(mortalityError) throw mortalityError;
+
+        mortalityRecords=mortalityData || [];
+
+        const {data:harvestData,error:harvestError} =
+            await supabaseClient
+            .from("fish_harvest_records")
+            .select("*")
+            .eq("farm_id",currentFarm.id)
+            .order("harvest_date",{ascending:false});
+
+        if(harvestError) throw harvestError;
+
+        harvestRecords=harvestData || [];
+
+        populateBatchOptions();
+        renderAll();
+
+        setDiagnostic(
+            "Database connected successfully.\n"+
+            "Farm: "+currentFarm.farm_name+"\n"+
+            "Farm ID: "+currentFarm.id+"\n"+
+            "Fish Batches: "+batches.length+"\n"+
+            "Growth Records: "+growthRecords.length+"\n"+
+            "Mortality Records: "+mortalityRecords.length+"\n"+
+            "Harvest Records: "+harvestRecords.length+"\n"+
+            "Role: "+currentRole
+        );
+
+    }catch(error){
+        showError("Data Loading Error",error);
+    }
+}
+
+/* =====================================================
+   BATCH OPTIONS
+===================================================== */
+
+function populateBatchOptions(){
+
+    const selects=[
+        "growthBatch",
+        "mortalityBatch",
+        "harvestBatch"
+    ];
+
+    selects.forEach(id=>{
+
+        const select=$(id);
+        const oldValue=select.value;
+
+        select.innerHTML='<option value="">Select Fish Batch</option>';
+
+        batches.forEach(batch=>{
+
+            const option=document.createElement("option");
+
+            option.value=batch.id;
+
+            option.textContent=
+                batch.batch_code+" - "+batch.batch_name+
+                " ("+batch.status+")";
+
+            select.appendChild(option);
+
+        });
+
+        if(oldValue) select.value=oldValue;
+
+    });
+
+    const filter=$("growthFilter");
+
+    filter.innerHTML='<option value="">All Batches</option>';
+
+    batches.forEach(batch=>{
+
+        const option=document.createElement("option");
+        option.value=batch.id;
+        option.textContent=batch.batch_code+" - "+batch.batch_name;
+        filter.appendChild(option);
+
+    });
+
+}
+
+/* =====================================================
+   POPULATION CALCULATION
+===================================================== */
+
+function getPopulation(batchId,excludeType="",excludeId=""){
+
+    const batch=batches.find(b=>b.id===batchId);
+
+    if(!batch){
+        return {
+            stocked:0,
+            mortality:0,
+            harvested:0,
+            remaining:0
+        };
+    }
+
+    const stocked=number(batch.fingerling_count);
+
+    const mortality=mortalityRecords
+        .filter(r=>
+            r.fish_batch_id===batchId &&
+            !(excludeType==="mortality" && r.id===excludeId)
+        )
+        .reduce((sum,r)=>sum+number(r.quantity),0);
+
+    const harvested=harvestRecords
+        .filter(r=>
+            r.fish_batch_id===batchId &&
+            !(excludeType==="harvest" && r.id===excludeId)
+        )
+        .reduce((sum,r)=>sum+number(r.fish_count),0);
+
+    return {
+        stocked,
+        mortality,
+        harvested,
+        remaining:stocked-mortality-harvested
+    };
+}
+
+function hasFinalHarvest(batchId,excludeId=""){
+
+    return harvestRecords.some(r=>
+        r.fish_batch_id===batchId &&
+        r.harvest_type==="final" &&
+        r.id!==excludeId
+    );
+
+}
+
+/* =====================================================
+   RENDER ALL SECTIONS
+===================================================== */
+
+function renderAll(){
+    renderGrowth();
+    renderMortality();
+    renderHarvest();
+    renderReports();
+    updateDashboardStats();
+}
+
+function updateDashboardStats(){
+
+    const activeBatches=batches.filter(b=>b.status==="active");
+
+    let stocked=0;
+    let mortality=0;
+    let harvested=0;
+    let remaining=0;
+
+    batches.forEach(batch=>{
+
+        const p=getPopulation(batch.id);
+
+        stocked+=p.stocked;
+        mortality+=p.mortality;
+        harvested+=p.harvested;
+        remaining+=p.remaining;
+
+    });
+
+    $("statBatches").textContent=formatNumber(activeBatches.length);
+    $("statStocked").textContent=formatNumber(stocked);
+    $("statMortality").textContent=formatNumber(mortality);
+    $("statRemaining").textContent=formatNumber(remaining);
+
+}
+
+/* =====================================================
+   TABS
+===================================================== */
+
+function showTab(name){
+
+    ["growth","mortality","harvest","reports"].forEach(tab=>{
+
+        $("tab-"+tab).classList.toggle("hidden",tab!==name);
+
+        document.querySelectorAll(".tab").forEach(button=>{
+            button.classList.toggle(
+                "active",
+                button.dataset.tab===name
+            );
+        });
+
+    });
+
+    clearMessage();
+
+}
+
+/* =====================================================
+   GROWTH MONITORING
+===================================================== */
+
+function renderGrowth(){
+
+    const search=$("growthSearch").value.toLowerCase();
+    const filter=$("growthFilter").value;
+
+    const records=growthRecords.filter(r=>{
+
+        const batch=getBatchName(r.fish_batch_id).toLowerCase();
+
+        return batch.includes(search) &&
+            (!filter || r.fish_batch_id===filter);
+
+    });
+
+    if(!records.length){
+        $("growthTable").innerHTML='<div class="empty">No Growth Records Found</div>';
+        return;
+    }
+
+    let html=`
+    <table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Fish Batch</th>
+        <th>Sample Size</th>
+        <th>Average Weight</th>
+        <th>Notes</th>
+        <th>Actions</th>
+    </tr>
+    </thead><tbody>`;
+
+    records.forEach(r=>{
+
+        html+=`
+        <tr>
+            <td>${escapeHTML(r.record_date)}</td>
+            <td>${escapeHTML(getBatchName(r.fish_batch_id))}</td>
+            <td>${formatNumber(r.sample_size)}</td>
+            <td>${formatNumber(r.average_weight_g)} g</td>
+            <td>${escapeHTML(r.notes || "-")}</td>
+            <td>${actionButtons("growth",r.id)}</td>
+        </tr>`;
+
+    });
+
+    html+="</tbody></table>";
+
+    $("growthTable").innerHTML=html;
+
+}
+
+function resetGrowthForm(){
+
+    $("growthForm").reset();
+    $("growthId").value="";
+    $("growthDate").value=today;
+    $("growthFormTitle").textContent="Add Growth Record";
+    $("growthSave").textContent="Save Growth Record";
+
+}
+
+$("growthForm").addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    if(!canWrite()) return showMessage("You do not have permission.","error");
+
+    try{
+
+        const id=$("growthId").value;
+        const batchId=$("growthBatch").value;
+
+        const sample=Number($("growthSample").value);
+        const weight=Number($("growthWeight").value);
+
+        if(!batchId) throw new Error("Please select a Fish Batch.");
+
+        if(!Number.isInteger(sample) || sample<=0)
+            throw new Error("Sample Size must be a positive whole number.");
+
+        if(weight<=0 || !Number.isFinite(weight))
+            throw new Error("Average Weight must be greater than zero.");
+
+        const batch=batches.find(b=>b.id===batchId);
+
+        if(!batch) throw new Error("Fish Batch not found.");
+
+        if(!id && batch.status!=="active")
+            throw new Error("New Growth Records can only be added to active batches.");
+
+        const payload={
+            farm_id:currentFarm.id,
+            fish_batch_id:batchId,
+            record_date:$("growthDate").value,
+            sample_size:sample,
+            average_weight_g:weight,
+            notes:$("growthNotes").value.trim() || null,
+            updated_at:new Date().toISOString()
+        };
+
+        let result;
+
+        if(id){
+
+            result=await supabaseClient
+                .from("fish_growth_records")
+                .update(payload)
+                .eq("id",id)
+                .eq("farm_id",currentFarm.id);
+
+        }else{
+
+            payload.created_by=currentUser.id;
+
+            result=await supabaseClient
+                .from("fish_growth_records")
+                .insert(payload);
+
+        }
+
+        if(result.error) throw result.error;
+
+        showMessage(id?"Growth Record Updated Successfully.":"Growth Record Added Successfully.");
+
+        resetGrowthForm();
+        await loadAllData();
+
+    }catch(error){
+        showError("Growth Save Error",error);
+    }
+
+});
+
+/* =====================================================
+   MORTALITY
+===================================================== */
+
+function updateMortalityAvailable(){
+
+    const batchId=$("mortalityBatch").value;
+    const id=$("mortalityId").value;
+
+    if(!batchId){
+        $("mortalityAvailable").value="";
+        return;
+    }
+
+    const p=getPopulation(
+        batchId,
+        id?"mortality":"",
+        id
+    );
+
+    $("mortalityAvailable").value=formatNumber(p.remaining);
+
+}
+
+function renderMortality(){
+
+    const search=$("mortalitySearch").value.toLowerCase();
+
+    const records=mortalityRecords.filter(r=>
+        getBatchName(r.fish_batch_id).toLowerCase().includes(search)
+    );
+
+    if(!records.length){
+        $("mortalityTable").innerHTML='<div class="empty">No Mortality Records Found</div>';
+        return;
+    }
+
+    let html=`
+    <table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Fish Batch</th>
+        <th>Quantity</th>
+        <th>Cause</th>
+        <th>Notes</th>
+        <th>Actions</th>
+    </tr>
+    </thead><tbody>`;
+
+    records.forEach(r=>{
+
+        html+=`
+        <tr>
+            <td>${escapeHTML(r.mortality_date)}</td>
+            <td>${escapeHTML(getBatchName(r.fish_batch_id))}</td>
+            <td>${formatNumber(r.quantity)}</td>
+            <td>${escapeHTML(r.cause || "-")}</td>
+            <td>${escapeHTML(r.notes || "-")}</td>
+            <td>${actionButtons("mortality",r.id)}</td>
+        </tr>`;
+
+    });
+
+    html+="</tbody></table>";
+
+    $("mortalityTable").innerHTML=html;
+
+}
+
+function resetMortalityForm(){
+
+    $("mortalityForm").reset();
+    $("mortalityId").value="";
+    $("mortalityDate").value=today;
+    $("mortalityAvailable").value="";
+    $("mortalityFormTitle").textContent="Add Mortality Record";
+    $("mortalitySave").textContent="Save Mortality";
+
+}
+
+$("mortalityBatch").addEventListener("change",updateMortalityAvailable);
+
+$("mortalityForm").addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    if(!canWrite()) return showMessage("You do not have permission.","error");
+
+    try{
+
+        const id=$("mortalityId").value;
+        const batchId=$("mortalityBatch").value;
+        const quantity=Number($("mortalityQuantity").value);
+
+        if(!batchId) throw new Error("Please select a Fish Batch.");
+
+        if(!Number.isInteger(quantity) || quantity<=0)
+            throw new Error("Mortality Quantity must be a positive whole number.");
+
+        const batch=batches.find(b=>b.id===batchId);
+
+        if(!batch) throw new Error("Fish Batch not found.");
+
+        if(!id && batch.status!=="active")
+            throw new Error("New Mortality Records can only be added to active batches.");
+
+        const population=getPopulation(
+            batchId,
+            id?"mortality":"",
+            id
+        );
+
+        if(hasFinalHarvest(batchId))
+            throw new Error("Final Harvest already completed for this batch.");
+
+        if(quantity>population.remaining)
+            throw new Error("Mortality exceeds remaining fish. Available: "+population.remaining);
+
+        const payload={
+            farm_id:currentFarm.id,
+            fish_batch_id:batchId,
+            mortality_date:$("mortalityDate").value,
+            quantity,
+            cause:$("mortalityCause").value || null,
+            notes:$("mortalityNotes").value.trim() || null,
+            updated_at:new Date().toISOString()
+        };
+
+        let result;
+
+        if(id){
+
+            result=await supabaseClient
+                .from("fish_mortality_records")
+                .update(payload)
+                .eq("id",id)
+                .eq("farm_id",currentFarm.id);
+
+        }else{
+
+            payload.created_by=currentUser.id;
+
+            result=await supabaseClient
+                .from("fish_mortality_records")
+                .insert(payload);
+
+        }
+
+        if(result.error) throw result.error;
+
+        showMessage(id?"Mortality Record Updated Successfully.":"Mortality Record Added Successfully.");
+
+        resetMortalityForm();
+        await loadAllData();
+
+    }catch(error){
+        showError("Mortality Save Error",error);
+    }
+
+});
+
+/* =====================================================
+   HARVEST
+===================================================== */
+
+function updateHarvestAvailable(){
+
+    const batchId=$("harvestBatch").value;
+    const id=$("harvestId").value;
+
+    if(!batchId){
+        $("harvestAvailable").value="";
+        return;
+    }
+
+    const p=getPopulation(
+        batchId,
+        id?"harvest":"",
+        id
+    );
+
+    $("harvestAvailable").value=formatNumber(p.remaining);
+
+    if($("harvestType").value==="final"){
+        $("harvestCount").value=Math.max(0,p.remaining);
+    }
+
+}
+
+$("harvestBatch").addEventListener("change",updateHarvestAvailable);
+
+$("harvestType").addEventListener("change",updateHarvestAvailable);
+
+function renderHarvest(){
+
+    const search=$("harvestSearch").value.toLowerCase();
+
+    const records=harvestRecords.filter(r=>
+        getBatchName(r.fish_batch_id).toLowerCase().includes(search)
+    );
+
+    if(!records.length){
+        $("harvestTable").innerHTML='<div class="empty">No Harvest Records Found</div>';
+        return;
+    }
+
+    let html=`
+    <table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Fish Batch</th>
+        <th>Type</th>
+        <th>Fish Count</th>
+        <th>Total Weight</th>
+        <th>Price/KG</th>
+        <th>Gross Amount</th>
+        <th>Actions</th>
+    </tr>
+    </thead><tbody>`;
+
+    records.forEach(r=>{
+
+        const badge=r.harvest_type==="final"
+            ?'<span class="badge badge-orange">FINAL</span>'
+            :'<span class="badge badge-green">PARTIAL</span>';
+
+        html+=`
+        <tr>
+            <td>${escapeHTML(r.harvest_date)}</td>
+            <td>${escapeHTML(getBatchName(r.fish_batch_id))}</td>
+            <td>${badge}</td>
+            <td>${formatNumber(r.fish_count)}</td>
+            <td>${formatNumber(r.total_weight_kg)} KG</td>
+            <td>${r.price_per_kg===null?"-":formatNumber(r.price_per_kg)}</td>
+            <td>${r.gross_amount===null?"-":formatNumber(r.gross_amount)}</td>
+            <td>${actionButtons("harvest",r.id)}</td>
+        </tr>`;
+
+    });
+
+    html+="</tbody></table>";
+
+    $("harvestTable").innerHTML=html;
+
+}
+
+function resetHarvestForm(){
+
+    $("harvestForm").reset();
+    $("harvestId").value="";
+    $("harvestDate").value=today;
+    $("harvestType").value="partial";
+    $("harvestAvailable").value="";
+    $("harvestFormTitle").textContent="Add Harvest Record";
+    $("harvestSave").textContent="Save Harvest";
+
+}
+
+$("harvestForm").addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    if(!canWrite()) return showMessage("You do not have permission.","error");
+
+    try{
+
+        const id=$("harvestId").value;
+        const batchId=$("harvestBatch").value;
+        const type=$("harvestType").value;
+
+        const fishCount=Number($("harvestCount").value);
+        const totalWeight=Number($("harvestWeight").value);
+
+        const priceValue=$("harvestPrice").value;
+        const price=priceValue===""?null:Number(priceValue);
+
+        if(!batchId) throw new Error("Please select a Fish Batch.");
+
+        if(!Number.isInteger(fishCount) || fishCount<=0)
+            throw new Error("Fish Count must be a positive whole number.");
+
+        if(totalWeight<=0 || !Number.isFinite(totalWeight))
+            throw new Error("Total Weight must be greater than zero.");
+
+        if(price!==null && (!Number.isFinite(price) || price<0))
+            throw new Error("Price Per KG cannot be negative.");
+
+        if(!["partial","final"].includes(type))
+            throw new Error("Invalid Harvest Type.");
+
+        const batch=batches.find(b=>b.id===batchId);
+
+        if(!batch) throw new Error("Fish Batch not found.");
+
+        if(!id && batch.status!=="active")
+            throw new Error("New Harvest Records can only be added to active batches.");
+
+        const population=getPopulation(
+            batchId,
+            id?"harvest":"",
+            id
+        );
+
+        if(hasFinalHarvest(batchId,id))
+            throw new Error("Final Harvest already recorded for this batch.");
+
+        if(fishCount>population.remaining)
+            throw new Error("Harvest exceeds remaining fish. Available: "+population.remaining);
+
+        if(type==="final" && fishCount!==population.remaining)
+            throw new Error("Final Harvest must include all remaining fish: "+population.remaining);
+
+        if(type==="partial" && fishCount>=population.remaining)
+            throw new Error("Use Final Harvest when harvesting all remaining fish.");
+
+        const payload={
+            farm_id:currentFarm.id,
+            fish_batch_id:batchId,
+            harvest_date:$("harvestDate").value,
+            harvest_type:type,
+            fish_count:fishCount,
+            total_weight_kg:totalWeight,
+            price_per_kg:price,
+            notes:$("harvestNotes").value.trim() || null,
+            updated_at:new Date().toISOString()
+        };
+
+        // gross_amount is generated by Supabase.
+        // Do not send gross_amount in INSERT or UPDATE.
+
+        let result;
+
+        if(id){
+
+            result=await supabaseClient
+                .from("fish_harvest_records")
+                .update(payload)
+                .eq("id",id)
+                .eq("farm_id",currentFarm.id);
+
+        }else{
+
+            payload.created_by=currentUser.id;
+
+            result=await supabaseClient
+                .from("fish_harvest_records")
+                .insert(payload);
+
+        }
+
+        if(result.error) throw result.error;
+
+        showMessage(id?"Harvest Record Updated Successfully.":"Harvest Record Added Successfully.");
+
+        resetHarvestForm();
+        await loadAllData();
+
+    }catch(error){
+        showError("Harvest Save Error",error);
+    }
+
+});
+
+/* =====================================================
+   EDIT & DELETE BUTTONS
+===================================================== */
+
+function actionButtons(type,id){
+
+    if(!canWrite()) return "-";
+
+    let html=`
+        <button class="action-btn edit-btn"
+        onclick="editRecord('${type}','${id}')">Edit</button>
+    `;
+
+    if(canDelete()){
+        html+=`
+        <button class="action-btn delete-btn"
+        onclick="deleteRecord('${type}','${id}')">Delete</button>
+        `;
+    }
+
+    return html;
+
+}
+
+function editRecord(type,id){
+
+    clearMessage();
+
+    if(!canWrite()) return;
+
+    if(type==="growth"){
+
+        const r=growthRecords.find(x=>x.id===id);
+        if(!r) return;
+
+        showTab("growth");
+
+        $("growthId").value=r.id;
+        $("growthBatch").value=r.fish_batch_id;
+        $("growthDate").value=r.record_date;
+        $("growthSample").value=r.sample_size;
+        $("growthWeight").value=r.average_weight_g;
+        $("growthNotes").value=r.notes || "";
+
+        $("growthFormTitle").textContent="Edit Growth Record";
+        $("growthSave").textContent="Update Growth Record";
+
+        $("growthForm").scrollIntoView({behavior:"smooth"});
+
+    }
+
+    if(type==="mortality"){
+
+        const r=mortalityRecords.find(x=>x.id===id);
+        if(!r) return;
+
+        showTab("mortality");
+
+        $("mortalityId").value=r.id;
+        $("mortalityBatch").value=r.fish_batch_id;
+        $("mortalityDate").value=r.mortality_date;
+        $("mortalityQuantity").value=r.quantity;
+        $("mortalityCause").value=r.cause || "";
+        $("mortalityNotes").value=r.notes || "";
+
+        $("mortalityFormTitle").textContent="Edit Mortality Record";
+        $("mortalitySave").textContent="Update Mortality";
+
+        updateMortalityAvailable();
+
+        $("mortalityForm").scrollIntoView({behavior:"smooth"});
+
+    }
+
+    if(type==="harvest"){
+
+        const r=harvestRecords.find(x=>x.id===id);
+        if(!r) return;
+
+        showTab("harvest");
+
+        $("harvestId").value=r.id;
+        $("harvestBatch").value=r.fish_batch_id;
+        $("harvestDate").value=r.harvest_date;
+        $("harvestType").value=r.harvest_type;
+        $("harvestCount").value=r.fish_count;
+        $("harvestWeight").value=r.total_weight_kg;
+        $("harvestPrice").value=r.price_per_kg ?? "";
+        $("harvestNotes").value=r.notes || "";
+
+        $("harvestFormTitle").textContent="Edit Harvest Record";
+        $("harvestSave").textContent="Update Harvest";
+
+        updateHarvestAvailable();
+
+        $("harvestForm").scrollIntoView({behavior:"smooth"});
+
+    }
+
+}
+
+async function deleteRecord(type,id){
+
+    if(!canDelete()){
+        showMessage("Only Admin can delete records.","error");
+        return;
+    }
+
+    const tableMap={
+        growth:"fish_growth_records",
+        mortality:"fish_mortality_records",
+        harvest:"fish_harvest_records"
+    };
+
+    const table=tableMap[type];
+
+    if(!table) return;
+
+    if(!confirm("Are you sure you want to delete this record?"))
+        return;
+
+    try{
+
+        const {error}=await supabaseClient
+            .from(table)
+            .delete()
+            .eq("id",id)
+            .eq("farm_id",currentFarm.id);
+
+        if(error) throw error;
+
+        showMessage("Record Deleted Successfully.");
+
+        resetGrowthForm();
+        resetMortalityForm();
+        resetHarvestForm();
+
+        await loadAllData();
+
+    }catch(error){
+        showError("Delete Error",error);
+    }
+
+}
+
+/* =====================================================
+   REPORTS
+===================================================== */
+
+function renderReports(){
+
+    let stocked=0;
+    let mortality=0;
+    let harvested=0;
+    let remaining=0;
+    let totalWeight=0;
+    let totalSales=0;
+
+    batches.forEach(batch=>{
+
+        const p=getPopulation(batch.id);
+
+        stocked+=p.stocked;
+        mortality+=p.mortality;
+        harvested+=p.harvested;
+        remaining+=p.remaining;
+
+    });
+
+    harvestRecords.forEach(r=>{
+
+        totalWeight+=number(r.total_weight_kg);
+        totalSales+=number(r.gross_amount);
+
+    });
+
+    $("reportStocked").textContent=formatNumber(stocked);
+    $("reportMortality").textContent=formatNumber(mortality);
+    $("reportHarvested").textContent=formatNumber(harvested);
+    $("reportRemaining").textContent=formatNumber(remaining);
+    $("reportWeight").textContent=formatNumber(totalWeight);
+    $("reportSales").textContent=formatNumber(totalSales);
+
+    if(!batches.length){
+        $("reportTable").innerHTML='<div class="empty">No Fish Batches Found</div>';
+        return;
+    }
+
+    let html=`
+    <table>
+    <thead>
+    <tr>
+        <th>Batch</th>
+        <th>Species</th>
+        <th>Status</th>
+        <th>Stocked</th>
+        <th>Mortality</th>
+        <th>Harvested</th>
+        <th>Remaining</th>
+        <th>Latest Average Weight</th>
+    </tr>
+    </thead><tbody>`;
+
+    batches.forEach(batch=>{
+
+        const p=getPopulation(batch.id);
+
+        const growth=growthRecords
+            .filter(r=>r.fish_batch_id===batch.id)
+            .sort((a,b)=>b.record_date.localeCompare(a.record_date));
+
+        const latestWeight=growth.length
+            ?formatNumber(growth[0].average_weight_g)+" g"
+            :"Not Recorded";
+
+        const statusClass=batch.status==="active"
+            ?"badge-green":"badge-red";
+
+        html+=`
+        <tr>
+            <td>${escapeHTML(batch.batch_code)} - ${escapeHTML(batch.batch_name)}</td>
+            <td>${escapeHTML(batch.fish_species || "-")}</td>
+            <td><span class="badge ${statusClass}">${escapeHTML(batch.status)}</span></td>
+            <td>${formatNumber(p.stocked)}</td>
+            <td>${formatNumber(p.mortality)}</td>
+            <td>${formatNumber(p.harvested)}</td>
+            <td>${formatNumber(p.remaining)}</td>
+            <td>${latestWeight}</td>
+        </tr>`;
+
+    });
+
+    html+="</tbody></table>";
+
+    $("reportTable").innerHTML=html;
+
+}
+
+/* =====================================================
+   FARM CHANGE & LOGOUT
+===================================================== */
+
+function changeFarm(){
+    window.location.href="farmselection.html";
+}
+
+async function logout(){
+
+    if(!confirm("Are you sure you want to logout?")) return;
+
+    try{
+
+        await supabaseClient.auth.signOut();
+
+    }catch(error){
+        console.error(error);
+    }
+
+    localStorage.removeItem("aquafarm_active_farm_id");
+    localStorage.removeItem("aquafarm_active_farm_name");
+    localStorage.removeItem("aquafarm_active_farm_role");
+
+    window.location.replace("index.html");
+
+}
+
+/* =====================================================
+   INITIAL FORM VALUES
+===================================================== */
+
+resetGrowthForm();
+resetMortalityForm();
+resetHarvestForm();
+
+initialize();
+
+</script>
+
+</body>
+</html>
